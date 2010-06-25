@@ -1,7 +1,7 @@
 
-dojo.provide('zig.api');
+dojo.provide('jig.api');
 
-zig.api = {
+dojo.mixin(jig.api, {
 
   // summary:
   //    Default URL, if not given in params
@@ -12,58 +12,58 @@ zig.api = {
   //    Make API request
   //
   request: function(request, xhrOptions) {
-    console.dir(xhrOptions);
-    //console.log('making API request', request, dojo.toJson(request));
+    xhrOptions = xhrOptions || {};
     var _processReq = function(request, response, xhr) {
       var ret;
       if (request.callback) {
 	//console.log('XHR: calling callback', arguments);
 	if (response.status === 'error') {
-	  console.err('error status from API', response);
+	  console.error('error status from API', response);
 	}
 	ret = request.callback(response, xhr);
       }
       return ret;
     },
     _processResponse = function(text, xhr) {
-      console.log('ZiG API Response', xhr, text);
-      var ret = 0;
+      console.log('JiG API Response', xhr, text);
+      var ret = 0, data = null;
       try {
 	data = dojo.fromJson(text);
       }
       catch (e) {
-	console.error('ZiG  API response: invalid JSON string: ',
+	console.error('JiG  API response: invalid JSON string: ',
 	              text, xhr);
 	if (dojo.isFunction(request.transportError)) {
 	  request.transportError(text, xhr);
 	}
-	return;
+	return false;
       }
       // check if one req or many in the structure
-      if (dojo.isString(data.status)) {
+      if (dojo.isFunction(request.callback)) {
 	ret = _processReq(request, data, xhr);
       } else {
-	for (var i in data) { if (data.hasOwnProperty(i)) {
-		                ret = _processReq(request[i], data[i], xhr);
-		              }}
+	for (var i in data) {
+          if (data.hasOwnProperty(i)) {
+	    ret = _processReq(request[i], data[i], xhr);
+	  }
+        }
       }
       data.callbackStatus = ret;
       //console.log('returning', ret);
-      return;
+      return ret;
     },
     _processError = function(error, xhr) {
-      console.error('ZiG API Error: ', error, xhr);
+      console.error('JiG API Error: ', error, xhr);
     };
     if (request.module) {
       dojo.mixin(request, this.requestCommonParams);
     } else {
-      dojo.forEach(request, function(r) {
-        	     dojo.mixin(r, this.requestCommonParams);
-        	   });
+      dojo.forEach(request,
+        function(r) { dojo.mixin(r, this.requestCommonParams); });
     }
     return dojo.xhr('POST', dojo.mixin(
                       {
-                        url: xhrOptions.url || zig.io.api.url,
+                        url: xhrOptions.url || jig.api.url,
                         handleAs: 'text', //'json',
                         postData: dojo.toJson(request),
                         load: _processResponse,
@@ -71,4 +71,4 @@ zig.api = {
                       }, xhrOptions), true);
   }
 
-};
+});
