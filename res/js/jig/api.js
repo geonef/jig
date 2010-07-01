@@ -25,7 +25,7 @@ dojo.mixin(jig.api, {
       return ret;
     },
     _processResponse = function(text, xhr) {
-      console.log('JiG API Response', xhr, text);
+      //console.log('JiG API Response', xhr, text);
       var ret = 0, data = null;
       try {
 	data = dojo.fromJson(text);
