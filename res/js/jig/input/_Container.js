@@ -21,14 +21,14 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     //          overload of parent's
     //
     this.inherited(arguments);
-    var conns = this._changeConnections,
-    _this = this;
+    //var conns = this._changeConnections,
+    var self = this;
     dojo.forEach(
       dojo.filter(this.getDescendants(),
-		  function(item){ return item.validate; }),
-      function(widget){
-	conns.push(_this.connect(widget, "onChange",
-				 dojo.hitch(_this, "onChange", widget)));
+		  function(item){ return item.onChange; }),
+      function(widget) {
+	self.connect(widget, "onChange",
+            dojo.hitch(self, "onChange", widget));
       });
   },
 
@@ -40,6 +40,15 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   focus: function() {
     var widgets = this.getDescendants();
     return widgets[0].focus();
+  },
+
+  _setValueAttr: function(value) {
+    if (!value) {
+      this.getDescendants().forEach(function(w) { w.attr('value', null); });
+    } else {
+      this.inherited(arguments);
+    }
   }
+
 
 });
