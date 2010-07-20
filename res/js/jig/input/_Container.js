@@ -1,5 +1,6 @@
 dojo.provide('jig.input._Container');
 dojo.require('dijit.form._FormMixin');
+dojo.require('jig.util');
 dojo.declare('jig.input._Container', dijit.form._FormMixin,
 {
 
@@ -9,11 +10,9 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
 
   getDescendants: function() {
     //
-    // Find immediate children input widgets
-    // Because we are a container, so for the logic,
-    // we often need to interact with the children.
+    // Find first descendants having a "name" attribute.
     //
-    return dijit.findWidgets(this.domNode);
+    return jig.util.getFirstNamedDescendants(this.domNode);
   },
 
   connectChildren: function(){
