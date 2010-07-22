@@ -28,7 +28,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   // attributeMap: object
   //    Attribute map (dijit._Widget)
   attributeMap: dojo.mixin(dojo.clone(dijit._Widget.prototype.attributeMap), {
-    label: { node: 'labelNode', type: 'innerHTML' }
+    //label: { node: 'labelNode', type: 'innerHTML' }
   }),
 
   postMixInProperties: function() {
@@ -42,9 +42,10 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   },
 
   _setValueAttr: function(value) {
-    console.log('setValue mixed', this, arguments);
-    this.widgets.forEach(function(w) { w.destroy(); });
-    this.widgets = [];
+    //console.log('setValue mixed', this, value);
+    this.updatingValue = true;
+    var widgets = this.widgets.filter(function() { return true; });
+    widgets.forEach(function(w) { w.destroy(); });
     var self = this;
     if (value) {
       if (dojo.isArray(value)) {
@@ -53,6 +54,8 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
         console.warn('value is not an array:', value, 'for:', this);
       }
     }
+    this.updatingValue = false;
+    //console.log('** end setValue mixed');
   },
 
   addItem: function(item) {
@@ -72,7 +75,46 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     var Class = jig.util.getClass(className);
     var widget = new Class();
     widget.attr('value', item);
+    this.installConnectsOnWidget(widget);
     return widget;
+  },
+
+  installConnectsOnWidget: function(widget) {
+    console.log('installConnectsOnWidget', this, arguments);
+    var self = this;
+    var dc = dojo.connect;
+    var _cnt = [
+      dc(widget, 'destroy', this,
+         function() {
+           _cnt.forEach(dojo.disconnect);
+           var idx = self.widgets.indexOf(widget);
+           if (idx !== -1) {
+             console.log('removed w from list', idx, widget);
+             self.widgets.splice(idx, 1);
+           } else {
+             console.warn('widget not in list (at destroy)', widget);
+           }
+         }),
+      dc(widget, 'onChange', this,
+         function() {
+           //console.log('trigger onChange for widget', widget);
+           if (!self.updatingValue) {
+             self.onChange();
+           }
+         })
+    ];
+  },
+
+  onChange: function() {
+    // hook
+    // this is called a bit too often, because onChange events
+    // are difficult to wrap as they seem to be fired asynchronously
+    //console.log('onChange', this, arguments);
+  },
+
+  destroy: function() {
+    this.widgets.forEach(function(w) { w.destroy(); });
+    this.inherited(arguments);
   },
 
   addWidgetToUi: function(widget) {

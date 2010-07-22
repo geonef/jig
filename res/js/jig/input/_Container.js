@@ -8,6 +8,11 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   // Name of this item: required if we are a child of another _Container
   name: '',
 
+  postMixInProperties: function() {
+    this.internalValues = {};
+    this.inherited(arguments);
+  },
+
   getDescendants: function() {
     //
     // Find first descendants having a "name" attribute.
@@ -42,12 +47,34 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   },
 
   _setValueAttr: function(value) {
+    //console.log('_Container _setValueAttr', this, arguments);
     if (!value) {
+      this.internalValues = {};
       this.getDescendants().forEach(function(w) { w.attr('value', null); });
     } else {
-      this.inherited(arguments);
+      //this.inherited(arguments);
+      var map = {};
+      this.getDescendants().forEach(function(w) { map[w.name] = w; });
+      for (var i in value) {
+        if (!value.hasOwnProperty(i)) continue;
+        if (map[i]) {
+          map[i].attr('value', value[i]);
+          delete this.internalValues[i];
+        } else {
+          //console.log('missing widget', i, value[i]);
+          this.internalValues[i] = value[i];
+        }
+      }
     }
-  }
+    this.onChange();
+  },
 
+  _getValueAttr: function() {
+    //console.log('internal', this.internalValues, this);
+    var value = dojo.mixin({}, this.internalValues);
+    this.getDescendants().forEach(
+      function(w) { value[w.name] = w.attr('value'); });
+    return value;
+  }
 
 });
