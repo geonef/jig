@@ -80,7 +80,6 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   },
 
   installConnectsOnWidget: function(widget) {
-    console.log('installConnectsOnWidget', this, arguments);
     var self = this;
     var dc = dojo.connect;
     var _cnt = [
@@ -89,7 +88,6 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
            _cnt.forEach(dojo.disconnect);
            var idx = self.widgets.indexOf(widget);
            if (idx !== -1) {
-             console.log('removed w from list', idx, widget);
              self.widgets.splice(idx, 1);
            } else {
              console.warn('widget not in list (at destroy)', widget);
@@ -151,7 +149,6 @@ dojo.declare('jig.input._MixedGridCreateList',
   },
 
   processGridMember: function(member, tr) {
-    //console.log('mgc process grid member', this, arguments);
     var
       //buttonNode = dojo.create('button', {}, tr)
     //, img = dojo.create('img', { src: Class.prototype.icon }, buttonNode)

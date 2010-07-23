@@ -8,6 +8,10 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   // Name of this item: required if we are a child of another _Container
   name: '',
 
+  // arrayContainer: Boolean
+  //    If true, will return an array (in doc order) rather than a name/value object
+  arrayContainer: false,
+
   postMixInProperties: function() {
     this.internalValues = {};
     this.inherited(arguments);
@@ -53,16 +57,24 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
       this.getDescendants().forEach(function(w) { w.attr('value', null); });
     } else {
       //this.inherited(arguments);
-      var map = {};
-      this.getDescendants().forEach(function(w) { map[w.name] = w; });
-      for (var i in value) {
-        if (!value.hasOwnProperty(i)) continue;
-        if (map[i]) {
-          map[i].attr('value', value[i]);
-          delete this.internalValues[i];
-        } else {
-          //console.log('missing widget', i, value[i]);
-          this.internalValues[i] = value[i];
+      var descendants = this.getDescendants();
+      var i;
+      if (this.arrayContainer) {
+        for (i = 0; i < value.length && i < descendants.length; i++) {
+          descendants[i].attr('value', value[i]);
+        }
+      } else {
+        var map = {};
+        descendants.forEach(function(w) { map[w.name] = w; });
+        for (var i in value) {
+          if (!value.hasOwnProperty(i)) continue;
+          if (map[i]) {
+            map[i].attr('value', value[i]);
+            delete this.internalValues[i];
+          } else {
+            //console.log('missing widget', i, value[i]);
+            this.internalValues[i] = value[i];
+          }
         }
       }
     }
@@ -71,9 +83,18 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
 
   _getValueAttr: function() {
     //console.log('internal', this.internalValues, this);
-    var value = dojo.mixin({}, this.internalValues);
-    this.getDescendants().forEach(
-      function(w) { value[w.name] = w.attr('value'); });
+    var descendants = this.getDescendants();
+    var value;
+    if (this.arrayContainer) {
+      value = [];
+      for (var i = 0; i < descendants.length; i++) {
+        value.push(descendants[i].attr('value'));
+      }
+    } else {
+      value = dojo.mixin({}, this.internalValues);
+      descendants.forEach(
+        function(w) { value[w.name] = w.attr('value'); });
+    }
     return value;
   }
 
