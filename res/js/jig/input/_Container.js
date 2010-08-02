@@ -12,6 +12,10 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   //    If true, will return an array (in doc order) rather than a name/value object
   arrayContainer: false,
 
+  // syncThisAttr: Boolean
+  //    If true, any sub-value changed will call this' setter for the attr with same name as sub-value
+  //syncThisAttrs: false,
+
   postMixInProperties: function() {
     this.internalValues = {};
     this.inherited(arguments);
@@ -50,6 +54,16 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     return widgets[0].focus();
   },
 
+  setSubValue: function(name, value) {
+    var child = this.getDescendants()
+      .filter(function(ch) { return ch.name === name; })[0];
+    if (!child) {
+      console.error('setSubValue: child not defined: ', name, this);
+    }
+    child.attr('value', value);
+  },
+
+
   _setValueAttr: function(value) {
     //console.log('_Container _setValueAttr', this, arguments);
     if (!value) {
@@ -66,7 +80,7 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
       } else {
         var map = {};
         descendants.forEach(function(w) { map[w.name] = w; });
-        for (var i in value) {
+        for (i in value) {
           if (!value.hasOwnProperty(i)) continue;
           if (map[i]) {
             map[i].attr('value', value[i]);
