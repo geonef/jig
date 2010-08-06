@@ -25,7 +25,15 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     //
     // Find first descendants having a "name" attribute.
     //
-    return jig.util.getFirstNamedDescendants(this.domNode);
+    var list = [];
+    this.getInputRootNodes().map(jig.util.getFirstNamedDescendants)
+      .forEach(function(set) { set.forEach(function(n) { list.push(n); }); });
+    return list;
+    //return jig.util.getFirstNamedDescendants(this.domNode);
+  },
+
+  getInputRootNodes: function() {
+    return [ this.domNode ];
   },
 
   connectChildren: function(){
@@ -58,7 +66,8 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     var child = this.getDescendants()
       .filter(function(ch) { return ch.name === name; })[0];
     if (!child) {
-      console.error('setSubValue: child not defined: ', name, this);
+      console.error('setSubValue: child not defined: ', name, this.getDescendants(), this);
+      return;
     }
     child.attr('value', value);
   },
