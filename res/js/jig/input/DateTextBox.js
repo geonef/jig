@@ -11,16 +11,22 @@ dojo.declare('jig.input.DateTextBox', dijit.form.DateTextBox,
   //
 
   _setValueAttr: function(value) {
-    var newValue = value;
+    /*var newValue = value;
     if (!value) {
       return;
-    }
-    console.log('set date value', this, value, newValue);
+    }*/
+    //console.log('set date value', this, value);
     if (dojo.isString(value)) {
-      var _t = value.split('Z');
-      newValue = new Date(_t[0]);
+      var displayValue = value.replace(/Z/, '').replace(/-/g, '/');
+      //this.attr('displayValue', displayValue);
+      var date = new Date(displayValue);
+      //console.log('setting value', date, displayValue);
+      this.attr('value', date);
+    } else {
+      this.inherited(arguments);
     }
-    dijit.form._DateTimeTextBox.prototype._setValueAttr.call(this, newValue);
+    //this.inherited([newValue]);
+    //dijit.form._DateTimeTextBox.prototype._setValueAttr.call(this, newValue);
   }/*,
 
   _getValueAttr: function() {
