@@ -41,16 +41,39 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     //          overload of parent's
     //
     this.inherited(arguments);
+    this.updateChildren();
+  },
+
+  updateChildren: function() {
+    // need to call this to rescan children
+    // and update the "onChange" connections : remove the old ones
+    // and add the new ones
     //var conns = this._changeConnections,
     var self = this;
+    var _oldChildrenCnts = this._childrenCnts || {};
+    this._childrenCnts = {};
     dojo.forEach(
       dojo.filter(this.getDescendants(),
 		  function(item){ return item.onChange; }),
       function(widget) {
-	self.connect(widget, "onChange",
-            dojo.hitch(self, "onChange", widget));
+        if (_oldChildrenCnts.hasOwnProperty(widget.id)) {
+          self._childrenCnts[widget.id] = _oldChildrenCnts[widget.id];
+          delete _oldChildrenCnts[widget.id];
+        } else {
+          //console.log('connect', self, widget.id);
+	  self._childrenCnts[widget.id] =
+            dojo.connect(widget, "onChange", self,
+              dojo.hitch(self, "onChange", widget));
+        }
       });
+    for (var i in _oldChildrenCnts) {
+      if (_oldChildrenCnts.hasOwnProperty(i)) {
+        //console.log('disconnect', this, i);
+        dojo.disconnect(_oldChildrenCnts[i]);
+      }
+    }
   },
+
 
   onChange: function() {
     // hook
