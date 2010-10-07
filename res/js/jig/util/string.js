@@ -16,7 +16,7 @@ dojo.mixin(jig.util.string,
   summarize: function(str, maxLength) {
     if (str.length > maxLength) {
       var end = " ...";
-      str = str.substr(0, str.length - end.length) + end;
+      str = str.substr(0, maxLength - end.length) + end;
     }
     return str;
   }
