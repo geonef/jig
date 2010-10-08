@@ -1,6 +1,8 @@
 
 dojo.provide('jig.util.string');
 
+dojo.require('jig.util');
+
 dojo.mixin(jig.util.string,
 {
   lcFirst: function(str) {

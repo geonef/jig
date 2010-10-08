@@ -1,6 +1,8 @@
 
 dojo.provide('jig.util.number');
 
+dojo.require('jig.util');
+
 dojo.mixin(jig.util.number,
 {
   /*formatNumber: function(number) {
