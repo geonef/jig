@@ -1,18 +1,45 @@
 
 dojo.provide('jig.api');
 
-dojo.mixin(jig.api, {
+dojo.require('dojox.uuid.generateRandomUuid');
+
+dojo.mixin(jig.api,
+{
 
   // summary:
   //    Default URL, if not given in params
   ///
   url: '/api',
 
+  // requestCommonParams: object
+  //    Common parameters which are added automatically to every request
+  requestCommonParams: {},
+
+  // _deferredRequests: object
+  //    Parallel requests deferred to later execution
+  _deferredRequests: {},
+
   // summary:
   //    Make API request
   //
+  // xhrOptions: object for parameters to pass to dojo XHR.
+  //    Custom params are:
+  //            - defer: boolean
+  //                    if true, the request is remembered, and is executed
+  //                    the next time a request is made with a falsy defer.
+  //
   request: function(request, xhrOptions) {
     xhrOptions = xhrOptions || {};
+    var uuid = dojox.uuid.generateRandomUuid();
+    jig.api._deferredRequests[uuid] = request;
+    if (!xhrOptions.defer) {
+      var reqs = dojo.mixin({}, jig.api._deferredRequests);
+      jig.api._deferredRequests = {};
+      jig.api._doRequest(reqs, xhrOptions);
+    }
+  },
+
+  _doRequest: function(request, xhrOptions) {
     var _processReq = function(request, response, xhr) {
       var ret;
       if (request.callback) {
@@ -56,10 +83,10 @@ dojo.mixin(jig.api, {
       console.error('JiG API Error: ', error, xhr);
     };
     if (request.module) {
-      dojo.mixin(request, this.requestCommonParams);
+      dojo.mixin(request, jig.api.requestCommonParams);
     } else {
-      dojo.forEach(request,
-        function(r) { dojo.mixin(r, this.requestCommonParams); });
+      dojo.forEach(request, // forEach on object ??
+        function(r) { dojo.mixin(r, jig.api.requestCommonParams); });
     }
     return dojo.xhr('POST', dojo.mixin(
                       {
