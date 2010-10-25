@@ -12,6 +12,11 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   //    If true, will return an array (in doc order) rather than a name/value object
   arrayContainer: false,
 
+  // booleanUnion: Boolean
+  //    If true, returned value is the array of sub-widgets' names whose value is true
+  //    Implies that arrayContainer==true
+  //booleanUnion: false,
+
   // syncThisAttr: Boolean
   //    If true, any sub-value changed will call this' setter for the attr with same name as sub-value
   //syncThisAttrs: false,
@@ -132,6 +137,9 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     var descendants = this.getDescendants();
     var value;
     if (this.arrayContainer) {
+      /*if (booleanUnion) {
+
+      }*/
       value = [];
       for (var i = 0; i < descendants.length; i++) {
         value.push(descendants[i].attr('value'));

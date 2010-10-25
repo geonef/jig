@@ -15,6 +15,10 @@ dojo.mixin(jig.api,
   //    Common parameters which are added automatically to every request
   requestCommonParams: {},
 
+  // noticeTopic: string
+  //    Name of topic to publish events to. First arg is a boolean telling whether an XHR is active
+  noticeTopic: 'jig/api/request',
+
   // _deferredRequests: object
   //    Parallel requests deferred to later execution
   _deferredRequests: {},
@@ -53,6 +57,7 @@ dojo.mixin(jig.api,
     },
     _processResponse = function(text, xhr) {
       //console.log('JiG API Response', xhr, text);
+      dojo.publish('noticeTopic', [ false ]);
       var ret = 0, data = null;
       try {
 	data = dojo.fromJson(text);
@@ -80,6 +85,7 @@ dojo.mixin(jig.api,
       return ret;
     },
     _processError = function(error, xhr) {
+      dojo.publish('noticeTopic', [ false ]);
       console.error('JiG API Error: ', error, xhr);
     };
     if (request.module) {
@@ -88,6 +94,7 @@ dojo.mixin(jig.api,
       dojo.forEach(request, // forEach on object ??
         function(r) { dojo.mixin(r, jig.api.requestCommonParams); });
     }
+    dojo.publish('noticeTopic', [ true ]);
     return dojo.xhr('POST', dojo.mixin(
                       {
                         url: xhrOptions.url || jig.api.url,
