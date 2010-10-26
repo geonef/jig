@@ -44,14 +44,15 @@ dojo.mixin(jig.api,
   },
 
   _doRequest: function(request, xhrOptions) {
-    var _processReq = function(request, response, xhr) {
+    var _processResponseReq = function(request, response, xhr) {
       var ret;
       if (request.callback) {
 	//console.log('XHR: calling callback', arguments);
 	if (response.status === 'error') {
 	  console.error('error status from API', response);
 	}
-	ret = request.callback(response, xhr);
+	ret = request.callback.apply(request.scope || window,
+                                     [response, xhr]);
       }
       return ret;
     },
@@ -72,11 +73,11 @@ dojo.mixin(jig.api,
       }
       // check if one req or many in the structure
       if (dojo.isFunction(request.callback)) {
-	ret = _processReq(request, data, xhr);
+	ret = _processResponseReq(request, data, xhr);
       } else {
 	for (var i in data) {
           if (data.hasOwnProperty(i)) {
-	    ret = _processReq(request[i], data[i], xhr);
+	    ret = _processResponseReq(request[i], data[i], xhr);
 	  }
         }
       }
@@ -87,19 +88,32 @@ dojo.mixin(jig.api,
     _processError = function(error, xhr) {
       dojo.publish('noticeTopic', [ false ]);
       console.error('JiG API Error: ', error, xhr);
+    },
+    _prepareRequest = function(origRequest) {
+      var ret = dojo.mixin({}, origRequest, jig.api.requestCommonParams);
+      delete ret.scope;
+      return ret;
     };
+    var requestToSend;
     if (request.module) {
-      dojo.mixin(request, jig.api.requestCommonParams);
+      requestToSend = _prepareRequest(request);
+      //dojo.mixin(request, jig.api.requestCommonParams);
     } else {
-      dojo.forEach(request, // forEach on object ??
-        function(r) { dojo.mixin(r, jig.api.requestCommonParams); });
+      requestToSend = {};
+      for (var i in request) {
+        if (request.hasOwnProperty(i)) {
+          requestToSend[i] = _prepareRequest(request[i]);
+        }
+      }
+      //dojo.forEach(request, // forEach on object ??
+      //  function(r) { dojo.mixin(r, jig.api.requestCommonParams); });
     }
     dojo.publish('noticeTopic', [ true ]);
     return dojo.xhr('POST', dojo.mixin(
                       {
                         url: xhrOptions.url || jig.api.url,
                         handleAs: 'text', //'json',
-                        postData: dojo.toJson(request),
+                        postData: dojo.toJson(requestToSend),
                         load: _processResponse,
                         error: _processError
                       }, xhrOptions), true);

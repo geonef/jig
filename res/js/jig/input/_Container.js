@@ -101,7 +101,7 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   },
 
 
-  _setValueAttr: function(value) {
+  _setValueAttr: function(value, priorityChange) {
     //console.log('_Container _setValueAttr', this, arguments);
     if (!value) {
       this.internalValues = {};
@@ -120,7 +120,7 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
         for (i in value) {
           if (!value.hasOwnProperty(i)) continue;
           if (map[i]) {
-            map[i].attr('value', value[i]);
+            map[i].attr('value', value[i], false);
             delete this.internalValues[i];
           } else {
             //console.log('missing widget', i, value[i]);
@@ -129,7 +129,9 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
         }
       }
     }
-    this.onChange();
+    if (priorityChange || priorityChange === undefined) {
+      this.onChange();
+    }
   },
 
   _getValueAttr: function() {
