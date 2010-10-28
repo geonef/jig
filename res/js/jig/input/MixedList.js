@@ -9,6 +9,9 @@ dojo.require('dijit._Templated');
 dojo.require('dijit.form.DropDownButton');
 dojo.require('dijit.TooltipDialog');
 
+// used in code
+dojo.require('dojo.dnd.Source');
+
 dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 {
   // summary:
@@ -40,6 +43,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   buildRendering: function() {
     this.inherited(arguments);
     this.buildListNodes();
+    this.createDnd();
   },
 
   buildListNodes: function() {
@@ -52,6 +56,26 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     } else {
       throw new Error('invalid listType param: '+this.listType);
     }
+  },
+
+  createDnd: function() {
+    this.listNode.dndType = this.id;
+    this.listNode.type = this.id;
+    this.dnd = new dojo.dnd.Source(
+      this.listNode,
+      {
+        withHandles: true,
+        singular: true,
+        autoSync: true,
+        accept: this.id+'-dnd',
+        creator: dojo.hitch(this, 'dndAvatarCreator')
+      });
+    this.connect(this.dnd, 'onDrop', 'onChange');
+  },
+
+  dndAvatarCreator: function(item) {
+    var avatar = dojo.create('div', { innerHTML: "Déplacement..." });
+    return { node: avatar, data: item, type: this.id+'-dnd' };
   },
 
   _getValueAttr: function() {
@@ -72,6 +96,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
         console.warn('value is not an array:', value, 'for:', this);
       }
     }
+    this.dnd.sync();
     this.updatingValue = false;
     //console.log('** end setValue mixed');
   },
