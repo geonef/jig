@@ -24,6 +24,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   childClassPrefix: '',
   childClassSuffixProperty: 'module',
   availableModules: [],
+  listType: 'div',
 
   // attributeMap: object
   //    Attribute map (dijit._Widget)
@@ -34,6 +35,23 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   postMixInProperties: function() {
     this.inherited(arguments);
     this.widgets = [];
+  },
+
+  buildRendering: function() {
+    this.inherited(arguments);
+    this.buildListNodes();
+  },
+
+  buildListNodes: function() {
+    var dc = dojo.create;
+    if (this.listType === 'div') {
+      this.listNode = dc('div', { 'class': 'list' }, this.domNode);
+    } else if (this.listType === 'table') {
+      var table = dc('table', { 'class': 'jigList' }, this.domNode);
+      this.listNode = dc('tbody', {}, table);
+    } else {
+      throw new Error('invalid listType param: '+this.listType);
+    }
   },
 
   _getValueAttr: function() {

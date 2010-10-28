@@ -5,10 +5,15 @@ dojo.require('dojox.uuid.generateRandomUuid');
 
 dojo.mixin(jig.api,
 {
-
   // summary:
+  //   API
+  //
+  // todo:
+  //    implement caching based in scalar params
+  //
+
+  // url: string
   //    Default URL, if not given in params
-  ///
   url: '/api',
 
   // requestCommonParams: object
@@ -36,10 +41,12 @@ dojo.mixin(jig.api,
     xhrOptions = xhrOptions || {};
     var uuid = dojox.uuid.generateRandomUuid();
     jig.api._deferredRequests[uuid] = request;
-    if (!xhrOptions.defer) {
+    if (xhrOptions.defer) {
+      // todo (was only used for _AutoProperties' double req metadata+value)
+    } else {
       var reqs = dojo.mixin({}, jig.api._deferredRequests);
       jig.api._deferredRequests = {};
-      jig.api._doRequest(reqs, xhrOptions);
+      return jig.api._doRequest(reqs, xhrOptions);
     }
   },
 
