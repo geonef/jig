@@ -1,10 +1,10 @@
 
-dojo.provide('ploomap.input.Label');
+dojo.provide('jig.input.Label');
 
 // parents
 dojo.require('dijit._Widget');
 
-dojo.declare('ploomap.input.Label', dijit._Widget,
+dojo.declare('jig.input.Label', dijit._Widget,
 {
   // summary:
   //   Dumb span that show the input value. No edition.
