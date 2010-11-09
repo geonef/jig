@@ -79,8 +79,10 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   },
 
   _getValueAttr: function() {
-    return this.widgets.map(
-      function(w) { return w.attr('value'); });
+    return dojo.query('> *', this.listNode)
+      .map(dijit.byNode)
+      //.filter(function(w) { return self.widgets.indexOf(w) !== -1; })
+      .map(function(w) { return w.attr('value'); });
   },
 
   _setValueAttr: function(value) {
@@ -159,7 +161,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   },
 
   addWidgetToUi: function(widget) {
-    dojo.place(widget.domNode, this.listNode);
+    widget.placeAt(this.listNode);
     widget.startup();
   }
 
