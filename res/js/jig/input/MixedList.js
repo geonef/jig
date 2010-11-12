@@ -28,6 +28,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   childClassSuffixProperty: 'module',
   availableModules: [],
   listType: 'div',
+  reverseOrder: false,
 
   // attributeMap: object
   //    Attribute map (dijit._Widget)
@@ -79,10 +80,13 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   },
 
   _getValueAttr: function() {
-    return dojo.query('> *', this.listNode)
+    var value = dojo.query('> *', this.listNode)
       .map(dijit.byNode)
-      //.filter(function(w) { return self.widgets.indexOf(w) !== -1; })
       .map(function(w) { return w.attr('value'); });
+    if (this.reverseOrder) {
+      value.reverse();
+    }
+    return value;
   },
 
   _setValueAttr: function(value) {
@@ -93,6 +97,10 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     var self = this;
     if (value) {
       if (dojo.isArray(value)) {
+        if (this.reverseOrder) {
+          value = value.slice(0); // don't modify parameter
+          value.reverse();
+        }
         value.forEach(dojo.hitch(this, 'addItem'));
       } else {
         console.warn('value is not an array:', value, 'for:', this);
