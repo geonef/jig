@@ -15,7 +15,11 @@ dojo.require('dojo.dnd.Source');
 dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 {
   // summary:
-  //   List of objects, which can be of different types
+  //   List of objects, which are represented through objects of different classes
+  //
+  // description:
+  //   The class name is found by concatanating this.childClassPrefix with the
+  //   value of the property names with this.childClassSuffixProperty.
   //
 
   templateString: dojo.cache("jig.input", "templates/MixedList.html"),
@@ -29,6 +33,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   availableModules: [],
   listType: 'div',
   reverseOrder: false,
+  readOnly: false,
 
   // attributeMap: object
   //    Attribute map (dijit._Widget)
@@ -47,6 +52,11 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     this.createDnd();
   },
 
+  postCreate: function() {
+    this.inherited(arguments);
+    dojo.style(this.button.domNode, 'display', this.readOnly ? 'none': '');
+  },
+
   buildListNodes: function() {
     var dc = dojo.create;
     if (this.listType === 'div') {
@@ -60,6 +70,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   },
 
   createDnd: function() {
+    if (!this.readOnly) { return; }
     this.listNode.dndType = this.id;
     this.listNode.type = this.id;
     this.dnd = new dojo.dnd.Source(
@@ -117,7 +128,6 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     this.widgets.push(widget);
     this.addWidgetToUi(widget);
   },
-
 
   inflectClassName: function(item) {
     return this.childClassPrefix + item[this.childClassSuffixProperty];
@@ -178,6 +188,8 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 dojo.provide('jig.input._MixedGridCreateList');
 
 // parents
+dojo.require('dijit._Widget');
+dojo.require('dijit._Templated');
 dojo.require('jig.widget._AutoGrid');
 
 dojo.declare('jig.input._MixedGridCreateList',

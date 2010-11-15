@@ -41,16 +41,24 @@ dojo.mixin(jig.api,
     xhrOptions = xhrOptions || {};
     var uuid = dojox.uuid.generateRandomUuid();
     jig.api._deferredRequests[uuid] = request;
-    if (xhrOptions.defer) {
-      // todo (was only used for _AutoProperties' double req metadata+value)
-    } else {
-      var reqs = dojo.mixin({}, jig.api._deferredRequests);
-      jig.api._deferredRequests = {};
-      return jig.api._doRequest(reqs, xhrOptions);
+    if (!jig.api._timeout) {
+      jig.api._deferred = new jig.Deferred();
+      jig.api._timeout = window.setTimeout(
+          function() {
+            jig.api._timeout = null;
+            var reqs = dojo.mixin({}, jig.api._deferredRequests);
+            jig.api._deferredRequests = {};
+            jig.api._deferred.dependsOn(jig.api._doRequest(reqs, xhrOptions));
+            jig.api._deferred.callback();
+          }, 0);
     }
+    var deferred = (new jig.Deferred()).dependsOn(jig.api._deferred);
+    deferred.callback();
+    return deferred;
   },
 
   _doRequest: function(request, xhrOptions) {
+
     var _processResponseReq = function(request, response, xhr) {
       var ret;
       if (request.callback) {
@@ -58,11 +66,16 @@ dojo.mixin(jig.api,
 	if (response.status === 'error') {
 	  console.error('error status from API', response);
 	}
+	if (response.status === 'exception') {
+	  console.error('Server API exception', response);
+          jig.api.processException(request, response);
+	}
 	ret = request.callback.apply(request.scope || window,
                                      [response, xhr]);
       }
       return ret;
     },
+
     _processResponse = function(text, xhr) {
       //console.log('JiG API Response', xhr, text);
       dojo.publish('noticeTopic', [ false ]);
@@ -92,15 +105,18 @@ dojo.mixin(jig.api,
       //console.log('returning', ret);
       return ret;
     },
+
     _processError = function(error, xhr) {
       dojo.publish('noticeTopic', [ false ]);
       console.error('JiG API Error: ', error, xhr);
     },
+
     _prepareRequest = function(origRequest) {
       var ret = dojo.mixin({}, origRequest, jig.api.requestCommonParams);
       delete ret.scope;
       return ret;
     };
+
     var requestToSend;
     if (request.module) {
       requestToSend = _prepareRequest(request);
@@ -124,6 +140,16 @@ dojo.mixin(jig.api,
                         load: _processResponse,
                         error: _processError
                       }, xhrOptions), true);
+  },
+
+  processException: function(request, response) {
+    var Class = jig.util.getClass('jig.tool.dev.ExceptionDump');
+    var dump = new Class(
+      dojo.mixin({ context: { request: request, response: response }},
+                 response.exception));
+    jig.workspace.autoAnchorWidget(dump);
+    dump.startup();
+    console.log('started exception', this, arguments);
   }
 
 });
