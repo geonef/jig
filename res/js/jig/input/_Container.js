@@ -15,7 +15,7 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   // booleanUnion: Boolean
   //    If true, returned value is the array of sub-widgets' names whose value is true
   //    Implies that arrayContainer==true
-  //booleanUnion: false,
+  booleanUnion: false,
 
   // syncThisAttr: Boolean
   //    If true, any sub-value changed will call this' setter for the attr with same name as sub-value
@@ -110,7 +110,11 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
       //this.inherited(arguments);
       var descendants = this.getDescendants();
       var i;
-      if (this.arrayContainer) {
+      if (this.booleanUnion) {
+        descendants.forEach(
+          function(w) { w.attr('value',
+                               value.indexOf(w.attr('name')) !== -1); });
+      } else if (this.arrayContainer) {
         for (i = 0; i < value.length && i < descendants.length; i++) {
           descendants[i].attr('value', value[i]);
         }
@@ -138,14 +142,15 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     //console.log('internal', this.internalValues, this);
     var descendants = this.getDescendants();
     var value;
-    if (this.arrayContainer) {
-      /*if (booleanUnion) {
-
-      }*/
-      value = [];
+    if (this.booleanUnion) {
+      value = descendants.filter(function(w) { return !!w.attr('value'); }).
+        map(function(w) { return w.attr('name'); });
+    } else if (this.arrayContainer) {
+      value = descendants.map(function(w) { return w.attr('value'); });
+      /*value = [];
       for (var i = 0; i < descendants.length; i++) {
         value.push(descendants[i].attr('value'));
-      }
+      }*/
     } else {
       value = dojo.mixin({}, this.internalValues);
       descendants.forEach(
