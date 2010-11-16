@@ -53,7 +53,8 @@ dojo.mixin(jig.util.number,
         units: [ '', 'K', 'M' ],
         mult: 1000,
         preci: 0.1,
-        joinSep: ', '
+        joinSep: ', ',
+        decimalSep: ','
       }, options);
     var
       max = Math.max.apply(null, dims)
@@ -62,7 +63,7 @@ dojo.mixin(jig.util.number,
     , exp = Math.min(logNp(max, o.mult), o.units.length - 1)
     , getU = function(x) { return Math.round((x / Math.pow(o.mult, exp)) *
                                              (1 / o.preci)) / (1 / o.preci); }
-    , commaR = function(s) { return (''+s).replace(/\./, ','); }
+    , commaR = function(s) { return (''+s).replace(/\./, o.decimalSep); }
     , ndims = dims.map(function(n) { return commaR(getU(n)); })
     , str = ndims.join(o.joinSep) + ' ' + o.units[exp]
     ;

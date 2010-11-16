@@ -17,12 +17,17 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
   //    Implies that arrayContainer==true
   booleanUnion: false,
 
+  // manageValueKeys: array of string
+  //    All keps specified there are managed by this.attr instead of sub-widgets
+  manageValueKeys: [],
+
   // syncThisAttr: Boolean
   //    If true, any sub-value changed will call this' setter for the attr with same name as sub-value
   //syncThisAttrs: false,
 
   postMixInProperties: function() {
     this.internalValues = {};
+    this.manageValueKeys = dojo.clone(this.manageValueKeys);
     this.inherited(arguments);
   },
 
@@ -126,6 +131,8 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
           if (map[i]) {
             map[i].attr('value', value[i], false);
             delete this.internalValues[i];
+          } else if (this.manageValueKeys.indexOf(i) !== -1) {
+            this.attr(i, value[i]);
           } else {
             //console.log('missing widget', i, value[i]);
             this.internalValues[i] = value[i];
@@ -152,9 +159,12 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
         value.push(descendants[i].attr('value'));
       }*/
     } else {
+      var self = this;
       value = dojo.mixin({}, this.internalValues);
       descendants.forEach(
         function(w) { value[w.name] = w.attr('value'); });
+      this.manageValueKeys.forEach(
+        function(p) { value[p] = self.attr('p'); });
     }
     return value;
   }

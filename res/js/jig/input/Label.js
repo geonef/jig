@@ -14,6 +14,7 @@ dojo.declare('jig.input.Label', dijit._Widget,
   value: '',
   isMapped: false,
   map: '',
+  filter: function(v) { return v; },
 
   buildRendering: function() {
     this.domNode = dojo.create('span', {});
@@ -33,6 +34,7 @@ dojo.declare('jig.input.Label', dijit._Widget,
   },
 
   _setValueAttr: function(value) {
+    value = this.filter(value);
     this.value = value;
     var display = this.isMapped ? this.map[value] : value;
     this.domNode.innerHTML = display;
