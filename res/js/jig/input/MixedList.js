@@ -97,7 +97,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     if (this.reverseOrder) {
       value.reverse();
     }
-    return value;
+    return [].concat(value);
   },
 
   _setValueAttr: function(value) {
