@@ -37,7 +37,7 @@ dojo.mixin(jig.util.number,
     //                  string array specifying the unit names in powers
     //                  of "options.mult".
     //          preci: float
-    //                  precision for decimal part
+    //                  precision for decimal part (ex: 0.1, 0.01, 0.001 ...)
     //          joinSep: string
     //                  separator for numbers serialization (join)
     //
@@ -61,8 +61,9 @@ dojo.mixin(jig.util.number,
     , logNp = function(x, base) {
                 return Math.max(0, Math.floor(Math.log(x) / Math.log(base))); }
     , exp = Math.min(logNp(max, o.mult), o.units.length - 1)
-    , getU = function(x) { return Math.round((x / Math.pow(o.mult, exp)) *
-                                             (1 / o.preci)) / (1 / o.preci); }
+    , getU = function(x) { return x < 0 ? x :
+                           Math.round((x / Math.pow(o.mult, exp)) *
+                                      (1 / o.preci)) / (1 / o.preci); }
     , commaR = function(s) { return (''+s).replace(/\./, o.decimalSep); }
     , ndims = dims.map(function(n) { return commaR(getU(n)); })
     , str = ndims.join(o.joinSep) + ' ' + o.units[exp]
