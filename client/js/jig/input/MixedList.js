@@ -70,7 +70,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   },
 
   createDnd: function() {
-    if (!this.readOnly) { return; }
+    if (this.readOnly) { return; }
     this.listNode.dndType = this.id;
     this.listNode.type = this.id;
     this.dnd = new dojo.dnd.Source(
@@ -117,7 +117,9 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
         console.warn('value is not an array:', value, 'for:', this);
       }
     }
-    this.dnd.sync();
+    if (this.dnd) {
+      this.dnd.sync();
+    }
     this.updatingValue = false;
     //console.log('** end setValue mixed');
   },
