@@ -99,7 +99,7 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     var child = this.getDescendants()
       .filter(function(ch) { return ch.name === name; })[0];
     if (!child) {
-      console.error('setSubValue: child not defined: ', name, this.getDescendants(), this);
+      console.warn('setSubValue: child not defined: ', name, this.getDescendants(), this);
       return;
     }
     child.attr('value', value);
@@ -166,7 +166,12 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
       this.manageValueKeys.forEach(
         function(p) { value[p] = self.attr('p'); });
     }
+    this.getValueHook(value);
     return value;
+  },
+
+  getValueHook: function(value) {
+    // hook
   }
 
 });
