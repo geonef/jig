@@ -34,6 +34,8 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   listType: 'div',
   reverseOrder: false,
   readOnly: false,
+  addButtonAtBottom: false,
+  addButtonLabel: 'Ajouter!',
 
   // attributeMap: object
   //    Attribute map (dijit._Widget)
@@ -58,11 +60,12 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   },
 
   buildListNodes: function() {
+    var position = this.addButtonAtBottom ? 'first' : 'last';
     var dc = dojo.create;
     if (this.listType === 'div') {
-      this.listNode = dc('div', { 'class': 'list' }, this.domNode);
+      this.listNode = dc('div', { 'class': 'list' }, this.domNode, position);
     } else if (this.listType === 'table') {
-      var table = dc('table', { 'class': 'jigList' }, this.domNode);
+      var table = dc('table', { 'class': 'jigList' }, this.domNode, position);
       this.listNode = dc('tbody', {}, table);
     } else {
       throw new Error('invalid listType param: '+this.listType);
@@ -112,11 +115,12 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
           value = value.slice(0); // don't modify parameter
           value.reverse();
         }
-        value.forEach(dojo.hitch(this, 'addItem'));
+        value.forEach(function(item) { this.addItem(item, true); }, this);
       } else {
         console.warn('value is not an array:', value, 'for:', this);
       }
     }
+    this.onResize();
     if (this.dnd) {
       this.dnd.sync();
     }
@@ -124,11 +128,14 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     //console.log('** end setValue mixed');
   },
 
-  addItem: function(item) {
+  addItem: function(item, dontResize_) {
     //console.log('add item', this, arguments);
     var widget = this.makeWidgetFromItem(item);
     this.widgets.push(widget);
     this.addWidgetToUi(widget);
+    if (dontResize_ !== true) {
+      this.onResize();
+    }
   },
 
   inflectClassName: function(item) {
@@ -183,6 +190,10 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   addWidgetToUi: function(widget) {
     widget.placeAt(this.listNode);
     widget.startup();
+  },
+
+  onResize: function() {
+    // because we're not _Contained
   }
 
 });
