@@ -74,9 +74,9 @@ dojo.mixin(jig.api,
                                      [response, xhr]);
       }
       return ret;
-    },
+    };
 
-    _processResponse = function(text, xhr) {
+    var _processResponse = function(text, xhr) {
       //console.log('JiG API Response', xhr, text);
       dojo.publish('noticeTopic', [ false ]);
       var ret = 0, data = null;
@@ -104,14 +104,14 @@ dojo.mixin(jig.api,
       data.callbackStatus = ret;
       //console.log('returning', ret);
       return ret;
-    },
+    };
 
-    _processError = function(error, xhr) {
+    var _processError = function(error, xhr) {
       dojo.publish('noticeTopic', [ false ]);
       console.error('JiG API Error: ', error, xhr);
-    },
+    };
 
-    _prepareRequest = function(origRequest) {
+    var _prepareRequest = function(origRequest) {
       var ret = dojo.mixin({}, origRequest, jig.api.requestCommonParams);
       delete ret.scope;
       return ret;
