@@ -164,7 +164,7 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
       descendants.forEach(
         function(w) { value[w.name] = w.attr('value'); });
       this.manageValueKeys.forEach(
-        function(p) { value[p] = self.attr('p'); });
+        function(p) { value[p] = self.attr(p); });
     }
     this.getValueHook(value);
     return value;
