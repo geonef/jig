@@ -4,20 +4,77 @@ dojo.provide('jig.input.Label');
 // parents
 dojo.require('dijit._Widget');
 
+/**
+ * Dumb HTMLElement whose innerHTML is updated with this' value. Read-only.
+ *
+ * A value map can be specified, see property isMapped.
+ *
+ * @class jig.input.Label
+ */
 dojo.declare('jig.input.Label', dijit._Widget,
 {
-  // summary:
-  //   Dumb span that show the input value. No edition.
-  //
-
+  /**
+   * Input name
+   *
+   * @type {string}
+   */
   name: '',
+
+  /**
+   * Input value (read-only)
+   *
+   * @type {string}
+   */
   value: '',
+
+  /**
+   * Whether to use a mapping table for value/label
+   *
+   * @type {boolean}
+   */
   isMapped: false,
+
+  /**
+   * Mapping table
+   *
+   * Object keys are possible values, object values are labels.
+   *
+   * If a string is provided, it is used through dojo.getObject to get
+   * the mapping table. Useful for instanciating this widget from markup
+   * with an attribute like map="some.widget.prototype.mapTable".
+   *
+   * @type {Object.<string, string>|string}
+   */
   map: '',
+
+  /**
+   * Typically "div" or "span".
+   *
+   * If not specified, the srcNodeRef nodeName is used, or "span".
+   *
+   * @type {string}
+   */
+  domNodeName: '',
+
+  /**
+   * Read-only - always true.
+   *
+   * The value can be set prorgammatically (and UI is updated), but no way
+   * to change the value from the UI.
+   *
+   * @type {boolean}
+   */
+  readOnly: true,
+
+
   filter: function(v) { return v; },
 
   buildRendering: function() {
-    this.domNode = dojo.create('span', {});
+    if (!this.domNodeName) {
+      this.domNodeName = this.srcNodeRef ?
+        this.srcNodeRef.nodeName.toLowerCase() : 'span';
+    }
+    this.domNode = dojo.create(this.domNodeName, {});
   },
 
   _setIsMappedAttr: function(isMapped) {
