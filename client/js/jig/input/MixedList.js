@@ -22,20 +22,61 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   //   value of the property names with this.childClassSuffixProperty.
   //
 
+  ////////////////////////////////////////////////////////////////////
+  // External properties (set via constructor or attr setter)
+
+  /**
+   * Input name
+   *
+   * @type {string}
+   */
+  name: 'list',
+
+  label: 'List',
+
+  childClassPrefix: '',
+
+  childClassSuffixProperty: 'module',
+
+  availableModules: [],
+
+  listType: 'div',
+
+  /**
+   * If true, the display order will be the inverse of value order
+   *
+   * @type {boolean}
+   */
+  reverseOrder: false,
+
+  /**
+   * Disable create and re-order capabilities (not forwarded to nested inputs)
+   *
+   * @type {boolean}
+   */
+  readOnly: false,
+
+  /**
+   * Display add button at bottom rathan than top
+   *
+   * @type {boolean}
+   */
+  addButtonAtBottom: false,
+
+  /**
+   * Label for add button
+   *
+   * @type {string}
+   */
+  addButtonLabel: 'Ajouter',
+
+
+  ////////////////////////////////////////////////////////////////////
+  // Protected properties
+
   templateString: dojo.cache("jig.input", "templates/MixedList.html"),
 
   widgetsInTemplate: true,
-
-  name: 'list',
-  label: 'List',
-  childClassPrefix: '',
-  childClassSuffixProperty: 'module',
-  availableModules: [],
-  listType: 'div',
-  reverseOrder: false,
-  readOnly: false,
-  addButtonAtBottom: false,
-  addButtonLabel: 'Ajouter!',
 
   // attributeMap: object
   //    Attribute map (dijit._Widget)
