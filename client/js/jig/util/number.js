@@ -30,10 +30,8 @@ dojo.mixin(jig.util.number,
   format: function(value, options) {
     if (options && options.digits) {
       var nb = Math.ceil(Math.log(value) / Math.LN10);
-      if (nb < options.digits) {
-        var factor = Math.pow(10, options.digits - nb);
-        value = Math.round(value * factor) / factor;
-      }
+      var factor = nb < options.digits ? Math.pow(10, options.digits - nb) : 1;
+      value = Math.round(value * factor) / factor;
     }
     return dojo.number.format(value, options);
   },
