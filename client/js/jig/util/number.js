@@ -32,9 +32,7 @@ dojo.mixin(jig.util.number,
       var nb = Math.ceil(Math.log(value) / Math.LN10);
       if (nb < options.digits) {
         var factor = Math.pow(10, options.digits - nb);
-        console.log('value', value, factor, arguments);
         value = Math.round(value * factor) / factor;
-        console.log('value after', value);
       }
     }
     return dojo.number.format(value, options);
