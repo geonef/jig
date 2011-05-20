@@ -1,5 +1,5 @@
 
-dojo.provide('jig.input.Label');
+dojo.provide('geonef.jig.input.Label');
 
 // parents
 dojo.require('dijit._Widget');
@@ -9,9 +9,9 @@ dojo.require('dijit._Widget');
  *
  * A value map can be specified, see property isMapped.
  *
- * @class jig.input.Label
+ * @class geonef.jig.input.Label
  */
-dojo.declare('jig.input.Label', dijit._Widget,
+dojo.declare('geonef.jig.input.Label', dijit._Widget,
 {
   /**
    * Input name

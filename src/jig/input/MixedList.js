@@ -1,5 +1,5 @@
 
-dojo.provide('jig.input.MixedList');
+dojo.provide('geonef.jig.input.MixedList');
 
 // parents
 dojo.require('dijit._Widget');
@@ -12,7 +12,7 @@ dojo.require('dijit.TooltipDialog');
 // used in code
 dojo.require('dojo.dnd.Source');
 
-dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
+dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 {
   // summary:
   //   List of objects, which are represented through objects of different classes
@@ -74,7 +74,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   ////////////////////////////////////////////////////////////////////
   // Protected properties
 
-  templateString: dojo.cache("jig.input", "templates/MixedList.html"),
+  templateString: dojo.cache("geonef.jig.input", "templates/MixedList.html"),
 
   widgetsInTemplate: true,
 
@@ -185,7 +185,7 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 
   makeWidgetFromItem: function(item) {
     var className = this.inflectClassName(item);
-    var Class = jig.util.getClass(className);
+    var Class = geonef.jig.util.getClass(className);
     var widget = new Class();
     widget.attr('value', item);
     this.installConnectsOnWidget(widget);
@@ -239,15 +239,15 @@ dojo.declare('jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 
 });
 
-dojo.provide('jig.input._MixedGridCreateList');
+dojo.provide('geonef.jig.input._MixedGridCreateList');
 
 // parents
 dojo.require('dijit._Widget');
 dojo.require('dijit._Templated');
-dojo.require('jig.widget._AutoGrid');
+dojo.require('geonef.jig.widget._AutoGrid');
 
-dojo.declare('jig.input._MixedGridCreateList',
-             [ dijit._Widget, dijit._Templated, jig.widget._AutoGrid ],
+dojo.declare('geonef.jig.input._MixedGridCreateList',
+             [ dijit._Widget, dijit._Templated, geonef.jig.widget._AutoGrid ],
 {
   // summary:
   //   button to choose the type
@@ -274,7 +274,7 @@ dojo.declare('jig.input._MixedGridCreateList',
     //, br = dojo.create('br', {}, buttonNode)
     //, span = dojo.create('span', { innerHTML: member }, buttonNode)
       self = this
-    , button = new jig.button.Action({
+    , button = new geonef.jig.button.Action({
                  label: member,
 	         onClick: function() {
                    var item = {};

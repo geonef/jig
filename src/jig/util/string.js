@@ -1,9 +1,9 @@
 
-dojo.provide('jig.util.string');
+dojo.provide('geonef.jig.util.string');
 
-dojo.require('jig.util');
+dojo.require('geonef.jig.util');
 
-dojo.mixin(jig.util.string,
+dojo.mixin(geonef.jig.util.string,
 {
   lcFirst: function(str) {
     return str.substr(0, 1).toLowerCase()

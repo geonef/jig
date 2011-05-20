@@ -1,11 +1,11 @@
 
 
-dojo.provide('jig.input.BooleanCheckBox');
+dojo.provide('geonef.jig.input.BooleanCheckBox');
 
 // parents
 dojo.require('dijit.form.CheckBox');
 
-dojo.declare('jig.input.BooleanCheckBox', [ dijit.form.CheckBox ],
+dojo.declare('geonef.jig.input.BooleanCheckBox', [ dijit.form.CheckBox ],
 {
   // summary:
   //   Same as dijit.CheckBox, but deals with boolean value

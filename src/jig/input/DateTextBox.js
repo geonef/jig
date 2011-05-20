@@ -1,10 +1,10 @@
 
-dojo.provide('jig.input.DateTextBox');
+dojo.provide('geonef.jig.input.DateTextBox');
 
 // parents
 dojo.require('dijit.form.DateTextBox');
 
-dojo.declare('jig.input.DateTextBox', dijit.form.DateTextBox,
+dojo.declare('geonef.jig.input.DateTextBox', dijit.form.DateTextBox,
 {
   // summary:
   //   Overload dijit DataTextBox to deal with string date value

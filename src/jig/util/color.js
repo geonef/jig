@@ -1,9 +1,9 @@
 
-dojo.provide('jig.util.color');
+dojo.provide('geonef.jig.util.color');
 
-dojo.require('jig.util');
+dojo.require('geonef.jig.util');
 
-dojo.mixin(jig.util.color,
+dojo.mixin(geonef.jig.util.color,
 {
   /**
    * Return whether the color is rather dark than bright
@@ -14,7 +14,7 @@ dojo.mixin(jig.util.color,
    * @return {boolean}
    */
   isDark: function(color) {
-    var col = jig.util.color.toArray(color);
+    var col = geonef.jig.util.color.toArray(color);
     return Math.max.apply(null, col) < 16 * 11;
   },
 
@@ -24,7 +24,7 @@ dojo.mixin(jig.util.color,
    * @return {Array.<number>}
    */
   toArray: function(color) {
-    var col = jig.util.color.normalize(color);
+    var col = geonef.jig.util.color.normalize(color);
     return [parseInt(col.substr(1, 2), 16),
             parseInt(col.substr(3, 2), 16),
             parseInt(col.substr(5, 2), 16)];

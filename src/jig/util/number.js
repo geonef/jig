@@ -1,9 +1,9 @@
 
-dojo.provide('jig.util.number');
+dojo.provide('geonef.jig.util.number');
 
-dojo.require('jig.util');
+dojo.require('geonef.jig.util');
 
-dojo.mixin(jig.util.number,
+dojo.mixin(geonef.jig.util.number,
 {
   /*formatNumber: function(number) {
     var

@@ -1,7 +1,7 @@
-dojo.provide('jig.input._Container');
+dojo.provide('geonef.jig.input._Container');
 dojo.require('dijit.form._FormMixin');
-dojo.require('jig.util');
-dojo.declare('jig.input._Container', dijit.form._FormMixin,
+dojo.require('geonef.jig.util');
+dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
 {
 
   //
@@ -36,10 +36,10 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
     // Find first descendants having a "name" attribute.
     //
     var list = [];
-    this.getInputRootNodes().map(jig.util.getFirstNamedDescendants)
+    this.getInputRootNodes().map(geonef.jig.util.getFirstNamedDescendants)
       .forEach(function(set) { set.forEach(function(n) { list.push(n); }); });
     return list;
-    //return jig.util.getFirstNamedDescendants(this.domNode);
+    //return geonef.jig.util.getFirstNamedDescendants(this.domNode);
   },
 
   getInputRootNodes: function() {
@@ -87,7 +87,7 @@ dojo.declare('jig.input._Container', dijit.form._FormMixin,
 
   onChange: function() {
     // hook
-    //console.log('jig.input._Container onChange', this);
+    //console.log('geonef.jig.input._Container onChange', this);
   },
 
   focus: function() {

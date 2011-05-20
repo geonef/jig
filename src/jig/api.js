@@ -1,9 +1,9 @@
 
-dojo.provide('jig.api');
+dojo.provide('geonef.jig.api');
 
 dojo.require('dojox.uuid.generateRandomUuid');
 
-dojo.mixin(jig.api,
+dojo.mixin(geonef.jig.api,
 {
   // summary:
   //   API
@@ -40,19 +40,19 @@ dojo.mixin(jig.api,
   request: function(request, xhrOptions) {
     xhrOptions = xhrOptions || {};
     var uuid = dojox.uuid.generateRandomUuid();
-    jig.api._deferredRequests[uuid] = request;
-    if (!jig.api._timeout) {
-      jig.api._deferred = new jig.Deferred();
-      jig.api._timeout = window.setTimeout(
+    geonef.jig.api._deferredRequests[uuid] = request;
+    if (!geonef.jig.api._timeout) {
+      geonef.jig.api._deferred = new geonef.jig.Deferred();
+      geonef.jig.api._timeout = window.setTimeout(
           function() {
-            jig.api._timeout = null;
-            var reqs = dojo.mixin({}, jig.api._deferredRequests);
-            jig.api._deferredRequests = {};
-            jig.api._deferred.dependsOn(jig.api._doRequest(reqs, xhrOptions));
-            jig.api._deferred.callback();
+            geonef.jig.api._timeout = null;
+            var reqs = dojo.mixin({}, geonef.jig.api._deferredRequests);
+            geonef.jig.api._deferredRequests = {};
+            geonef.jig.api._deferred.dependsOn(geonef.jig.api._doRequest(reqs, xhrOptions));
+            geonef.jig.api._deferred.callback();
           }, 0);
     }
-    var deferred = (new jig.Deferred()).dependsOn(jig.api._deferred);
+    var deferred = (new geonef.jig.Deferred()).dependsOn(geonef.jig.api._deferred);
     deferred.callback();
     return deferred;
   },
@@ -68,7 +68,7 @@ dojo.mixin(jig.api,
 	}
 	if (response.status === 'exception') {
 	  console.error('Server API exception', response);
-          jig.api.processException(request, response);
+          geonef.jig.api.processException(request, response);
 	}
 	ret = request.callback.apply(request.scope || window,
                                      [response, xhr]);
@@ -112,7 +112,7 @@ dojo.mixin(jig.api,
     };
 
     var _prepareRequest = function(origRequest) {
-      var ret = dojo.mixin({}, origRequest, jig.api.requestCommonParams);
+      var ret = dojo.mixin({}, origRequest, geonef.jig.api.requestCommonParams);
       delete ret.scope;
       return ret;
     };
@@ -120,7 +120,7 @@ dojo.mixin(jig.api,
     var requestToSend;
     if (request.module) {
       requestToSend = _prepareRequest(request);
-      //dojo.mixin(request, jig.api.requestCommonParams);
+      //dojo.mixin(request, geonef.jig.api.requestCommonParams);
     } else {
       requestToSend = {};
       for (var i in request) {
@@ -129,12 +129,12 @@ dojo.mixin(jig.api,
         }
       }
       //dojo.forEach(request, // forEach on object ??
-      //  function(r) { dojo.mixin(r, jig.api.requestCommonParams); });
+      //  function(r) { dojo.mixin(r, geonef.jig.api.requestCommonParams); });
     }
     dojo.publish('noticeTopic', [ true ]);
     return dojo.xhr('POST', dojo.mixin(
                       {
-                        url: xhrOptions.url || jig.api.url,
+                        url: xhrOptions.url || geonef.jig.api.url,
                         handleAs: 'text', //'json',
                         postData: dojo.toJson(requestToSend),
                         load: _processResponse,
@@ -143,11 +143,11 @@ dojo.mixin(jig.api,
   },
 
   processException: function(request, response) {
-    var Class = jig.util.getClass('jig.tool.dev.ExceptionDump');
+    var Class = geonef.jig.util.getClass('geonef.jig.tool.dev.ExceptionDump');
     var dump = new Class(
       dojo.mixin({ context: { request: request, response: response }},
                  response.exception));
-    jig.workspace.autoAnchorWidget(dump);
+    geonef.jig.workspace.autoAnchorWidget(dump);
     dump.startup();
     console.log('started exception', this, arguments);
   }
