@@ -85,7 +85,6 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
   },
 
   startup: function() {
-    console.log('startup', this, arguments);
     this.inherited(arguments);
     this.updateFalsy();
   },
@@ -93,14 +92,10 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
   updateFalsy: function() {
     if (this.hideElementIfFalsy && this._started) {
       if (dojo.isString(this.hideElementIfFalsy)) {
-        console.log('in', this, arguments);
         this.hideElementIfFalsy = dojo.byId(this.hideElementIfFalsy);
       }
-      console.log('in2', this, arguments);
       var falsy = !this.value ||
         (dojo.isString(this.value) && dojo.trim(this.value) === '0');
-      console.log('!!this.value', !!this.value, this.value, this.hideElementIfFalsy);
-
       dojo.style(this.hideElementIfFalsy, 'display',
                  falsy ? 'none' : '');
     }
@@ -129,7 +124,6 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
   },
 
   _setHideElementIfFalsyAttr: function(elementId) {
-    console.log('_setHideElementIfFalsyAttr', this, arguments);
     this.hideElementIfFalsy = elementId;
     this.updateFalsy();
   }
