@@ -10,6 +10,8 @@ dojo.declare('geonef.jig.input.DateTextBox', dijit.form.DateTextBox,
   //   Overload dijit DataTextBox to deal with string date value
   //
 
+  timestamp: false,
+
   _setValueAttr: function(value) {
     /*var newValue = value;
     if (!value) {
@@ -27,15 +29,19 @@ dojo.declare('geonef.jig.input.DateTextBox', dijit.form.DateTextBox,
     }
     //this.inherited([newValue]);
     //dijit.form._DateTimeTextBox.prototype._setValueAttr.call(this, newValue);
-  }/*,
+  },
 
-  _getValueAttr: function() {
-    var value = this.value;
-    if (value) {
-      value = ''+value.getFullYear()+'-'+value.getMonth()+'-'+value.getDate();
-    }
-    console.log('get date value', this, this.value, value);
-    return value;
-  }*/
+  // _getValueAttr: function() {
+  //   console.log('getDateVal', this, arguments);
+  //   return this.inherited(arguments);
+
+  //   var value = this.value;
+  //   console.log('date value', this, arguments, value);
+  //   //value = value.
+  //   // if (value) {
+  //   //   value = ''+value.getFullYear()+'-'+value.getMonth()+'-'+value.getDate();
+  //   // }
+  //   return value;
+  // }
 
 });
