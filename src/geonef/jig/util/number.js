@@ -86,38 +86,5 @@ dojo.mixin(geonef.jig.util.number,
     return str;
   },
 
-  // return within [-PI; PI]
-  fixAngle: function(angle) {
-    while (angle < -Math.PI) {
-      angle += 2 * Math.PI;
-    }
-    while (angle > Math.PI) {
-      angle -= 2 * Math.PI;
-    }
-
-    return angle;
-  },
-
-  // oriented angle: return within [-PI; PI]
-  diffAngle: function(a2, a1) {
-    var diff = a2 - a1;
-    if (diff < -1 * Math.PI) {
-      diff += 2 * Math.PI;
-    } else if (diff > Math.PI) {
-      diff -= 2 * Math.PI;
-    }
-    return diff;
-  },
-
-  compareAngles: function(a2, a1) {
-    if (a1 >= 0 && a2 >= 0) {
-      return a2 - a1;
-    } else if (a1 <= 0 && a2 <= 0) {
-      return a2 - a1;
-    } else {
-      return a1;	// [0;-PI] is greater than [0;PI]
-    }
-  }
-
 
 });
