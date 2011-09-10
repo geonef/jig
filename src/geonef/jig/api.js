@@ -41,6 +41,7 @@ dojo.mixin(geonef.jig.api,
     xhrOptions = xhrOptions || {};
     var uuid = dojox.uuid.generateRandomUuid();
     geonef.jig.api._deferredRequests[uuid] = request;
+    //console.log('api request', uuid, request.module, request.action);
     if (!geonef.jig.api._timeout) {
       geonef.jig.api._deferred = new geonef.jig.Deferred();
       geonef.jig.api._timeout = window.setTimeout(
