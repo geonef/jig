@@ -2,7 +2,7 @@
 dojo.provide('geonef.jig.input.TextBox');
 
 // parents
-dojo.require('dijit.form.TextBox');
+dojo.require('dijit.form.ValidationTextBox');
 
 /**
  * Add some features to dijit.form.TextBox :
@@ -10,7 +10,7 @@ dojo.require('dijit.form.TextBox');
  *
  * @class
  */
-dojo.declare('geonef.jig.input.TextBox', [ dijit.form.TextBox ],
+dojo.declare('geonef.jig.input.TextBox', dijit.form.ValidationTextBox,
 {
 
   postCreate: function() {
