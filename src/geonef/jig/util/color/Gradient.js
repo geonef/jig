@@ -30,6 +30,14 @@ dojo.declare('geonef.jig.util.color.Gradient', null,
   getColorCssHsl: function(position) {
     var color = this.getColor(position);
     return 'hsl('+color[0]+','+color[1]+'%,'+color[2]+'%)';
-  }
+  },
+
+  clone: function() {
+    var clone = new geonef.jig.util.color.Gradient({
+                  color1: this.color1.slice(0),
+                  color2: this.color2.slice(0) });
+    return clone;
+  },
+
 
 });
