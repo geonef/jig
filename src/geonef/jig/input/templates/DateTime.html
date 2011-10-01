@@ -1,0 +1,23 @@
+<table class="jigInputDateTime"><tbody><tr>
+  <td>
+  <span dojoType="geonef.jig.input.DateTextBox"
+        dojoAttachPoint="dateInput" required="true"
+        dojoAttachEvent="onChange:onChange"
+        tooltipPosition="above,below"
+        promptMessage="Cette date sert à ordonner l'itinéraire"
+        missingMessage="La date est obligatoire !"></span>
+  </td><td class="noTimeOnly">
+  <span dojoType="geonef.jig.button.Link"
+        dojoAttachEvent="onClick:enableTime">Heure...</span>
+  </td><td class="timeOnly">
+  <span dojoType="dijit.form.TimeTextBox"
+        dojoAttachPoint="timeInput" required="false"
+        dojoAttachEvent="onChange:onChange"
+        tooltipPosition="above,below"
+        promptMessage="L'heure, pour distinguer les étapes d'une même journée"></span>
+  </td><td class="timeOnly">
+  <span dojoType="geonef.jig.button.Link"
+        dojoAttachEvent="onClick:disableTime">Retirer l'heure</span>
+  </td>
+
+</tr></tbody></table>
