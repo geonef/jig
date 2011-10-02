@@ -36,9 +36,10 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
     console.log('_setValueAttr', this, arguments);
     this.date = date;
     this.dateInput.attr('value', date);
-    console.log('date', date);
     if (!(date instanceof Date) ||
-        0 === date.getHours() === date.getMinutes() === date.getSeconds()) {
+        (0 === date.getHours() &&
+         0 === date.getMinutes() &&
+         0 === date.getSeconds())) {
       this.timeInput.attr('value', null);
       this.disableTime();
     } else {
@@ -49,11 +50,13 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
   },
 
   enableTime: function() {
+    console.log('enableTime', this, arguments);
     this.timeEnabled = true;
     dojo.addClass(this.domNode, 'time');
   },
 
   disableTime: function() {
+    console.log('disableTime', this, arguments);
     this.timeEnabled = false;
     dojo.removeClass(this.domNode, 'time');
 
