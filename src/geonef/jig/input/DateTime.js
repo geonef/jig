@@ -33,10 +33,12 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
   },
 
   _setValueAttr: function(date) {
-    // console.log('_setValueAttr', this, arguments);
+    console.log('_setValueAttr', this, arguments);
     this.date = date;
     this.dateInput.attr('value', date);
-    if (0 === date.getHours() === date.getMinutes() === date.getSeconds()) {
+    console.log('date', date);
+    if (!(date instanceof Date) ||
+        0 === date.getHours() === date.getMinutes() === date.getSeconds()) {
       this.timeInput.attr('value', null);
       this.disableTime();
     } else {
