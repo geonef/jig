@@ -21,6 +21,11 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
     this.inherited(arguments);
   },
 
+  _setRequiredAttr: function(state) {
+    this.required = state;
+    this.dateInput.attr('required', state);
+  },
+
   _getValueAttr: function() {
     var date = this.dateInput.attr('value');
     if (date instanceof Date && this.timeEnabled) {
@@ -33,7 +38,6 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
   },
 
   _setValueAttr: function(date) {
-    console.log('_setValueAttr', this, arguments);
     this.date = date;
     this.dateInput.attr('value', date);
     if (!(date instanceof Date) ||
@@ -50,16 +54,26 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
   },
 
   enableTime: function() {
-    console.log('enableTime', this, arguments);
     this.timeEnabled = true;
     dojo.addClass(this.domNode, 'time');
   },
 
   disableTime: function() {
-    console.log('disableTime', this, arguments);
     this.timeEnabled = false;
     dojo.removeClass(this.domNode, 'time');
 
+  },
+
+  isValid: function() {
+    return this.dateInput.isValid() && this.timeInput.isValid();
+  },
+
+  validate: function() {
+    return this.dateInput.validate() && this.timeInput.validate();
+  },
+
+  focus: function() {
+    this.dateInput.focus();
   },
 
 
