@@ -31,7 +31,9 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
     if (date instanceof Date && this.timeEnabled) {
       var time = this.timeInput.attr('value');
       if (time instanceof Date) {
-        date = new Date(date.getTime() + time.getTime());
+        // date = new Date(date.getTime() + time.getTime());
+        date.setHours(time.getHours());
+        date.setMinutes(time.getMinutes());
       }
     }
     return date;
