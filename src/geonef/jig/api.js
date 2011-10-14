@@ -5,47 +5,58 @@ dojo.require('dojox.uuid.generateRandomUuid');
 
 dojo.mixin(geonef.jig.api,
 {
-  // summary:
-  //   API
   //
   // todo:
   //    implement caching based in scalar params
   //
 
-  // url: string
-  //    Default URL, if not given in params
+  /**
+   * @type {string} Default URL, if not given in params
+   */
   url: '/api',
 
-  // requestCommonParams: object
-  //    Common parameters which are added automatically to every request
+  /**
+   * @type {Object} Common parameters which are added automatically to every request
+   */
   requestCommonParams: {},
 
-  // noticeTopic: string
-  //    Name of topic to publish events to. First arg is a boolean telling whether an XHR is active
+  /**
+   * @type {string} Name of topic to publish events to. First arg is a boolean telling whether an XHR is active
+   */
   noticeTopic: 'jig/api/request',
 
-  // _deferredRequests: object
-  //    Parallel requests deferred to later execution
+  /**
+   * @type {Object} Parallel requests deferred to later execution
+   */
   _deferredRequests: {},
 
-  // summary:
-  //    Make API request
-  //
-  // xhrOptions: object for parameters to pass to dojo XHR.
-  //    Custom params are:
-  //            - defer: boolean
-  //                    if true, the request is remembered, and is executed
-  //                    the next time a request is made with a falsy defer.
-  //
+  /**
+   * @type {geonef.jig.Deferred} Global XHR promise for pending XHR call
+   */
+  _deferred: null,
+
+  /**
+   * Make API request
+   *
+   *    Custom params are:
+   *            - defer: boolean
+   *                    if true, the request is remembered, and is executed
+   *                    the next time a request is made with a falsy defer.
+   *
+   * @param {?Object} object for parameters to pass to dojo XHR.
+   * @return {dojo.Deferred} promise, ensured to be geoenf.jig.Deferred if request.callback is set
+   */
   request: function(request, xhrOptions) {
     xhrOptions = xhrOptions || {};
     var uuid = dojox.uuid.generateRandomUuid();
+    request.promise = new geonef.jig.Deferred();
+    var ret = request.promise;
     geonef.jig.api._deferredRequests[uuid] = request;
-    //console.log('api request', uuid, request.module, request.action);
     if (!geonef.jig.api._timeout) {
       geonef.jig.api._deferred = new geonef.jig.Deferred();
       geonef.jig.api._timeout = window.setTimeout(
           function() {
+            // execute all deferred requests
             geonef.jig.api._timeout = null;
             var reqs = dojo.mixin({}, geonef.jig.api._deferredRequests);
             geonef.jig.api._deferredRequests = {};
@@ -53,16 +64,32 @@ dojo.mixin(geonef.jig.api,
             geonef.jig.api._deferred.callback();
           }, 0);
     }
-    var deferred = (new geonef.jig.Deferred()).dependsOn(geonef.jig.api._deferred);
-    deferred.callback();
-    return deferred;
+    if (request.callback) {
+      // backward compat ; api.request({}).then() preferred
+      ret = new geonef.jig.Deferred();
+      request.promise
+        .then(dojo.hitch(request.scope || window, request.callback))
+        .then(function() { ret.callback(); });
+    }
+    delete request.scope;
+    delete request.callback;
+
+    return ret;
   },
 
+  /**
+   * Execute XHR for all deferred requests
+   *
+   * @return {dojo.Deferred} from XHR call
+   */
   _doRequest: function(request, xhrOptions) {
 
+    /**
+     * Process single-request response
+     */
     var _processResponseReq = function(request, response, xhr) {
       var ret;
-      if (request.callback) {
+      // if (request.callback) {
 	//console.log('XHR: calling callback', arguments);
 	if (response.status === 'error') {
 	  console.error('error status from API', response);
@@ -71,12 +98,13 @@ dojo.mixin(geonef.jig.api,
 	  console.error('Server API exception', response);
           geonef.jig.api.processException(request, response);
 	}
-	ret = request.callback.apply(request.scope || window,
-                                     [response, xhr]);
-      }
-      return ret;
+      console.log('_processResponseReq', request, response);
+      request.promise.resolve(response);
     };
 
+    /**
+     * Process XHR (transport) response
+     */
     var _processResponse = function(text, xhr) {
       //console.log('JiG API Response', xhr, text);
       dojo.publish('noticeTopic', [ false ]);
@@ -90,38 +118,43 @@ dojo.mixin(geonef.jig.api,
 	if (dojo.isFunction(request.transportError)) {
 	  request.transportError(text, xhr);
 	}
-	return false;
+	return;
       }
       // check if one req or many in the structure
       if (dojo.isFunction(request.callback)) {
-	ret = _processResponseReq(request, data, xhr);
+	_processResponseReq(request, data, xhr);
       } else {
 	for (var i in data) {
           if (data.hasOwnProperty(i)) {
-	    ret = _processResponseReq(request[i], data[i], xhr);
+	    _processResponseReq(request[i], data[i], xhr);
 	  }
         }
       }
-      data.callbackStatus = ret;
-      //console.log('returning', ret);
-      return ret;
     };
 
+    /**
+     * Process XHR (transport) failure
+     */
     var _processError = function(error, xhr) {
       dojo.publish('noticeTopic', [ false ]);
       console.error('JiG API Error: ', error, xhr);
     };
 
+    /**
+     * Make single request structure out of single request params
+     *
+     * @param {Object} origRequest
+     * @return {Object} the structure ready to be serialized
+     */
     var _prepareRequest = function(origRequest) {
       var ret = dojo.mixin({}, origRequest, geonef.jig.api.requestCommonParams);
-      delete ret.scope;
+      delete ret.promise;
       return ret;
     };
 
     var requestToSend;
     if (request.module) {
       requestToSend = _prepareRequest(request);
-      //dojo.mixin(request, geonef.jig.api.requestCommonParams);
     } else {
       requestToSend = {};
       for (var i in request) {
@@ -129,8 +162,6 @@ dojo.mixin(geonef.jig.api,
           requestToSend[i] = _prepareRequest(request[i]);
         }
       }
-      //dojo.forEach(request, // forEach on object ??
-      //  function(r) { dojo.mixin(r, geonef.jig.api.requestCommonParams); });
     }
     dojo.publish('noticeTopic', [ true ]);
     return dojo.xhr('POST', dojo.mixin(

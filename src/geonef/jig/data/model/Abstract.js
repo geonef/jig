@@ -31,6 +31,33 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     }
   },
 
+  constructor: function(options) {
+    if (options) {
+      d.mixin(this, options);
+    }
+  },
+
+  /**
+   * Get object ID
+   */
+  getId: function() {
+    return this.id;
+  },
+
+  /**
+   * Set object ID - called by ModelStore after new obj is persisted
+   */
+  setId: function(id) {
+    this.id = id;
+  },
+
+  /**
+   * @return {string} short string, text summary about the object
+   */
+  getSummary: function() {
+    return this.getId();
+  },
+
   /**
    * Set properties as fetched from the server
    */
@@ -70,9 +97,10 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
       struct[p] = value;
     }
 
-    return value;
+    return struct;
   }
 
 });
 
+return geonef.jig.data.model.Abstract;
 });

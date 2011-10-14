@@ -6,12 +6,13 @@ dojo.mixin(geonef.jig.data.model,
   _stores: {},
 
   /**
-   * @param {string} module the name of the name (ie. "geonefPloomap/map")
+   * @param {geonef.jig.data.model.Abstract} Model
    */
-  getStore: function(module) {
+  getStore: function(Model) {
     var stores = geonef.jig.data.model._stores;
+    var module = Model.prototype.module;
     if (!stores[module]) {
-      stores[module] = new ModelStore({ module: module });
+      stores[module] = new ModelStore({ Model: Model });
     }
 
     return stores[module];
@@ -19,5 +20,5 @@ dojo.mixin(geonef.jig.data.model,
 
 });
 
-
+return geonef.jig.data.model;
 });
