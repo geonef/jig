@@ -81,14 +81,17 @@ d.declare("geonef.jig.data.model.ModelStore", null,
    * Add (persist) a new (unpersisted) object
    */
   add: function(object, options) {
-    console.log('add', this, arguments);
+    // console.log('add', this, arguments);
     if (object.getId()) {
       throw new Error("object is not new, it has ID: "+object.getId()+
                       " ["+object.getSummary()+"]");
     }
     options = options || {};
     options.overwrite = false;
-    return this.put(object, options);
+    var dfr = this.put(object, options);
+    object.publish(['create']);
+
+    return dfr;
   },
 
   query: function(query, options) {

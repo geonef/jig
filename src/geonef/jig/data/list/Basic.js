@@ -75,10 +75,8 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
     var object = this.createNewObject(props)
         .then(function(obj) {
                 if (!obj) { return false; }
-                var dfr = self.store.add(obj, options)
+                return self.store.add(obj, options)
                     .then(dojo.hitch(self, self.afterCreateNew));
-                obj.publish(['create']);
-                return dfr;
               })
         .then(geonef.jig.util.busy(this.domNode));
   },
