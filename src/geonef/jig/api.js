@@ -98,7 +98,6 @@ dojo.mixin(geonef.jig.api,
 	  console.error('Server API exception', response);
           geonef.jig.api.processException(request, response);
 	}
-      console.log('_processResponseReq', request, response);
       request.promise.resolve(response);
     };
 

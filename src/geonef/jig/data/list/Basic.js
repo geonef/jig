@@ -1,7 +1,9 @@
 
 define("geonef/jig/data/list/Basic", ["dijit/_Widget", "dijit/_Templated", "geonef/jig/api", "geonef/jig/Deferred", "geonef/jig/data/model", "geonef/jig/data/list/BasicRow", "dojo", "geonef/jig/util", "geonef/jig/button/Action", "geonef/jig/button/Link"], function(_Widget, _Templated, api, Deferred, model, BasicRow, d) {
 
-
+/**
+ * Basic list, made from distinct row widgets
+ */
 d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
 {
 
@@ -36,6 +38,7 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
     this.inherited(arguments);
     this.store = model.getStore(this.Model);
     this.refresh();
+    this.subscribe(this.store.channel, this.onChannel);
   },
 
   startup: function() {
@@ -69,11 +72,13 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
 
   createNew: function(props, options) {
     var self = this;
-    return this.createNewObject(props)
+    var object = this.createNewObject(props)
         .then(function(obj) {
                 if (!obj) { return false; }
-                return self.store.add(obj, options)
+                var dfr = self.store.add(obj, options)
                     .then(dojo.hitch(self, self.afterCreateNew));
+                obj.publish(['create']);
+                return dfr;
               })
         .then(geonef.jig.util.busy(this.domNode));
   },
@@ -83,9 +88,16 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
    */
   createNewObject: function(props) {
     var deferred = new geonef.jig.Deferred();
-    var object = new (this.Model)(props);
+    var object = this.store.makeObject(props);
+    // var object = new (this.Model)(props);
     deferred.resolve(object); // unset object by default
     return deferred;
+  },
+
+  onChannel: function(type, obj) {
+    if (['create', 'delete', 'update'].indexOf(type) !== -1) {
+      this.refresh();
+    }
   },
 
   /** hook */

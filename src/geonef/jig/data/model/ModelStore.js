@@ -18,12 +18,20 @@ d.declare("geonef.jig.data.model.ModelStore", null,
    */
   index: null,
 
+  /**
+   * @type {string} Channel for notif publishing
+   */
+  channel: null,
+
 
   constructor: function(options) {
     this.index = {};
     d.mixin(this, options);
     if (!this.module) {
       this.module = this.Model.prototype.module;
+    }
+    if (!this.channel) {
+      this.channel = this.Model.prototype.channel;
     }
   },
 
@@ -51,7 +59,7 @@ d.declare("geonef.jig.data.model.ModelStore", null,
    */
   put: function(object, options) {
     var self = this;
-    return this.apiRequest(
+    var deferred = this.apiRequest(
         { action: 'put',
           object: object.toServerValue(),
           options: options })
@@ -65,6 +73,8 @@ d.declare("geonef.jig.data.model.ModelStore", null,
               console.log('return obj', object);
               return object;
             });
+    object.publish(['put']);
+    return deferred;
   },
 
   /**
@@ -82,12 +92,11 @@ d.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   query: function(query, options) {
-    console.log('query', this, arguments);
+    // console.log('query', this, arguments);
     return this.apiRequest(
         { action: 'query',
           filters: query,
         }).then(d.hitch(this, function(resp) {
-                  console.log('in query then', this, arguments);
                   return resp.results.map(
                       function(r) {
                         var obj = this.makeObject(r);
@@ -97,12 +106,28 @@ d.declare("geonef.jig.data.model.ModelStore", null,
                 }));
   },
 
+  remove: function(obj) {
+    console.log('remove', this, arguments);
+    var deferred = this.apiRequest(
+        { action: 'delete',
+          id: obj.getId(),
+        }).then(d.hitch(this, function(resp) {
+                  console.log('in query then', this, arguments);
+                }));
+    obj.publish(['delete']);
+    return deferred;
+  },
+
   /**
    * Create object out of data
+   *
+   * @return {geonef.jig.data.model.Abstract} the new object
    */
   makeObject: function(data) {
-    var object = new (this.Model);
-    object.fromServerValue(data);
+    var object = new (this.Model)({ store: this });
+    if (data) {
+      object.fromServerValue(data);
+    }
 
     return object;
   },

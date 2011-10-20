@@ -8,6 +8,11 @@ define("geonef/jig/data/model/Abstract", ["dojo"], function(d) {
 dojo.declare('geonef.jig.data.model.Abstract', null,
 {
   /**
+   * Channel on which to publish notifications
+   */
+  channel: 'model/default',
+
+  /**
    * @type {string} ID
    */
   id: null,
@@ -30,6 +35,11 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
       }
     }
   },
+
+  /**
+   * @type {geonef.jig.data.model.ModelStore} store to which this obj belong to
+   */
+  store: null,
 
   constructor: function(options) {
     if (options) {
@@ -98,6 +108,16 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     }
 
     return struct;
+  },
+
+  delete: function() {
+
+  },
+
+  publish: function(argsArray) {
+    argsArray = argsArray.slice(0);
+    argsArray.push(this);
+    dojo.publish(this.channel, argsArray);
   }
 
 });
