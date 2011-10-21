@@ -47,7 +47,6 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
   },
 
   refresh: function() {
-    console.log('refresh', this, arguments);
     this.store.query({})
         .then(dojo.hitch(this, this.populateList))
         .then(geonef.jig.util.busy(this.domNode));
@@ -76,7 +75,11 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
         .then(function(obj) {
                 if (!obj) { return false; }
                 return self.store.add(obj, options)
-                    .then(dojo.hitch(self, self.afterCreateNew));
+                    .then(function(obj) {
+                            if (obj && obj.getId()) {
+                              self.afterCreateNew(obj);
+                            }
+                          });
               })
         .then(geonef.jig.util.busy(this.domNode));
   },
@@ -93,7 +96,7 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
   },
 
   onChannel: function(type, obj) {
-    if (['create', 'delete', 'update'].indexOf(type) !== -1) {
+    if (['put', 'delete'].indexOf(type) !== -1) {
       this.refresh();
     }
   },

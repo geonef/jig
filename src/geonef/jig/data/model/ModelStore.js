@@ -62,15 +62,14 @@ d.declare("geonef.jig.data.model.ModelStore", null,
     var deferred = this.apiRequest(
         { action: 'put',
           object: object.toServerValue(),
-          options: options })
+          options: options || {} })
       .then(function(resp) {
-              console.log('in PUT then', this, arguments);
+              // console.log('in PUT then', this, arguments);
               var id = object.getId();
               object.fromServerValue(resp.object);
               if (!id) {
                 self.index[object.getId()] = object;
               }
-              console.log('return obj', object);
               return object;
             });
     object.publish(['put']);
