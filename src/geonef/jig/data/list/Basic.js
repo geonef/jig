@@ -1,10 +1,9 @@
-
-define("geonef/jig/data/list/Basic", ["dijit/_Widget", "dijit/_Templated", "geonef/jig/api", "geonef/jig/Deferred", "geonef/jig/data/model", "geonef/jig/data/list/BasicRow", "dojo", "geonef/jig/util", "geonef/jig/button/Action", "geonef/jig/button/Link"], function(_Widget, _Templated, api, Deferred, model, BasicRow, d) {
+define("geonef/jig/data/list/Basic", ["dijit/_Widget", "dijit/_Templated", "geonef/jig/Deferred", "geonef/jig/data/model", "geonef/jig/data/list/BasicRow", "dojo", "geonef/jig/util", "geonef/jig/button/Action", "geonef/jig/button/Link"], function(_Widget, _Templated, Deferred, model, BasicRow, dojo) {
 
 /**
  * Basic list, made from distinct row widgets
  */
-d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
+dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
 {
 
   panelPath: "Mes couches",
@@ -17,7 +16,7 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
   /**
    * @type {dijit._Widget} Widget class to use for rows
    */
-  RowClass: BasicRow,
+  RowClass: geonef.jig.data.list.BasicRow,
 
   /**
    * @type {geonef.jig.Deferred}
@@ -26,7 +25,7 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
 
   postMixInProperties: function() {
     this.inherited(arguments);
-    this.whenReady = new Deferred();
+    this.whenReady = new geonef.jig.Deferred();
   },
 
   buildRendering: function() {
@@ -36,7 +35,7 @@ d.declare('geonef.jig.data.list.Basic', [ _Widget, _Templated ],
 
   postCreate: function() {
     this.inherited(arguments);
-    this.store = model.getStore(this.Model);
+    this.store = geonef.jig.data.model.getStore(this.Model);
     this.refresh();
     this.subscribe(this.store.channel, this.onChannel);
   },

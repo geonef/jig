@@ -1,6 +1,6 @@
-define("geonef/jig/data/model/ModelStore", ["geonef/jig/api", "dojo"], function(api, d) {
+define("geonef/jig/data/model/ModelStore", ["geonef/jig/api", "dojo"], function(api, dojo) {
 
-d.declare("geonef.jig.data.model.ModelStore", null,
+dojo.declare("geonef.jig.data.model.ModelStore", null,
 {
 
   /**
@@ -26,7 +26,7 @@ d.declare("geonef.jig.data.model.ModelStore", null,
 
   constructor: function(options) {
     this.index = {};
-    d.mixin(this, options);
+    dojo.mixin(this, options);
     if (!this.module) {
       this.module = this.Model.prototype.module;
     }
@@ -98,7 +98,7 @@ d.declare("geonef.jig.data.model.ModelStore", null,
     return this.apiRequest(
         { action: 'query',
           filters: query,
-        }).then(d.hitch(this, function(resp) {
+        }).then(dojo.hitch(this, function(resp) {
                   return resp.results.map(
                       function(r) {
                         var obj = this.makeObject(r);
@@ -109,11 +109,10 @@ d.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   remove: function(obj) {
-    console.log('remove', this, arguments);
     var deferred = this.apiRequest(
         { action: 'delete',
           id: obj.getId(),
-        }).then(d.hitch(this, function(resp) {
+        }).then(dojo.hitch(this, function(resp) {
                   console.log('in query then', this, arguments);
                 }));
     obj.publish(['delete']);
@@ -138,7 +137,7 @@ d.declare("geonef.jig.data.model.ModelStore", null,
    * Specialisation of geoenf.jig.api.request, for this class
    */
   apiRequest: function(params) {
-    return api.request(d.mixin(
+    return api.request(dojo.mixin(
         { module: this.module, scope: this }, params));
   }
 

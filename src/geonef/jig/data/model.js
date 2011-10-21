@@ -1,4 +1,4 @@
-define("geonef/jig/data/model", ["geonef.jig.data.model.ModelStore"], function(ModelStore) {
+define("geonef/jig/data/model", ["geonef/jig/data/model/ModelStore"], function(ModelStore) {
 
 
 dojo.mixin(geonef.jig.data.model,
@@ -12,7 +12,7 @@ dojo.mixin(geonef.jig.data.model,
     var stores = geonef.jig.data.model._stores;
     var module = Model.prototype.module;
     if (!stores[module]) {
-      stores[module] = new ModelStore({ Model: Model });
+      stores[module] = new geonef.jig.data.model.ModelStore({ Model: Model });
     }
 
     return stores[module];

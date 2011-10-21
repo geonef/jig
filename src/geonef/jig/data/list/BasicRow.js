@@ -1,7 +1,6 @@
+define("geonef/jig/data/list/BasicRow", ["dijit/_Widget", "dijit/_Templated", "dojo"], function(_Widget, _Templated, dojo) {
 
-define("geonef/jig/data/list/BasicRow", ["dijit/_Widget", "dijit/_Templated", "dojo"], function(_Widget, _Templated, d) {
-
-d.declare('geonef.jig.data.list.BasicRow', [ _Widget, _Templated ],
+dojo.declare('geonef.jig.data.list.BasicRow', [ dijit._Widget, dijit._Templated ],
 {
 
   object: null,

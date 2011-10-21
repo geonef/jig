@@ -1,5 +1,4 @@
-
-define("geonef/jig/data/model/Abstract", ["dojo"], function(d) {
+define("geonef/jig/data/model/Abstract", ["dojo"], function(dojo) {
 
 /**
  * Base for model classes
@@ -43,7 +42,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
 
   constructor: function(options) {
     if (options) {
-      d.mixin(this, options);
+      dojo.mixin(this, options);
     }
   },
 
@@ -108,10 +107,6 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     }
 
     return struct;
-  },
-
-  delete: function() {
-
   },
 
   publish: function(argsArray) {
