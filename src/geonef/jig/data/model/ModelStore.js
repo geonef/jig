@@ -137,7 +137,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    * Specialisation of geoenf.jig.api.request, for this class
    */
   apiRequest: function(params) {
-    return api.request(dojo.mixin(
+    return geonef.jig.api.request(dojo.mixin(
         { module: this.module, scope: this }, params));
   }
 
