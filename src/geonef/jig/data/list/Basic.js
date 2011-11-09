@@ -73,6 +73,7 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     var object = this.createNewObject(props)
         .then(function(obj) {
                 if (!obj) { return false; }
+                console.log('obj', obj);
                 return self.store.add(obj, options)
                     .then(function(obj) {
                             if (obj && obj.getId()) {
@@ -84,6 +85,8 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
   },
 
   /**
+   * Create new object with given properties - asynchronous
+   *
    * @return {geonef.jig.Deferred}
    */
   createNewObject: function(props) {
