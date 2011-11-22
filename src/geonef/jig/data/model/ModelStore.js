@@ -1,5 +1,33 @@
-define("geonef/jig/data/model/ModelStore", ["geonef/jig/api", "dojo"], function(api, dojo) {
+define("geonef/jig/data/model/ModelStore", ["geonef/jig/api", "dojo", "geonef/jig/util"], function(api, dojo, jigUtil) {
 
+
+/**
+ * Model store - equivalent for Doctrine repositories
+ *
+ * It is a singleton, meant to be retrieved from geonef.jig.data.model
+ * Needs to be instanciated with the 'Model' property.
+ *
+ * Example:
+ *   var pgLinkViewStore =
+ *         geonef.jig.data.model.getStore(geonef.jig.data.model.PgLinkView);
+ *
+ *   pgLinkViewStore
+ *     .get("4e6ffdffa93ac81c5f000000")
+ *     .then(function(pgLinkView) {
+ *             pgLinkView.set('prop', 'value');
+ *             pgLinkViewStore.put(pgLinkView)
+ *                            .then(function() {
+ *                                      console.log("saved', pgLinkView);
+ *                                  });
+ *           });
+ *
+ *   var pgLinkView = pgLinkViewStore.makeObject({ name: "hehe" });
+ *   pgLinkViewStore
+ *       .add(pgLinkView)
+ *       .then(function(obj) { console.log("saved", obj); });
+ *
+ * @see geonef.jig.data.model
+ */
 dojo.declare("geonef.jig.data.model.ModelStore", null,
 {
 
@@ -33,21 +61,57 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     if (!this.channel) {
       this.channel = this.Model.prototype.channel;
     }
+    this.setupEvents();
   },
 
-  get: function(id) {
-    if (this.index[id]) {
-      var promise = new geoenf.jig.Deferred();
-      promise.resolve(this.index[id]);
-      return promise;
+  /** hook */
+  setupEvents: function() {
+  },
+
+
+  /**
+   * Fetch object by ID
+   *
+   * If found in the volatile cache, no API request is made.
+   *
+   * @return {geonef.jig.data.model.Abstract}
+   */
+  get: function(id, options) {
+    var obj = this.index[id];
+    if (obj && (!options || (!options.fields && !options.fieldGroup))) {
+      return geonef.jig.util.newResolvedDeferred(obj);
     } else {
       var self = this;
-      return this.apiRequest({ action: 'get', id: id })
+      return this.apiRequest(dojo.mixin({ action: 'get', id: id }, options))
           .then(function(resp) {
-                  self.index[id] = self.makeObject(resp.object);
-                  return self.index[id];
+                  if (obj) {
+                    obj.fromServerValue(resp.object);
+                  } else {
+                    // index the object first before setting values
+                    obj = self.index[id] = self.makeObject();
+                    obj.fromServerValue(resp.object);
+                  }
+                  return obj;
                 });
     }
+  },
+
+  /**
+   * Fetch property value for given object
+   *
+   * This is used for "lazy" loading some properties.
+   * The property value is automatically updated within the object.
+   *
+   * @return {dojo.Deferred} callback arg is the property value
+   */
+  fetchProps: function(object, props) {
+    var self = this;
+    return this.apiRequest({ action: 'get', id: object.getId(),
+                             fields: props})
+      .then(function(resp) {
+              object.fromServerValue(resp.object);
+              return object;
+            });
   },
 
   getIdentity: function(object) {
@@ -59,12 +123,12 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    */
   put: function(object, options) {
     var self = this;
-    var deferred = this.apiRequest(
+    var deferred = this.apiRequest(dojo.mixin(
         { action: 'put',
           object: object.toServerValue(),
-          options: options || {} })
+        }, options))
       .then(function(resp) {
-              // console.log('in PUT then', this, arguments);
+              // console.log('in PUT then', arguments, object);
               var id = object.getId();
               object.fromServerValue(resp.object);
               if (!id) {
@@ -80,7 +144,6 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    * Add (persist) a new (unpersisted) object
    */
   add: function(object, options) {
-    console.log('add', this, arguments);
     if (object.getId()) {
       throw new Error("object is not new, it has ID: "+object.getId()+
                       " ["+object.getSummary()+"]");
@@ -96,13 +159,14 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   query: function(query, options) {
     // console.log('query', this, arguments);
     return this.apiRequest(
-        { action: 'query',
+        dojo.mixin({ action: 'query',
           filters: query,
-        }).then(dojo.hitch(this, function(resp) {
+          // options: options || {}
+        }, options)).then(dojo.hitch(this, function(resp) {
                   return resp.results.map(
                       function(r) {
-                        var obj = this.makeObject(r);
-                        this.index[r.id] = obj;
+                        var obj = this.index[r.id] = this.makeObject();
+                        obj.fromServerValue(r);
                         return obj;
                       }, this);
                 }));
@@ -132,6 +196,26 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
     return object;
   },
+
+  /**
+   * Create a new object (to be used from app code)
+   */
+  createObject: function() {
+    var object = this.makeObject();
+    object.initNew();
+    return object;
+  },
+
+  getLazyObject: function(data) {
+    var obj = this.index[data.id];
+    if (obj) {
+      obj.fromServerValue(data);
+    } else {
+      obj = this.index[data.id] = this.makeObject(data);
+    }
+    return obj;
+  },
+
 
   /**
    * Specialisation of geoenf.jig.api.request, for this class
