@@ -58,8 +58,9 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
         if (!dojo.isArray(array)) { return []; }
         var _Class = geonef.jig.util.getClass(type.targetModel);
         var store = geonef.jig.data.model.getStore(_Class);
-        var list = array.map(
-          function(obj) { return store.getLazyObject(obj); });
+        var list = array
+          .filter(function(obj) { return !!obj.id; })
+          .map(function(obj) { return store.getLazyObject(obj); });
         if (type.chained) {
           geonef.jig.util.chainArray(list);
         }
@@ -109,6 +110,12 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     this.init();
   },
 
+  destroy: function() {
+    if (this._subcr) {
+      this._subcr.forEach(dojo.unsubscribe);
+    }
+  },
+
   normalizeProperties: function() {
     var props = {};
     for (var p in this.properties) if (this.properties.hasOwnProperty(p)) {
@@ -144,15 +151,22 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    * @return {dojo.Deferred}
    */
   get: function(property) {
-    var meth = 'get'+geonef.jig.util.string.ucFirst(property);
+    var set, value;
+    var ucProp = geonef.jig.util.string.ucFirst(property);
+    var meth = 'get' + ucProp;
     if (this[meth]) {
-      var value = this.meth;
+      value = this[meth]();
+    } else {
+      meth = 'is' + ucProp;
+      if (this[meth]) {
+        value = this[meth]();
+      }
+    }
+    if (value !== undefined) {
       if (value instanceof dojo.Deferred) {
         return value;
       }
-      if (value !== undefined) {
-        return geonef.jig.util.newResolvedDeferred(value);
-      }
+      return geonef.jig.util.newResolvedDeferred(value);
     }
     if (this[property] !== undefined || !this.id) {
       // if (!this.id) {
@@ -286,6 +300,21 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
   //     }
   //   }
   // },
+
+  subscribe: function(channel, callback) {
+    if (!this._subscr) {
+      this._subscr = [];
+    }
+    var _h = dojo.subscribe(channel, dojo.hitch(this, callback));
+    this._subscr.push(_h);
+    return _h;
+  },
+
+  unsubscribe: function(_h) {
+    var idx = this._subscr.indexOf(_h);
+    dojo.unsubscribe(_h);
+    this._subscr.splice(idx, 1);
+  },
 
   publish: function(argsArray) {
     argsArray = argsArray.slice(0);
