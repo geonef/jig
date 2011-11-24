@@ -134,6 +134,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
               if (!id) {
                 self.index[object.getId()] = object;
               }
+              object.publish(['afterPut']);
               return object;
             });
     object.publish(['put']);
