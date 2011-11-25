@@ -22,6 +22,24 @@ dojo.mixin(geonef.jig.util.string,
       str = str.substr(0, maxLength - end.length) + end;
     }
     return str;
+  },
+
+  escapeHtml: function(content, options) {
+    options = dojo.mixin({ disableOnTag: null }, options);
+    if (!dojo.isString(content)) {
+      content = '';
+    }
+    var escape = !options.disableOnTag ||
+      content.indexOf(options.disableOnTag) === -1;
+    content = content.replace(options.disableOnTag, '');
+    if (escape) {
+      content = dojo.trim(content)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br/>');
+    }
+    return content;
   }
 
 });

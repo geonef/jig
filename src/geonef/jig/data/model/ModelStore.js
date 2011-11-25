@@ -178,7 +178,6 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
         { action: 'delete',
           id: obj.getId(),
         }).then(dojo.hitch(this, function(resp) {
-                  console.log('in query then', this, arguments);
                 }));
     obj.publish(['delete']);
     return deferred;
