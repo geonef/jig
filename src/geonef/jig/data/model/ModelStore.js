@@ -107,8 +107,11 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   fetchProps: function(object, props) {
     var self = this;
     return this.apiRequest({ action: 'get', id: object.getId(),
-                             fields: props})
+                             fields: props })
       .then(function(resp) {
+              // var obj = {};
+              // props.forEach(function(p) { obj[p] = resp.object[p] || null; });
+              // object.fromServerValue(obj);
               object.fromServerValue(resp.object);
               return object;
             });
