@@ -82,14 +82,17 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
       return geonef.jig.util.newResolvedDeferred(obj);
     } else {
       var self = this;
-      return this.apiRequest(dojo.mixin({ action: 'get', id: id }, options))
+      return this.apiRequest(dojo.mixin({ action: 'get', id: id }, options),
+                             options ? options.api : {})
           .then(function(resp) {
                   if (obj) {
                     obj.fromServerValue(resp.object);
-                  } else {
+                  } else if (resp.object) {
                     // index the object first before setting values
                     obj = self.index[id] = self.makeObject();
                     obj.fromServerValue(resp.object);
+                  } else {
+                    return null;
                   }
                   return obj;
                 });
@@ -162,18 +165,21 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
   query: function(query, options) {
     // console.log('query', this, arguments);
-    return this.apiRequest(
-        dojo.mixin({ action: 'query',
-          filters: query,
-          // options: options || {}
-        }, options)).then(dojo.hitch(this, function(resp) {
-                  return resp.results.map(
-                      function(r) {
-                        var obj = this.index[r.id] = this.makeObject();
-                        obj.fromServerValue(r);
-                        return obj;
-                      }, this);
-                }));
+    return this.apiRequest(dojo.mixin(
+        { action: 'query', filters: query, /* options: options || {}*/ }, options))
+      .then(dojo.hitch(this,
+        function(resp) {
+          if (!resp.results) {
+            console.error("model query ("+this.module+"): no result array", resp);
+            return null;
+          }
+          return resp.results.map(
+            function(r) {
+              var obj = this.index[r.id] = this.makeObject();
+              obj.fromServerValue(r);
+              return obj;
+            }, this);
+        }));
   },
 
   remove: function(obj) {
@@ -219,13 +225,17 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     return obj;
   },
 
+  clearCache: function() {
+    this.index = {};
+  },
+
 
   /**
    * Specialisation of geoenf.jig.api.request, for this class
    */
-  apiRequest: function(params) {
+  apiRequest: function(params, options) {
     return geonef.jig.api.request(dojo.mixin(
-        { module: this.module, scope: this }, params));
+        { module: this.module, scope: this }, params), options);
   }
 
 });

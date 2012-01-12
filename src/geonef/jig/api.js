@@ -2,6 +2,7 @@
 dojo.provide('geonef.jig.api');
 
 dojo.require('dojox.uuid.generateRandomUuid');
+dojo.require('geonef.jig._base');
 
 dojo.mixin(geonef.jig.api,
 {
@@ -26,6 +27,13 @@ dojo.mixin(geonef.jig.api,
   noticeTopic: 'jig/api/request',
 
   /**
+   * Whether to show exceptions to the user
+   *
+   * @type {boolean}
+   */
+  showExceptions: false,
+
+  /**
    * @type {Object} Parallel requests deferred to later execution
    */
   _deferredRequests: {},
@@ -46,11 +54,14 @@ dojo.mixin(geonef.jig.api,
    * @param {?Object} object for parameters to pass to dojo XHR.
    * @return {dojo.Deferred} promise, ensured to be geoenf.jig.Deferred if request.callback is set
    */
-  request: function(request, xhrOptions) {
-    xhrOptions = xhrOptions || {};
+  request: function(request, options) {
+    options = options || {};
     var uuid = dojox.uuid.generateRandomUuid();
     request.promise = new geonef.jig.Deferred();
     var ret = request.promise;
+    if (options) {
+      request.__options = options;
+    }
     geonef.jig.api._deferredRequests[uuid] = request;
     if (!geonef.jig.api._timeout) {
       geonef.jig.api._deferred = new geonef.jig.Deferred();
@@ -60,7 +71,7 @@ dojo.mixin(geonef.jig.api,
             geonef.jig.api._timeout = null;
             var reqs = dojo.mixin({}, geonef.jig.api._deferredRequests);
             geonef.jig.api._deferredRequests = {};
-            geonef.jig.api._deferred.dependsOn(geonef.jig.api._doRequest(reqs, xhrOptions));
+            geonef.jig.api._deferred.dependsOn(geonef.jig.api._doRequest(reqs, options));
             geonef.jig.api._deferred.callback();
           }, 0);
     }
@@ -82,24 +93,27 @@ dojo.mixin(geonef.jig.api,
    *
    * @return {dojo.Deferred} from XHR call
    */
-  _doRequest: function(request, xhrOptions) {
+  _doRequest: function(request, options) {
 
     /**
      * Process single-request response
      */
-    var _processResponseReq = function(request, response, xhr) {
-      var ret;
-      // if (request.callback) {
-	//console.log('XHR: calling callback', arguments);
+    var _processResponseReq =
+      function(request, response, xhr) {
+        var options = request.__options || {};
 	if (response.status === 'error') {
 	  console.error('error status from API', response);
 	}
-	if (response.status === 'exception') {
+	if (response.status === 'exception' && !options.ignoreException) {
 	  console.error('Server API exception', response);
           geonef.jig.api.processException(request, response);
 	}
-      request.promise.resolve(response);
-    };
+        try {
+          request.promise.resolve(response);
+        } catch (error) {
+          console.error("exception in API request callback", request, response);
+        }
+      };
 
     /**
      * Process XHR (transport) response
@@ -148,6 +162,7 @@ dojo.mixin(geonef.jig.api,
     var _prepareRequest = function(origRequest) {
       var ret = dojo.mixin({}, origRequest, geonef.jig.api.requestCommonParams);
       delete ret.promise;
+      delete ret.__options;
       return ret;
     };
 
@@ -165,21 +180,23 @@ dojo.mixin(geonef.jig.api,
     dojo.publish('noticeTopic', [ true ]);
     return dojo.xhr('POST', dojo.mixin(
                       {
-                        url: xhrOptions.url || geonef.jig.api.url,
+                        url: options.url || geonef.jig.api.url,
                         handleAs: 'text', //'json',
                         postData: dojo.toJson(requestToSend),
                         load: _processResponse,
                         error: _processError
-                      }, xhrOptions), true);
+                      }, options), true);
   },
 
   processException: function(request, response) {
-    var Class = geonef.jig.util.getClass('geonef.jig.tool.dev.ExceptionDump');
-    var dump = new Class(
-      dojo.mixin({ context: { request: request, response: response }},
-                 response.exception));
-    geonef.jig.workspace.autoAnchorWidget(dump);
-    dump.startup();
+    if (geonef.jig.api.showExceptions) {
+      var Class = geonef.jig.util.getClass('geonef.jig.tool.dev.ExceptionDump');
+      var dump = new Class(
+        dojo.mixin({ context: { request: request, response: response }},
+                   response.exception));
+      geonef.jig.workspace.autoAnchorWidget(dump);
+      dump.startup();
+    }
     console.log('started exception', this, arguments);
   }
 
