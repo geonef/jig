@@ -17,7 +17,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
   id: undefined,
 
   properties: {
-    id: 'string',
+    id: { type: 'string', readOnly: true },
   },
 
   types: {
@@ -51,6 +51,30 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
       },
       toServer: function(lonLat) {
         return { longitude: lonLat.lon, latitude: lonLat.lat };
+      }
+    },
+    geometry: {
+      fromServer: function(wkt) {
+        if (!wkt) {
+          return null;
+        }
+        wkt = wkt.replace(/^SRID=4326;/, '');
+        var features =  this.store.getWktFormat().read(wkt);
+        if (!features) {
+          return null;
+        }
+        if (dojo.isArray(features)) {
+          return features.map(function(feature) { return feature.geometry; });
+        } else {
+          return features.geometry;
+        }
+      },
+      toServer: function(geometry) {
+        var wkt = this.store.getWktFormat().extractGeometry(geometry);
+        if (!/^SRID=/.test(wkt)) {
+          wkt = 'SRID=4326;' + wkt;
+        }
+        return wkt;
       }
     },
     refMany: {
@@ -252,9 +276,9 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
         value = props[p];
         var typeSpec = typeN;
         type = this.types[typeSpec.type];
-        // console.log('type', p, type, this.types, typeSpec);
+        // console.log('type', p, type, typeSpec);
         if (type.fromServer) {
-          value = type.fromServer(value, typeSpec);
+          value = type.fromServer.call(this, value, typeSpec);
         }
         this[p] = value;
       }
@@ -273,6 +297,9 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     var p, type, value;
     var props = this.properties;
     var struct = {};
+    if (this.id) {
+      struct.id = this.id;
+    }
     for (p in props) if (props.hasOwnProperty(p)) {
       value = this[p];
       if (value !== undefined) {
@@ -280,7 +307,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
         if (typeSpec.readOnly) { continue; }
         type = this.types[typeSpec.type];
         if (type && type.toServer) {
-          value = type.toServer(value, typeSpec);
+          value = type.toServer.call(this, value, typeSpec);
           if (value === undefined) {
             continue;
           }

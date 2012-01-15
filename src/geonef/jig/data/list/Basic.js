@@ -97,7 +97,7 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     return deferred;
   },
 
-  onChannel: function(type, obj) {
+  onChannel: function(obj, type) {
     if (['put', 'delete'].indexOf(type) !== -1) {
       this.refresh();
     }

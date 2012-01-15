@@ -51,17 +51,30 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    */
   channel: null,
 
+  apiParams: {},
+
 
   constructor: function(options) {
     this.index = {};
     dojo.mixin(this, options);
+    this.apiParams = dojo.mixin({}, this.apiParams);
+    this.postMixInProperties();
     if (!this.module) {
       this.module = this.Model.prototype.module;
     }
     if (!this.channel) {
       this.channel = this.Model.prototype.channel;
     }
+    this.init();
     this.setupEvents();
+  },
+
+  /** hook */
+  postMixInProperties: function() {
+  },
+
+  /** hook */
+  init: function() {
   },
 
   /** hook */
@@ -235,8 +248,17 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    */
   apiRequest: function(params, options) {
     return geonef.jig.api.request(dojo.mixin(
-        { module: this.module, scope: this }, params), options);
-  }
+        { module: this.module, scope: this }, this.apiParams, params), options);
+  },
+
+  getWktFormat: function() {
+    if (!this.wktFormat) {
+      this.wktFormat = new OpenLayers.Format.WKT();
+    }
+
+    return this.wktFormat;
+  },
+
 
 });
 
