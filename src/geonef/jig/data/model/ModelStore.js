@@ -201,6 +201,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
             console.error("model query ("+this.module+"): no result array", resp);
             return null;
           }
+          console.log('query: results');
           return resp.results.map(this.getLazyObject, this);
           // function(r) {
           //   return this.getLazyObject(r);
@@ -223,6 +224,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
   /**
    * Create new object out of data
+   *
+   * WARNING: it is usually wrong to call this method with a 'data' object,
+   *          since at the time fromServerValue() is called, the object
+   *          is not yet references in the index.
    *
    * @return {geonef.jig.data.model.Abstract} the new object
    */
@@ -252,7 +257,9 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     if (obj) {
       obj.fromServerValue(data);
     } else {
-      obj = this.index[data.id] = this.makeObject(data);
+
+      obj = this.index[data.id] = this.makeObject();
+      obj.fromServerValue(data);
     }
     return obj;
   },

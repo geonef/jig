@@ -289,7 +289,8 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
       value = this[p];
       if (value !== undefined) {
         var typeSpec = props[p];
-        if (typeSpec.readOnly) { continue; }
+        if (typeSpec.readOnly ||
+            typeSpec.noEdit && this.id) { continue; }
         type = this.types[typeSpec.type];
         if (type && type.toServer) {
           value = type.toServer.call(this, value, typeSpec);
