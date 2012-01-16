@@ -130,7 +130,6 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     if (options) {
       dojo.mixin(this, options);
     }
-    this.normalizeProperties();
     this.init();
   },
 
@@ -138,20 +137,6 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     if (this._subcr) {
       this._subcr.forEach(dojo.unsubscribe);
     }
-  },
-
-  normalizeProperties: function() {
-    var props = {};
-    for (var p in this.properties) if (this.properties.hasOwnProperty(p)) {
-      props[p] = this.properties[p];
-      if (!dojo.isObject(props[p])) {
-        props[p] = { type: props[p] };
-      }
-      if (props[p].readOnly !== true && props[p].readOnly !== false) {
-        props[p].readOnly = false;
-      }
-    }
-    this.properties = props;
   },
 
   init: function() {

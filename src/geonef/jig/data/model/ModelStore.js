@@ -59,6 +59,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     dojo.mixin(this, options);
     this.apiParams = dojo.mixin({}, this.apiParams);
     this.postMixInProperties();
+    this.normalizeProperties();
     if (!this.module) {
       this.module = this.Model.prototype.module;
     }
@@ -81,6 +82,20 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   setupEvents: function() {
   },
 
+  destroy: function() {
+  },
+
+  normalizeProperties: function() {
+    var props = this.Model.prototype.properties;
+    for (var p in props) if (props.hasOwnProperty(p)) {
+      if (!dojo.isObject(props[p])) {
+        props[p] = { type: props[p] };
+      }
+      if (props[p].readOnly !== true && props[p].readOnly !== false) {
+        props[p].readOnly = false;
+      }
+    }
+  },
 
   /**
    * Fetch object by ID
