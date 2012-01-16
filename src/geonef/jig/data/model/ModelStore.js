@@ -186,12 +186,13 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
             console.error("model query ("+this.module+"): no result array", resp);
             return null;
           }
-          return resp.results.map(
-            function(r) {
-              var obj = this.index[r.id] = this.makeObject();
-              obj.fromServerValue(r);
-              return obj;
-            }, this);
+          return resp.results.map(this.getLazyObject, this);
+          // function(r) {
+          //   return this.getLazyObject(r);
+          //   // var obj = this.index[r.id] = this.makeObject();
+          //   // obj.fromServerValue(r);
+          //   // return obj;
+          // }, this);
         }));
   },
 
@@ -206,7 +207,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   /**
-   * Create object out of data
+   * Create new object out of data
    *
    * @return {geonef.jig.data.model.Abstract} the new object
    */
@@ -228,6 +229,9 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     return object;
   },
 
+  /**
+   * Create object (or get ref), inject given data
+   */
   getLazyObject: function(data) {
     var obj = this.index[data.id];
     if (obj) {
