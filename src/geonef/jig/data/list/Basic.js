@@ -56,6 +56,9 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     if (this.emptyNode) {
       dojo.style(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
     }
+    if (this.countLink) {
+      this.countLink.set('label', '('+(results.totalCount || results.length)+')');
+    }
     this.rows = results.map(
         function(obj) {
           var row = new (this.RowClass)({ object: obj });
