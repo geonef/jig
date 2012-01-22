@@ -45,10 +45,19 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     this.whenReady.callback();
   },
 
+  destroy: function() {
+    this.clear();
+    this.inherited(arguments);
+  },
+
   refresh: function() {
-    this.store.query({})
+    this.store.query(this.buildQuery())
         .then(dojo.hitch(this, this.populateList))
         .then(geonef.jig.util.busy(this.domNode));
+  },
+
+  buildQuery: function() {
+    return {};
   },
 
   populateList: function(results) {
@@ -59,12 +68,21 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     if (this.countLink) {
       this.countLink.set('label', '('+(results.totalCount || results.length)+')');
     }
+    (results.length > 0 ? dojo.removeClass : dojo.addClass)(this.domNode, 'empty');
     this.rows = results.map(
-        function(obj) {
+        function(obj, key) {
           var row = new (this.RowClass)({ object: obj });
-          row.placeAt(this.listNode).startup();
+          this.placeRow(row, key);
+          row.startup();
           return row;
         }, this);
+  },
+
+  /**
+   * @type {dijit._Widget} row widget to place
+   */
+  placeRow: function(row, key) {
+    row.placeAt(this.listNode);
   },
 
   clear: function() {

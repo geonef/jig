@@ -201,7 +201,6 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
             console.error("model query ("+this.module+"): no result array", resp);
             return null;
           }
-          console.log('query: results');
           return resp.results.map(this.getLazyObject, this);
           // function(r) {
           //   return this.getLazyObject(r);

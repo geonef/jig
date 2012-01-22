@@ -26,7 +26,7 @@ dojo.mixin(geonef.jig.util.string,
 
   escapeHtml: function(content, options) {
     options = dojo.mixin({ disableOnTag: null }, options);
-    content = ''+content;
+    content = ''+(content || '');
     var escape = !options.disableOnTag ||
       content.indexOf(options.disableOnTag) === -1;
     content = content.replace(options.disableOnTag, '');
