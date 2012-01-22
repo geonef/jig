@@ -81,7 +81,7 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
       this.domNodeName = this.srcNodeRef ?
         this.srcNodeRef.nodeName.toLowerCase() : 'span';
     }
-    this.domNode = dojo.create(this.domNodeName, {});
+    this.domNode = dojo.create(this.domNodeName, {'class':'jigInputLabel'});
   },
 
   startup: function() {
@@ -118,7 +118,8 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
   _setValueAttr: function(value) {
     value = this.filter(value);
     this.value = value;
-    var display = this.isMapped ? this.map[value] : value;
+    var display = this.isMapped ? this.map[value] :
+      (value === null || value === undefined ? '' : value);
     this.domNode.innerHTML = display;
     this.updateFalsy();
   },
