@@ -16,6 +16,8 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    */
   id: undefined,
 
+  originalValues: {},
+
   properties: {
     id: { type: 'string', readOnly: true },
   },
@@ -130,6 +132,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     if (options) {
       dojo.mixin(this, options);
     }
+    this.originalValues = dojo.mixin({}, this.originalValues);
     this.init();
   },
 
@@ -265,6 +268,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
         if (type.fromServer) {
           value = type.fromServer.call(this, value, typeSpec);
         }
+        this.originalValues[p] = value;
         this[p] = value;
       }
     }
@@ -289,8 +293,12 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
       value = this[p];
       if (value !== undefined) {
         var typeSpec = props[p];
+        var original = this.originalValues[p];
         if (typeSpec.readOnly ||
-            typeSpec.noEdit && this.id) { continue; }
+            (typeSpec.noEdit && this.id) ||
+            (original !== undefined &&
+             (typeSpec.compare ? (typeSpec.compare(value, original) != 0) :
+                 value === original))) { continue; }
         type = this.types[typeSpec.type];
         if (type && type.toServer) {
           value = type.toServer.call(this, value, typeSpec);

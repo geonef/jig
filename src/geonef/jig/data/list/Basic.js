@@ -69,13 +69,13 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
       this.countLink.set('label', '('+(results.totalCount || results.length)+')');
     }
     (results.length > 0 ? dojo.removeClass : dojo.addClass)(this.domNode, 'empty');
-    this.rows = results.map(
-        function(obj, key) {
-          var row = new (this.RowClass)({ object: obj });
-          this.placeRow(row, key);
-          row.startup();
-          return row;
-        }, this);
+    this.rows = results.map(this.makeRow, this)
+                       .map(this.placeRow, this);
+  },
+
+  makeRow: function(obj, key) {
+    var row = new (this.RowClass)({ object: obj });
+    return row;
   },
 
   /**
@@ -83,6 +83,8 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
    */
   placeRow: function(row, key) {
     row.placeAt(this.listNode);
+    row.startup();
+    return row;
   },
 
   clear: function() {
@@ -115,7 +117,8 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
    */
   createNewObject: function(props) {
     var deferred = new geonef.jig.Deferred();
-    var object = this.store.makeObject(props);
+    var object = this.store.createObject();
+    object.setProps(props);
     // var object = new (this.Model)(props);
     deferred.resolve(object); // unset object by default
     return deferred;
