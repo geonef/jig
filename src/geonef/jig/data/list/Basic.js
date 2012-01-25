@@ -6,7 +6,12 @@ define("geonef/jig/data/list/Basic", ["dijit/_Widget", "dijit/_Templated", "geon
 dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
 {
 
-  panelPath: "Mes couches",
+  /**
+   * @type {integer} max number of shown results
+   */
+  limit: null,
+
+  msgMore: "+ ${count} objets",
 
   /**
    * @type {geonef.jig.data.model.Abstract}
@@ -19,12 +24,19 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
   RowClass: geonef.jig.data.list.BasicRow,
 
   /**
+   * @type {Object} Options given to row widgets
+   */
+  rowOptions: {},
+
+  /**
    * @type {geonef.jig.Deferred}
    */
   whenReady: null,
 
+
   postMixInProperties: function() {
     this.inherited(arguments);
+    this.rowOptions = dojo.mixin({}, this.rowOptions);
     this.whenReady = new geonef.jig.Deferred();
   },
 
@@ -69,12 +81,26 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
       this.countLink.set('label', '('+(results.totalCount || results.length)+')');
     }
     (results.length > 0 ? dojo.removeClass : dojo.addClass)(this.domNode, 'empty');
+    var over = this.limit && this.limit < results.length &&
+      results.length - this.limit;
+    if (over) {
+      results = results.slice(0, this.limit);
+    }
     this.rows = results.map(this.makeRow, this)
                        .map(this.placeRow, this);
+    if (over) {
+      var moreLink = new geonef.jig.button.Link(
+                       { label: dojo.string.substitute(this.msgMore, { count: over }),
+                         title: "Cliquer pour afficher",
+                         onExecute: dojo.hitch(this, this.openList) });
+      dojo.addClass(moreLink.domNode, 'jigDataRow more');
+      this.placeRow(moreLink, null);
+      this.rows.push(moreLink);
+    }
   },
 
   makeRow: function(obj, key) {
-    var row = new (this.RowClass)({ object: obj });
+    var row = new (this.RowClass)(dojo.mixin({ object: obj }, this.rowOptions));
     return row;
   },
 
@@ -122,6 +148,10 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     // var object = new (this.Model)(props);
     deferred.resolve(object); // unset object by default
     return deferred;
+  },
+
+  openList: function() {
+    console.warn("to overload: openList()", this);
   },
 
   onChannel: function(obj, type) {
