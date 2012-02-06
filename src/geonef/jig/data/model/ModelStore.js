@@ -85,6 +85,9 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   destroy: function() {
   },
 
+  /**
+   * Transform prototype's properties into canonical form (internal use)
+   */
   normalizeProperties: function() {
     var props = this.Model.prototype.properties;
     for (var p in props) if (props.hasOwnProperty(p)) {
@@ -102,6 +105,13 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    *
    * If found in the volatile cache, no API request is made.
    *
+   * Available options:
+   *    - fields:       array of properties to fetch
+   *    - fieldGroup:   name of property group to fetch (exclusive of 'fields')
+   *    - api:          object of API transport options (see geonef.jig.api)
+   *
+   * @param {string} id Identifier
+   * @param {!Object} options Hash of options
    * @return {geonef.jig.data.model.Abstract}
    */
   get: function(id, options) {
@@ -133,7 +143,9 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    * This is used for "lazy" loading some properties.
    * The property value is automatically updated within the object.
    *
-   * @return {dojo.Deferred} callback arg is the property value
+   * @param {geonef.jig.data.model.Abstract} object the model object
+   * @param {Array.<string>} props Array of property names to fetch
+   * @return {dojo.Deferred} callback whose arg is the property value
    */
   fetchProps: function(object, props) {
     var self = this;
@@ -148,12 +160,21 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
             });
   },
 
+  /**
+   * Get object identifier
+   *
+   * @return {string}
+   */
   getIdentity: function(object) {
     return object.getId();
   },
 
   /**
-   * Stores an object. Trigger a call to the server API.
+   * Stores an object. Will trigger a call to the server API.
+   *
+   * @param {geonef.jig.data.model.Abstract} object the model object
+   * @param {Object} options API options (see geonef.jig.api)
+   * @return {dojo.Deferred} callback whose arg is the model object
    */
   put: function(object, options) {
     var self = this;
@@ -177,6 +198,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
   /**
    * Add (persist) a new (unpersisted) object
+   *
+   * @param {geonef.jig.data.model.Abstract} object the model object
+   * @param {Object} options API options (see geonef.jig.api)
+   * @return {dojo.Deferred} callback whose arg is the model object
    */
   add: function(object, options) {
     if (object.getId()) {
@@ -191,6 +216,20 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     return dfr;
   },
 
+  /**
+   * Add (persist) a new (unpersisted) object
+   *
+   * 'query' is something like:
+   *   {
+   *     stringProp: { op: 'equal', value: 'test' },
+   *     integerProp: { op: 'sup', value: 42 },
+   *     refProp: { op: 'ref', value: 'test' },
+   *   }
+   *
+   * @param {Object.<string,Object>} query Query filters
+   * @param {Array.<string>} options API options (see geonef.jig.api)
+   * @return {dojo.Deferred} callback whose arg is the model object
+   */
   query: function(query, options) {
     // console.log('query', this, arguments);
     return this.apiRequest(dojo.mixin(
@@ -211,6 +250,12 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
         }));
   },
 
+  /**
+   * Remove from DB (unpersist) an object
+   *
+   * @param {geonef.jig.data.model.Abstract} object the model object
+   * @return {dojo.Deferred} callback with no arg
+   */
   remove: function(obj) {
     var deferred = this.apiRequest(
         { action: 'delete',
@@ -222,11 +267,11 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   /**
-   * Create new object out of data
+   * Create new object out of data (for private use)
    *
    * WARNING: it is usually wrong to call this method with a 'data' object,
    *          since at the time fromServerValue() is called, the object
-   *          is not yet references in the index.
+   *          is not yet referenced in the local index.
    *
    * @return {geonef.jig.data.model.Abstract} the new object
    */
@@ -241,6 +286,8 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
   /**
    * Create a new object (to be used from app code)
+   *
+   * @return {geonef.jig.data.model.Abstract}
    */
   createObject: function() {
     var object = this.makeObject();
@@ -250,19 +297,30 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
   /**
    * Create object (or get ref), inject given data
+   *
+   * This is the right function to use to instanciate a model object
+   * which has an identifier.
+   *
+   * @param {Object} data Hash of property values (must have a valid 'id' key)
+   * @return {geonef.jig.data.model.Abstract}
    */
   getLazyObject: function(data) {
     var obj = this.index[data.id];
-    if (obj) {
-      obj.fromServerValue(data);
-    } else {
-
+    if (!obj) {
       obj = this.index[data.id] = this.makeObject();
-      obj.fromServerValue(data);
     }
+    obj.fromServerValue(data);
+
     return obj;
   },
 
+  /**
+   * Clear the local cache
+   *
+   * This is used by unit test modules to force data re-fetch.
+   * After this call, all previously cached model objects must not be used
+   * (or redundant objects could appear, breaking the app logic).
+   */
   clearCache: function() {
     this.index = {};
   },
@@ -282,8 +340,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     }
 
     return this.wktFormat;
-  },
-
+  }
 
 });
 
