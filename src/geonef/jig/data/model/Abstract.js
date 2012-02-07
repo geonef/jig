@@ -1,27 +1,112 @@
 define("geonef/jig/data/model/Abstract", ["dojo", "geonef/jig/util/string"], function(dojo, utilString) {
 
 /**
- * Base for model classes
+ * Base class for all models
  *
+ * This is the right class to inherit from when building now models.
+ * Everything is defined here:
+ *      - event channel & publishing
+ *      - discriminator property
+ *      - the 'id' property which is common to all models
+ *      - the supported property types
+ *      - data fetching & hydration
+ *
+ * For a good example of implementing a model, see geonef.jig.data.model.User.
+ *
+ * @see geonef.jig.data.model
+ * @see geonef.jig.data.model.ModelStore
+ * @see geonef.jig.data.model.User
  */
 dojo.declare('geonef.jig.data.model.Abstract', null,
 {
   /**
    * Channel on which to publish notifications
+   *
+   * @type {string} channel
    */
   channel: 'model/default',
 
   /**
-   * @type {string} ID
+   * Database identifier
+   *
+   * @type {string} id
    */
   id: undefined,
 
-  originalValues: {},
+  /**
+   * Name of (string) property to use for the discriminator.
+   *
+   * See the 'discriminatorMap' property for explanations of this feature.
+   *
+   * @type {string} discriminatorProperty
+   */
+  discriminatorProperty: undefined,
 
-  properties: {
+  /**
+   * Map between discriminator values and model class names
+   *
+   * When a discriminator is defined (through 'discriminatorProperty'),
+   * it is used to determine what model class to instanciate for this model's
+   * objects.
+   *
+   * For example, if 'discriminatorProperty' is set to 'type' and
+   * 'discriminatorMap' is set to:
+   *   { test: 'data.model.MyTest', other: 'data.model.MyOther' }
+   * Then, the first class is used for objects whose 'type' property is set
+   * to "test", the second if the value is "other".
+   *
+   * This is inspired after Doctrine's discriminatorMap feature.
+   * See: http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/inheritance-mapping.html
+   *
+   * @type {Object.<string,string>} discriminatorMap
+   */
+  discriminatorMap: {},
+
+  /**
+   * List of properties
+   *
+   * It's in the form of an object whose keys are property names and values
+   * are objects defining property attributes.
+   *
+   * These properties should also be defined as normal properties of
+   * the model prototype, with the 'undefined' value for most cases.
+   *
+   * Here are the supported property attributes:
+   *    - type (string):        name of type, must exist in the this.types object
+   *    - readOnly (boolean):   whether the property is readOnly
+   *    - noEdit (boolean):     whether the property cannot be changed once defined
+   *    - compare (function):   function that take 2 values and compare them
+   *                            (used to compute changed properties in 'toServerValue')
+   *
+   * In order to be compliant, the object must go through
+   * geonef.jig.data.model.normalizeProperties.
+   *
+   * To inherit from a parent Model's properties, use the following syntax:
+   *    properties: geonef.jig.data.model.normalizeProperties(
+   *      dojo.delegate(geonef.jig.data.model.Abstract.prototype.properties, {
+   *        myOwnProperty: { type: 'string' },
+   *    }))
+   *
+   * @type {Object.<string,Object>} properties
+   */
+  properties: geonef.jig.data.model.normalizeProperties({
     id: { type: 'string', readOnly: true },
-  },
+  }),
 
+  /**
+   * Implemented property types
+   *
+   * It's in the form of an object whose keys are type names and values
+   * are object defining the style.
+   *
+   * Supported definition options:
+   *    - fromServer (function): return the Javascript value from server's ;
+   *                             defaults to no conversion
+   *    - toServer (function):  return the server value from Javascript's ;
+   *                            defaults to no conversion
+   *
+   * @type {Object.<string,Object>} types
+   */
   types: {
     string: {
     },
@@ -124,9 +209,19 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
   },
 
   /**
-   * @type {geonef.jig.data.model.ModelStore} store to which this obj belong to
+   * Store to which this obj belong to
+   *
+   * @type {geonef.jig.data.model.ModelStore} store
    */
   store: null,
+
+  /**
+   * Hash of original values
+   *
+   * @type {Object} originalValues
+   */
+  originalValues: {},
+
 
   constructor: function(options) {
     if (options) {
@@ -142,18 +237,17 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     }
   },
 
-  init: function() {
-  },
+  /** hook */
+  init: function() {},
 
   /** hook */
-  initNew: function() {
-  },
+  initNew: function() {},
 
   /**
    * Get value of given property - asynchronous
    *
    * For any "foo" property, the method "getFoo" is checked for existence.
-   * It can return :
+   * That 'getFoo' method can return :
    *    - a dojo.Deferred object, which is then returned as is by "get"
    *    - an immediate value, which is passed as param to next deferred's callback
    *    - undefined, which is the same as if "getFoo" were not defined:
@@ -210,6 +304,8 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
   },
 
   /**
+   * Set a given property to given value
+   *
    * @param {string} property
    * @param any value
    */
@@ -223,7 +319,9 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
   },
 
   /**
-   * @param {Object} object
+   * Set multiple properties at once
+   *
+   * @param {Object} object     object of properties/values
    */
   setProps: function(object) {
     for (var p in object) if (object.hasOwnProperty(p)) {
@@ -234,20 +332,28 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
 
   /**
    * Get object ID
+   *
+   * @return {string}
    */
   getId: function() {
     return this.id;
   },
 
   /**
-   * Set object ID - called by ModelStore after new obj is persisted
+   * Set object ID - called by ModelStore after new obj is persisted (private use)
+   *
+   * @param {string} id
    */
   setId: function(id) {
     this.id = id;
   },
 
   /**
-   * @return {string} short string, text summary about the object
+   * Get short string, text summary about the object
+   *
+   * This would typically return the value of the 'name' or 'title' property.
+   *
+   * @return {string}
    */
   getSummary: function() {
     return this.getId();
@@ -255,6 +361,8 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
 
   /**
    * Set properties as fetched from the server
+   *
+   * @param {Object} props
    */
   fromServerValue: function(props) {
     var p, typeN, type, value;
@@ -280,6 +388,8 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    * Only JSON-compatible values are valid: Object, Array, String, Numbers, Null.
    * Be careful: no NaN, undefined, or circular-references.
    *
+   * The discriminator field, if any, is defined
+   *
    * @return {Object}
    */
   toServerValue: function() {
@@ -289,7 +399,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     if (this.id) {
       struct.id = this.id;
     }
-    for (p in props) if (props.hasOwnProperty(p)) {
+    for (p in props) if (dojo.isObject(props[p]) && props[p].type) {
       value = this[p];
       if (value !== undefined) {
         var typeSpec = props[p];
@@ -312,15 +422,6 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
 
     return struct;
   },
-
-  // restoreDefaults: function() {
-  //   var props = this.properties;
-  //   for (var prop in props) if (props.hasOwnProperty(prop)) {
-  //     if (props[prop].defaultValue !== undefined) {
-  //       this[prop] = props[prop].defaultValue;
-  //     }
-  //   }
-  // },
 
   subscribe: function(channel, callback) {
     if (!this._subscr) {

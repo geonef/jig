@@ -3,9 +3,17 @@ dojo.provide('geonef.jig.util.angle');
 
 dojo.require('geonef.jig.util');
 
+/**
+ * Utility functions dealing with angles
+ */
 dojo.mixin(geonef.jig.util.angle,
 {
-  // return within [-PI; PI]
+  /**
+   * Make sure the angle is within [-PI; PI]
+   *
+   * @param {number} angle
+   * @return {number} angle within [-PI; PI]
+   */
   fix: function(angle) {
     while (angle < -Math.PI) {
       angle += 2 * Math.PI;
@@ -18,14 +26,22 @@ dojo.mixin(geonef.jig.util.angle,
   },
 
   /**
-   * return within [-PI; PI]
+   * Add 2 angles
+   *
+   * @param {number} a1
+   * @param {number} a2
+   * @return {number} sum within [-PI; PI]
    */
   add: function(a1, a2) {
     return geonef.jig.util.angle.diff(a1, -a2);
   },
 
   /**
-   * difference within [-PI; PI]
+   * Oriented difference
+   *
+   * @param {number} a2
+   * @param {number} a1
+   * @return {number} angle within [-PI; PI]
    */
   diff: function(a2, a1) {
     // better: return geonef.jig.util.angle.fix(a2 - a1);
@@ -41,6 +57,10 @@ dojo.mixin(geonef.jig.util.angle,
 
   /**
    * Product or oriented angle by given real number
+   *
+   * @param {number} angle
+   * @param {number} mult
+   * @return {number} angle within [-PI; PI]
    */
   mult: function(angle, mult) {
     if (angle < 0) {
@@ -48,24 +68,6 @@ dojo.mixin(geonef.jig.util.angle,
     }
     return geonef.jig.util.angle.fix(angle * mult);
   },
-
-  // /**
-  //  * 2 - 3 = -1
-  //  * -2 - -3 = 1
-  //  * -3 - -2 = -1
-  //  * 2 - -2 = _d_     // -
-  //  * -2 - 2 = _d_     // +
-  //  *
-  //  */
-  // orientDiff: function(a2, a1) {
-  //   if (a1 >= 0 && a2 >= 0) {
-  //     return a2 - a1;
-  //   } else if (a1 <= 0 && a2 <= 0) {
-  //     return a2 - a1;
-  //   } else {
-  //     return a1;
-  //   }
-  // },
 
   /**
    * Compare angles, oriented positively
@@ -97,15 +99,22 @@ dojo.mixin(geonef.jig.util.angle,
     //return Math.atan(Math.abs((p1.y - p2.y) / (p1.x - p2.x)));
   },
 
+  /**
+   * Return whether an angle is between 2 other angles
+   *
+   * @param {number} angle
+   * @param {number} from
+   * @param {number} to
+   * @param {boolean} strict    whether the comparison is strict
+   * @return {boolean}
+   */
   isWithin: function(angle, from, to, strict) {
     to = geonef.jig.util.angle.diff(to, from);
     angle = geonef.jig.util.angle.diff(angle, from);
     if (strict) {
-
       return to >= 0 ? (angle > 0 && angle < to) :
         (angle > 0 || angle < to);
     } else {
-
       return to >= 0 ? (angle >= 0 && angle <= to) :
         (angle >= 0 || angle <= to);
     }
@@ -113,8 +122,14 @@ dojo.mixin(geonef.jig.util.angle,
     //   geonef.jig.util.angle.diff(max, angle) > 0;
   },
 
+  /**
+   * Compute the bissectrice of smaller angle
+   *
+   * @param {number} a1
+   * @param {number} a2
+   * @return {boolean}
+   */
   average: function(a1, a2) {
-    // return bissectrice of smaller angle
     if (a2 >= 0 || a1 < 0) {	// doesn't go through the break PI:-PI
       return (a1 + a2) / 2;
     } else {

@@ -3,18 +3,42 @@ dojo.provide('geonef.jig.util.string');
 
 dojo.require('geonef.jig.util');
 
+/**
+ * Utility functions dealing with strings
+ */
 dojo.mixin(geonef.jig.util.string,
 {
+  /**
+   * Make the first letter lowercase
+   *
+   * @param {string} str
+   * @return {string}
+   */
   lcFirst: function(str) {
     return str.substr(0, 1).toLowerCase()
       + str.substr(1);
   },
 
+  /**
+   * Make the first letter uppercase
+   *
+   * @param {string} str
+   * @return {string}
+   */
   ucFirst: function(str) {
     return str.substr(0, 1).toUpperCase()
       + str.substr(1);
   },
 
+  /**
+   * Make sure the string doesn't exceed a limit
+   *
+   * If it is too long, it is cut with "...".
+   *
+   * @param {string} str
+   * @param {number} maxLength  the limit
+   * @return {string}
+   */
   summarize: function(str, maxLength) {
     str = ''+str;
     if (str.length > maxLength) {
@@ -24,6 +48,13 @@ dojo.mixin(geonef.jig.util.string,
     return str;
   },
 
+  /**
+   * Escape HTML tags (&, <, >, \n)
+   *
+   * @param {string} content
+   * @param {Object} options
+   * @return {string}
+   */
   escapeHtml: function(content, options) {
     options = dojo.mixin({ disableOnTag: null }, options);
     content = ''+(content || '');

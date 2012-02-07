@@ -1,12 +1,24 @@
 
 dojo.provide('geonef.jig.util.color.Gradient');
 
+/**
+ * Class for handling simple HSL color gradients
+ *
+ * The HSL colors here are 3-element arrays:
+ *      [0]: hue (angle of the color circle), in [0 ; 360[
+ *      [1]: saturation (percentage), in [0 ; 100]
+ *      [2]: lightness (percentage), in [0 ; 100]
+ *
+ * @see http://www.w3.org/TR/2008/WD-css3-color-20080721/#hsl-color
+ */
 dojo.declare('geonef.jig.util.color.Gradient', null,
 {
   color1: [0,0,0],
   color2: [0,0,0],
 
   /**
+   * Constructor
+   *
    * @param {Array.<number>} color1
    * @param {Array.<number>} color2
    */
@@ -16,7 +28,8 @@ dojo.declare('geonef.jig.util.color.Gradient', null,
   },
 
   /**
-   * @param {number} position between 0 and 1
+   * @param {number} position in [0 ; 1]
+   * @return {Array.<number>}
    */
   getColor: function(position) {
     var ret = [null, null, null];
@@ -27,17 +40,25 @@ dojo.declare('geonef.jig.util.color.Gradient', null,
     return ret;
   },
 
+  /**
+   * @param {number} position in [0 ; 1]
+   * @return {string} expression like: "hsl(120,80%,30%)"
+   */
   getColorCssHsl: function(position) {
     var color = this.getColor(position);
     return 'hsl('+color[0]+','+color[1]+'%,'+color[2]+'%)';
   },
 
+  /**
+   * Clone this gradient
+   *
+   * @return {geonef.jit.util.color.Gradient}
+   */
   clone: function() {
     var clone = new geonef.jig.util.color.Gradient({
                   color1: this.color1.slice(0),
                   color2: this.color2.slice(0) });
     return clone;
-  },
-
+  }
 
 });

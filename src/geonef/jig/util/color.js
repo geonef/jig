@@ -3,6 +3,9 @@ dojo.provide('geonef.jig.util.color');
 
 dojo.require('geonef.jig.util');
 
+/**
+ * Utility functions dealing with colors
+ */
 dojo.mixin(geonef.jig.util.color,
 {
   /**
@@ -11,6 +14,7 @@ dojo.mixin(geonef.jig.util.color,
    * Typically used to know what foreground color to use over the given
    * background color (or vice-versa) to make labels visible.
    *
+   * @param {string} color (normalized by function, don't worry)
    * @return {boolean}
    */
   isDark: function(color) {
@@ -21,6 +25,7 @@ dojo.mixin(geonef.jig.util.color,
   /**
    * Transfor color string like #6a3b41 to value array like [106,59,65]
    *
+   * @param {string} color (normalized by function, don't worry)
    * @return {Array.<number>}
    */
   toArray: function(color) {
@@ -33,6 +38,11 @@ dojo.mixin(geonef.jig.util.color,
   /**
    * Normalize color, to always get #rrggbb hex string
    *
+   * Rules:
+   *    - the leading '#' can be omited
+   *    - can be expressed in the 3-digit form like '#3ab'
+   *
+   * @param {string} expression color
    * @return {string}
    */
   normalize: function(color) {

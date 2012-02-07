@@ -1,6 +1,5 @@
 define("geonef/jig/data/model/ModelStore", ["geonef/jig/api", "dojo", "geonef/jig/util"], function(api, dojo, jigUtil) {
 
-
 /**
  * Model store - equivalent for Doctrine repositories
  *
@@ -8,25 +7,35 @@ define("geonef/jig/data/model/ModelStore", ["geonef/jig/api", "dojo", "geonef/ji
  * Needs to be instanciated with the 'Model' property.
  *
  * Example:
- *   var pgLinkViewStore =
- *         geonef.jig.data.model.getStore(geonef.jig.data.model.PgLinkView);
+ *   var customStore = geonef.jig.data.model.getStore(geonef.jig.data.model.Custom);
  *
- *   pgLinkViewStore
+ *   // customStore instanceof geonef.jig.data.mode.ModelStore (true)
+ *   // if geonef.jig.data.model.Custom.prototype.Store is defined, it is used
+ *   //  instead of geonef.jig.data.mode.ModelStore
+ *
+ *   customStore
  *     .get("4e6ffdffa93ac81c5f000000")
- *     .then(function(pgLinkView) {
- *             pgLinkView.set('prop', 'value');
- *             pgLinkViewStore.put(pgLinkView)
- *                            .then(function() {
- *                                      console.log("saved', pgLinkView);
- *                                  });
+ *     .then(function(customObject) {
+ *             customObject.set('prop', 'value');
+ *             customStore.put(customObject)
+ *                        .then(function() {
+ *                                  console.log("saved', customObject);
+ *                              });
  *           });
  *
- *   var pgLinkView = pgLinkViewStore.makeObject({ name: "hehe" });
- *   pgLinkViewStore
- *       .add(pgLinkView)
- *       .then(function(obj) { console.log("saved", obj); });
+ *   var newCustom = customStore.makeObject({ name: "hehe" });
+ *   customStore
+ *       .add(newCustom)
+ *       .then(function(obj) {
+ *                 // obj === newCustom
+ *                 console.log("saved", obj);
+ *             });
+ *
+ * For an example of a custom store, see geonef.jig.data.model.UserStore.
  *
  * @see geonef.jig.data.model
+ * @see geonef.jig.data.model.Abstract
+ * @see geonef.jig.data.model.UserStore
  */
 dojo.declare("geonef.jig.data.model.ModelStore", null,
 {
@@ -37,20 +46,34 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   Model: null,
 
   /**
-   * @type {string} API module (ex: "geonefZig/data/file")
+   * Server API module for persistance
+   *
+   * Example: "geonefZig/data/file".
+   * If not specified, will be taken from Model's prototype
+   *
+   * @type {string} module
    */
   module: null,
 
   /**
-   * @type {Object} volatile cache
+   * Local volatile cache
+   *
+   * @type {Object} index
    */
   index: null,
 
   /**
-   * @type {string} Channel for notif publishing
+   * Channel for notification publishing
+   *
+   * @type {string} channel
    */
   channel: null,
 
+  /**
+   * Additional parameters for server API requests
+   *
+   * @type {Object} apiParams
+   */
   apiParams: {},
 
 
@@ -59,7 +82,6 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     dojo.mixin(this, options);
     this.apiParams = dojo.mixin({}, this.apiParams);
     this.postMixInProperties();
-    this.normalizeProperties();
     if (!this.module) {
       this.module = this.Model.prototype.module;
     }
@@ -83,21 +105,6 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   destroy: function() {
-  },
-
-  /**
-   * Transform prototype's properties into canonical form (internal use)
-   */
-  normalizeProperties: function() {
-    var props = this.Model.prototype.properties;
-    for (var p in props) if (props.hasOwnProperty(p)) {
-      if (!dojo.isObject(props[p])) {
-        props[p] = { type: props[p] };
-      }
-      if (props[p].readOnly !== true && props[p].readOnly !== false) {
-        props[p].readOnly = false;
-      }
-    }
   },
 
   /**
@@ -127,7 +134,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
                     obj.fromServerValue(resp.object);
                   } else if (resp.object) {
                     // index the object first before setting values
-                    obj = self.index[id] = self.makeObject();
+                    obj = self.index[id] = self.makeObject(resp.object);
                     obj.fromServerValue(resp.object);
                   } else {
                     return null;
@@ -241,12 +248,6 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
             return null;
           }
           return resp.results.map(this.getLazyObject, this);
-          // function(r) {
-          //   return this.getLazyObject(r);
-          //   // var obj = this.index[r.id] = this.makeObject();
-          //   // obj.fromServerValue(r);
-          //   // return obj;
-          // }, this);
         }));
   },
 
@@ -267,30 +268,47 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   /**
-   * Create new object out of data (for private use)
+   * Create new object (for private use)
    *
-   * WARNING: it is usually wrong to call this method with a 'data' object,
-   *          since at the time fromServerValue() is called, the object
-   *          is not yet referenced in the local index.
+   * WARNING: the object is not added to the local cache,
+   *          and dataForDiscriminator is used only to distinguish
+   *          what class to use if a discriminatorProperty is defined.
    *
+   * @param {Object} dataForDiscriminator data object whose discriminator
+   *                     field (if any) is used to determine the class to instanciate
    * @return {geonef.jig.data.model.Abstract} the new object
    */
-  makeObject: function(data) {
-    var object = new (this.Model)({ store: this });
-    if (data) {
-      object.fromServerValue(data);
+  makeObject: function(dataForDiscriminator) {
+    var Model = this.Model;
+    var field = Model.prototype.discriminatorProperty;
+    if (field) {
+      var discr = dataForDiscriminator[field];
+      var _class = Model.prototype.discriminatorMap[discr];
+      if (!_class) {
+        throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
+      }
+      Model = geonef.jig.util.getClass(_class);
     }
-
+    var object = new Model({ store: this });
     return object;
   },
 
   /**
    * Create a new object (to be used from app code)
    *
+   * @param {string} discriminatorValue dicriminator value to use (if needed for that model)
    * @return {geonef.jig.data.model.Abstract}
    */
-  createObject: function() {
-    var object = this.makeObject();
+  createObject: function(discriminatorValue) {
+    var data = {};
+    var field = this.Model.prototype.discriminatorProperty;
+    if (field) {
+      if (!discriminatorValue) {
+        throw new Error("createObject(): discriminator is required");
+      }
+      data[field] = discriminatorValue;
+    }
+    var object = this.makeObject(data);
     object.initNew();
     return object;
   },
@@ -307,7 +325,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   getLazyObject: function(data) {
     var obj = this.index[data.id];
     if (!obj) {
-      obj = this.index[data.id] = this.makeObject();
+      obj = this.index[data.id] = this.makeObject(data);
     }
     obj.fromServerValue(data);
 
@@ -343,6 +361,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   }
 
 });
+
 
 return geonef.jig.data.model.ModelStore;
 });
