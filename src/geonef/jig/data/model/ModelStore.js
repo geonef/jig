@@ -179,6 +179,9 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   /**
    * Stores an object. Will trigger a call to the server API.
    *
+   * A ("put") message is sent on the channel right after the
+   * request has been made (but before it is executed).
+   *
    * @param {geonef.jig.data.model.Abstract} object the model object
    * @param {Object} options API options (see geonef.jig.api)
    * @return {dojo.Deferred} callback whose arg is the model object
@@ -205,6 +208,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
   /**
    * Add (persist) a new (unpersisted) object
+   *
+   * A ("create") message is sent on the channel right after the
+   * request has been made (but before it is executed).
+   * That message is preceded with ("put") caused by the inner 'put'.
    *
    * @param {geonef.jig.data.model.Abstract} object the model object
    * @param {Object} options API options (see geonef.jig.api)
@@ -239,6 +246,27 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    */
   query: function(query, options) {
     // console.log('query', this, arguments);
+    var implied = {};
+    var prop, filter;
+
+    // fix query and make up implied value from it
+    if (query) {
+      for (prop in query) if (query.hasOwnProperty(prop)) {
+        filter = query[prop];
+        if (filter instanceof geonef.jig.data.model.Abstract) {
+          filter = query[prop] = { op: 'ref', value: filter };
+        } else if (dojo.isString(filter) || !isNaN(filter)) {
+          filter = query[prop] = { op: 'equals', value: filter };
+        }
+        if (['equals', 'ref'].indexOf(filter.op) !== -1) {
+          implied[prop] = filter.value;
+        }
+        if (filter.value instanceof geonef.jig.data.model.Abstract) {
+          filter.value = filter.value.getId();
+        }
+      }
+    }
+
     return this.apiRequest(dojo.mixin(
         { action: 'query', filters: query, /* options: options || {}*/ }, options))
       .then(dojo.hitch(this,
@@ -247,7 +275,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
             console.error("model query ("+this.module+"): no result array", resp);
             return null;
           }
-          return resp.results.map(this.getLazyObject, this);
+          return resp.results.map(
+            function(data) {
+              return this.getLazyObject(dojo.mixin({}, implied, data));
+            }, this);
         }));
   },
 
@@ -294,7 +325,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   /**
-   * Create a new object (to be used from app code)
+   * Create a fresh new object (to be used from app code)
    *
    * @param {string} discriminatorValue dicriminator value to use (if needed for that model)
    * @return {geonef.jig.data.model.Abstract}
@@ -314,7 +345,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   /**
-   * Create object (or get ref), inject given data
+   * Create object (or get ref), hydrate from given data
    *
    * This is the right function to use to instanciate a model object
    * which has an identifier.
@@ -348,8 +379,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    * Specialisation of geoenf.jig.api.request, for this class
    */
   apiRequest: function(params, options) {
-    return geonef.jig.api.request(dojo.mixin(
-        { module: this.module, scope: this }, this.apiParams, params), options);
+    return geonef.jig.api.request(
+      dojo.mixin({ module: this.module, scope: this },
+                   this.apiParams, params),
+      options);
   },
 
   getWktFormat: function() {

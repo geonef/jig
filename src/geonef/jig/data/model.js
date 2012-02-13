@@ -61,7 +61,30 @@ dojo.mixin(geonef.jig.data.model,
       }
     }
     return props;
-  }
+  },
+
+  // /**
+  //  * Flatten value recursively
+  //  *
+  //  * It processes model objects and array recursively to produce
+  //  * a result made of only scalar values and dumb objects and arrays.
+  //  *
+  //  * @param {mixed} object
+  //  * @return {mixed}
+  //  */
+  // flatten: function(value) {
+  //   if (dojo.isArray(value)) {
+  //     return value.map(geonef.jig.data.model.flatten);
+  //   } else if (dojo.isObject(value) && value) {
+  //     // if (value.exportProperties) {
+  //     //   value = value.exportProperties();
+  //     // }
+  //     return dojo.mixin({}, value);
+  //     // return geonef.jig.map(value, geonef.jig.data.model.flatten); // infinite loop
+  //   } else {
+  //     return value;
+  //   }
+  // }
 
 });
 

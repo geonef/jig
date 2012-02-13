@@ -7,10 +7,27 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
 {
 
   /**
+   * Object to get the data from (see 'objectProp'), or null for independant query
+   *
+   * @type {!geonef.jig.data.model.Abstract} object
+   */
+  object: null,
+
+  /**
+   * Name of object property to get the data from, or null for independant query
+   *
+   * @type {string} objectProp
+   */
+  objectProp: null,
+
+  /**
    * @type {integer} max number of shown results
    */
   limit: null,
 
+  /**
+   * @type {string} msgMore
+   */
   msgMore: "+ ${count} objets",
 
   /**
@@ -63,10 +80,22 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
   },
 
   refresh: function() {
-    this.store.query(this.buildQuery())
+    this.fetchResults()
         .then(dojo.hitch(this, this.populateList))
         .then(geonef.jig.util.busy(this.domNode));
   },
+
+  /**
+   * Make a query or fetch 'many' prop, depending on this.objectProperty
+   */
+  fetchResults: function() {
+    if (this.objectProperty) {
+      return this.object.get(this.objectProperty);
+    } else {
+      return this.store.query(this.buildQuery());
+    }
+  },
+
 
   buildQuery: function() {
     return {};
@@ -77,9 +106,9 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     if (this.emptyNode) {
       dojo.style(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
     }
-    if (this.countLink) {
-      this.countLink.set('label', '('+(results.totalCount || results.length)+')');
-    }
+    // if (this.countLink) {
+    //   this.countLink.set('label', '('+(results.totalCount || results.length)+')');
+    // }
     (results.length > 0 ? dojo.removeClass : dojo.addClass)(this.domNode, 'empty');
     var over = this.limit && this.limit < results.length &&
       results.length - this.limit;
@@ -120,9 +149,21 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     delete this.rows;
   },
 
-  createNew: function(props, options) {
+  /**
+   * Create a new object and save it
+   *
+   * Warning: don't use it directly as an event handler
+   *          (the event obj would be got as 'props')
+   *
+   * @public
+   * @param {!Object} props     Properties to init the model object with
+   * @param {!Object} options   Options to the store's add() operation
+   * @param {string} discriminatorKey The discriminator to use, if used on that Model
+   * @return {dojo.Deferred}
+   */
+  createNew: function(props, options, discriminatorKey) {
     var self = this;
-    var object = this.createNewObject(props)
+    var object = this.createNewObject(props, discriminatorKey)
         .then(function(obj) {
                 if (!obj) { return false; }
                 console.log('obj', obj);
@@ -139,11 +180,14 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
   /**
    * Create new object with given properties - asynchronous
    *
+   * @protected
+   * @param {!Object} props     Properties to init the model object with
+   * @param {string} discriminatorKey The discriminator to use, if used on that Model
    * @return {geonef.jig.Deferred}
    */
-  createNewObject: function(props) {
+  createNewObject: function(props, discriminatorKey) {
     var deferred = new geonef.jig.Deferred();
-    var object = this.store.createObject();
+    var object = this.store.createObject(discriminatorKey);
     object.setProps(props);
     // var object = new (this.Model)(props);
     deferred.resolve(object); // unset object by default
@@ -154,13 +198,23 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     console.warn("to overload: openList()", this);
   },
 
+  /**
+   * Model channel subscribe handler
+   *
+   * @param {geonef.jig.data.model.Abstract} obj model object
+   * @param {string} type                        type of event
+   */
   onChannel: function(obj, type) {
     if (['put', 'delete'].indexOf(type) !== -1) {
       this.refresh();
     }
   },
 
-  /** hook */
+  /**
+   * hook - called after a new object has been saved
+   *
+   * @param {geonef.jig.data.model.Abstract} object object which has been created
+   */
   afterCreateNew: function(object) {},
 
 

@@ -17,6 +17,7 @@ dojo.mixin(geonef.jig.util.number,
    * @param {number} value
    * @param {Object} options
    * @return {string}
+   * @nosideeffects
    */
   format: function(value, options) {
     if (options && options.digits) {
@@ -52,6 +53,7 @@ dojo.mixin(geonef.jig.util.number,
    *
    *      Specify options.mult for no-SI units (ex: KiB, MiB use 1024)
    * @return {string}
+   * @nosideeffects
    */
   formatDims: function(dims, options) {
     var o = dojo.mixin(

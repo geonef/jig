@@ -13,6 +13,7 @@ dojo.mixin(geonef.jig.util.string,
    *
    * @param {string} str
    * @return {string}
+   * @nosideeffects
    */
   lcFirst: function(str) {
     return str.substr(0, 1).toLowerCase()
@@ -24,6 +25,7 @@ dojo.mixin(geonef.jig.util.string,
    *
    * @param {string} str
    * @return {string}
+   * @nosideeffects
    */
   ucFirst: function(str) {
     return str.substr(0, 1).toUpperCase()
@@ -38,6 +40,7 @@ dojo.mixin(geonef.jig.util.string,
    * @param {string} str
    * @param {number} maxLength  the limit
    * @return {string}
+   * @nosideeffects
    */
   summarize: function(str, maxLength) {
     str = ''+str;
@@ -54,6 +57,7 @@ dojo.mixin(geonef.jig.util.string,
    * @param {string} content
    * @param {Object} options
    * @return {string}
+   * @nosideeffects
    */
   escapeHtml: function(content, options) {
     options = dojo.mixin({ disableOnTag: null }, options);

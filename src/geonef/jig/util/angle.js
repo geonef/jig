@@ -13,6 +13,7 @@ dojo.mixin(geonef.jig.util.angle,
    *
    * @param {number} angle
    * @return {number} angle within [-PI; PI]
+   * @nosideeffects
    */
   fix: function(angle) {
     while (angle < -Math.PI) {
@@ -31,6 +32,7 @@ dojo.mixin(geonef.jig.util.angle,
    * @param {number} a1
    * @param {number} a2
    * @return {number} sum within [-PI; PI]
+   * @nosideeffects
    */
   add: function(a1, a2) {
     return geonef.jig.util.angle.diff(a1, -a2);
@@ -42,6 +44,7 @@ dojo.mixin(geonef.jig.util.angle,
    * @param {number} a2
    * @param {number} a1
    * @return {number} angle within [-PI; PI]
+   * @nosideeffects
    */
   diff: function(a2, a1) {
     // better: return geonef.jig.util.angle.fix(a2 - a1);
@@ -61,6 +64,7 @@ dojo.mixin(geonef.jig.util.angle,
    * @param {number} angle
    * @param {number} mult
    * @return {number} angle within [-PI; PI]
+   * @nosideeffects
    */
   mult: function(angle, mult) {
     if (angle < 0) {
@@ -74,6 +78,8 @@ dojo.mixin(geonef.jig.util.angle,
    *
    * Return >0 if a2 greater than a1, <0 otherwise
    * (0 if equal)
+   *
+   * @nosideeffects
    */
   compare: function(a2, a1) {
     if (a1 >= 0 && a2 >= 0) {
@@ -87,6 +93,8 @@ dojo.mixin(geonef.jig.util.angle,
 
   /**
    * todo: could use Math.atan2
+   *
+   * @nosideeffects
    */
   compute: function(p1, p2) {
     var x = p2.x - p1.x,
@@ -107,6 +115,7 @@ dojo.mixin(geonef.jig.util.angle,
    * @param {number} to
    * @param {boolean} strict    whether the comparison is strict
    * @return {boolean}
+   * @nosideeffects
    */
   isWithin: function(angle, from, to, strict) {
     to = geonef.jig.util.angle.diff(to, from);
@@ -128,6 +137,7 @@ dojo.mixin(geonef.jig.util.angle,
    * @param {number} a1
    * @param {number} a2
    * @return {boolean}
+   * @nosideeffects
    */
   average: function(a1, a2) {
     if (a2 >= 0 || a1 < 0) {	// doesn't go through the break PI:-PI

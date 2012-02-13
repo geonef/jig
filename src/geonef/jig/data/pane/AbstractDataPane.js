@@ -39,42 +39,59 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', dijit._Widget,
   autoRequestProps: [],
 
 
-  /** @override */
+  /**
+   * @override
+   */
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
       this.object.requestProps(this.autoRequestProps) : geonef.jig.util.newResolvedDeferred();
   },
 
-  /** @override */
+  /**
+   * @override
+   */
   buildRendering: function() {
     this.inherited(arguments);
     this.whenDataReady.then(geonef.jig.util.busy(this.domNode));
   },
 
-  /** @override */
+  /**
+   * @override
+   */
   postCreate: function() {
     this.inherited(arguments);
     this.subscribe(this.object.channel, this.onModelChannel);
   },
 
-  /** @override */
+  /**
+   *  @override
+   */
   startup: function() {
     this.inherited(arguments);
     this.whenDataReady.then(dojo.hitch(this, this.onDataReady));
   },
 
+  /**
+   * Called after model data is ready (props are fetched)
+   */
   onDataReady: function() {
     this.onModelChange();
   },
 
+  /**
+   * Model channel subscriber (registered in 'postCreate')
+   *
+   * @param {geonef.jig.data.model.Abstract} object
+   * @param {string} type
+   */
   onModelChannel: function(object, type) {
     if (object !== this.object) { return; }
     if (type === 'put') {
       this.onModelChange();
     }
     if (type === 'delete') {
-      this.close();
+      this.destroy();
     }
   },
 
@@ -83,7 +100,11 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', dijit._Widget,
    *
    * It should be used by child classed to make custom updates if needed.
    */
-  onModelChange: function() {},
+  onModelChange: function() {
+    this.onPanelPathChange();
+  },
+
+  onPanelPathChange: function() {},
 
   /** hook */
   onClose: function() {},

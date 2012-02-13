@@ -13,6 +13,7 @@ dojo.mixin(geonef.jig.util.array,
    *
    * @param {Array} array which won't be modified
    * @return {Array} the cleaned array as a copy
+   * @nosideeffects
    */
   cleanArray: function(array) {
     return array.filter(function(v) { return !!v; });
