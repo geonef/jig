@@ -18,7 +18,7 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
    *
    * @type {string} objectProp
    */
-  objectProp: null,
+  objectProperty: null,
 
   /**
    * @type {integer} max number of shown results
@@ -67,6 +67,9 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     this.store = geonef.jig.data.model.getStore(this.Model);
     this.refresh();
     this.subscribe(this.store.channel, this.onChannel);
+    if (this.object) {
+      this.subscribe(this.object.store.channel, this.onObjectChannel);
+    }
   },
 
   startup: function() {
@@ -208,6 +211,15 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     if (['put', 'delete'].indexOf(type) !== -1) {
       this.refresh();
     }
+  },
+
+  /**
+   * Channel subscribe handler for this.object
+   *
+   * @param {geonef.jig.data.model.Abstract} obj model object
+   * @param {string} type                        type of event
+   */
+  onObjectChannel: function(obj, type) {
   },
 
   /**

@@ -194,11 +194,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
         }, options))
       .then(function(resp) {
               // console.log('in PUT then', arguments, object);
-              var id = object.getId();
-              object.fromServerValue(resp.object);
-              if (!id) {
-                self.index[object.getId()] = object;
+              if (!object.id) {
+                self.index[resp.object.id] = object;
               }
+              object.fromServerValue(resp.object);
               object.publish(['afterPut']);
               return object;
             });
@@ -228,6 +227,33 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     object.publish(['create']);
 
     return dfr;
+  },
+
+  /**
+   * Duplicate the given object (through server API)
+   *
+   * @param {geonef.jig.data.model.Abstract} object the model object
+   * @param {Object} options API options (see geonef.jig.api)
+   * @return {dojo.Deferred} callback whose arg is the model object
+   */
+  duplicate: function(object, options) {
+    var self = this;
+    var obj;
+    return this.apiRequest(dojo.mixin(
+        { action: 'duplicate',
+          id: object.id,
+        }, options))
+      .then(function(resp) {
+              obj = self.makeObject(resp.object);
+              self.index[resp.object.id] = obj;
+              obj.fromServerValue(resp.object);
+              return obj.afterDuplicate();
+            })
+      .then(function() {
+              obj.publish(['put']);
+              obj.publish(['afterPut']);
+              return obj;
+            });
   },
 
   /**
@@ -292,8 +318,9 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     var deferred = this.apiRequest(
         { action: 'delete',
           id: obj.getId(),
-        }).then(dojo.hitch(this, function(resp) {
-                }));
+        }).then(function(resp) {
+                  obj.afterDelete();
+                });
     obj.publish(['delete']);
     return deferred;
   },

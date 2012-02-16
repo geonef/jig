@@ -511,7 +511,14 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     argsArray = argsArray.slice(0);
     argsArray.unshift(this);
     dojo.publish(this.channel, argsArray);
-  }
+  },
+
+  afterDuplicate: function() {
+  },
+
+  afterDelete: function() {
+  },
+
 
 });
 
