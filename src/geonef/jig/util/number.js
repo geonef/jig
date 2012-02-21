@@ -61,7 +61,7 @@ dojo.mixin(geonef.jig.util.number,
         units: [ '', 'K', 'M' ],
         mult: 1000,
         preci: 0.1,
-        joinSep: ', ',
+        joinSep: ' ; ',
         decimalSep: ','
       }, options);
     var

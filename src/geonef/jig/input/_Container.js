@@ -21,6 +21,8 @@ dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
   //    All keps specified there are managed by this.attr instead of sub-widgets
   manageValueKeys: [],
 
+  additionalRoots: [],
+
   // syncThisAttr: Boolean
   //    If true, any sub-value changed will call this' setter for the attr with same name as sub-value
   //syncThisAttrs: false,
@@ -43,7 +45,7 @@ dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
   },
 
   getInputRootNodes: function() {
-    return [ this.domNode ];
+    return [ this.domNode ].concat(this.additionalRoots);
   },
 
   connectChildren: function(){

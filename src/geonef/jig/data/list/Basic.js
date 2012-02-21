@@ -1,9 +1,11 @@
-define("geonef/jig/data/list/Basic", ["dijit/_Widget", "dijit/_Templated", "geonef/jig/Deferred", "geonef/jig/data/model", "geonef/jig/data/list/BasicRow", "dojo", "geonef/jig/util", "geonef/jig/button/Action", "geonef/jig/button/Link"], function(_Widget, _Templated, Deferred, model, BasicRow, dojo) {
+define("geonef/jig/data/list/Basic", ["dijit/_Widget", "dijit/_Templated", "geonef/jig/data/pane/CreatorMixin", "geonef/jig/Deferred", "geonef/jig/data/model", "geonef/jig/data/list/BasicRow", "dojo", "geonef/jig/util", "geonef/jig/button/Action", "geonef/jig/button/Link"], function(_Widget, _Templated, CreatorMixin, Deferred, model, BasicRow, dojo) {
 
 /**
  * Basic list, made from distinct row widgets
  */
-dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
+dojo.declare('geonef.jig.data.list.Basic',
+             [ dijit._Widget, dijit._Templated,
+               geonef.jig.data.pane.CreatorMixin ],
 {
 
   /**
@@ -55,16 +57,17 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     this.inherited(arguments);
     this.rowOptions = dojo.mixin({}, this.rowOptions);
     this.whenReady = new geonef.jig.Deferred();
+    this.store = geonef.jig.data.model.getStore(this.Model);
   },
 
   buildRendering: function() {
     this.inherited(arguments);
-    dojo.addClass(this.domNode, 'jigDataListBasic');
+    dojo.addClass(this.domNode, 'jigDataList '+
+                  (this.readOnly ? 'ro' : 'rw'));
   },
 
   postCreate: function() {
     this.inherited(arguments);
-    this.store = geonef.jig.data.model.getStore(this.Model);
     this.refresh();
     this.subscribe(this.store.channel, this.onChannel);
     if (this.object) {
@@ -109,9 +112,9 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     if (this.emptyNode) {
       dojo.style(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
     }
-    // if (this.countLink) {
-    //   this.countLink.set('label', '('+(results.totalCount || results.length)+')');
-    // }
+    if (this.countLink) {
+      this.countLink.set('label', '('+(results.totalCount || results.length)+')');
+    }
     (results.length > 0 ? dojo.removeClass : dojo.addClass)(this.domNode, 'empty');
     var over = this.limit && this.limit < results.length &&
       results.length - this.limit;
@@ -152,50 +155,6 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
     delete this.rows;
   },
 
-  /**
-   * Create a new object and save it
-   *
-   * Warning: don't use it directly as an event handler
-   *          (the event obj would be got as 'props')
-   *
-   * @public
-   * @param {!Object} props     Properties to init the model object with
-   * @param {!Object} options   Options to the store's add() operation
-   * @param {string} discriminatorKey The discriminator to use, if used on that Model
-   * @return {dojo.Deferred}
-   */
-  createNew: function(props, options, discriminatorKey) {
-    var self = this;
-    var object = this.createNewObject(props, discriminatorKey)
-        .then(function(obj) {
-                if (!obj) { return false; }
-                console.log('obj', obj);
-                return self.store.add(obj, options)
-                    .then(function(obj) {
-                            if (obj && obj.getId()) {
-                              self.afterCreateNew(obj);
-                            }
-                          });
-              })
-        .then(geonef.jig.util.busy(this.domNode));
-  },
-
-  /**
-   * Create new object with given properties - asynchronous
-   *
-   * @protected
-   * @param {!Object} props     Properties to init the model object with
-   * @param {string} discriminatorKey The discriminator to use, if used on that Model
-   * @return {geonef.jig.Deferred}
-   */
-  createNewObject: function(props, discriminatorKey) {
-    var deferred = new geonef.jig.Deferred();
-    var object = this.store.createObject(discriminatorKey);
-    object.setProps(props);
-    // var object = new (this.Model)(props);
-    deferred.resolve(object); // unset object by default
-    return deferred;
-  },
 
   openList: function() {
     console.warn("to overload: openList()", this);
@@ -220,16 +179,7 @@ dojo.declare('geonef.jig.data.list.Basic', [ dijit._Widget, dijit._Templated ],
    * @param {string} type                        type of event
    */
   onObjectChannel: function(obj, type) {
-  },
-
-  /**
-   * hook - called after a new object has been saved
-   *
-   * @param {geonef.jig.data.model.Abstract} object object which has been created
-   */
-  afterCreateNew: function(object) {},
-
-
+  }
 
 });
 

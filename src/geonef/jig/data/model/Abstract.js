@@ -476,7 +476,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     }
 
     var discrProp = this.discriminatorProperty;
-    if (discrProp) {
+    if (options.allValues && discrProp && this[discrProp]) {
       struct[discrProp] = this[discrProp];
     }
 
@@ -490,7 +490,86 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     this.originalValues[name] = value;
   },
 
+  /**
+   * Create a member object within an EmbedMany property
+   *
+   * @public
+   * @param {string} propName name of embedMany property
+   * @param {geonef.jig.data.model.Abstract} subObject
+   */
+  createSub: function(propName, data) {
+    var property = this.properties[propName];
+    var store = geonef.jig.data.model.getStore(
+      geonef.jig.util.getClass(property.targetModel));
+    var _this = this;
+    var deferred = this.store.apiRequest(
+      { action: 'createSub', id: this.id,
+        propName: propName, data: data })
+      .then(function(resp) {
+              var sub = store.getLazyObject(resp.subObject);
+              _this[propName].push(sub);
+              _this.publish(['afterPut']);
 
+              return sub;
+            });
+
+    _this.publish(['put']);
+
+    return deferred;
+  },
+
+  /**
+   * Duplicate a member object within an EmbedMany property
+   *
+   * @public
+   * @param {string} propName name of embedMany property
+   * @param {geonef.jig.data.model.Abstract} subObject
+   */
+  duplicateSub: function(propName, subObject) {
+    var store = subObject.store;
+    var _this = this;
+    var deferred = this.store.apiRequest(
+      { action: 'duplicateSub', id: this.id,
+        propName: propName, subId: subObject.id })
+      .then(function(resp) {
+              var sub = store.getLazyObject(resp.subObject);
+              _this[propName].push(sub);
+              _this.publish(['afterPut']);
+
+              return sub;
+            });
+
+    _this.publish(['put']);
+
+    return deferred;
+  },
+
+  /**
+   * Delete a member object from an EmbedMany property
+   *
+   * @public
+   * @param {string} propName name of embedMany property
+   * @param {geonef.jig.data.model.Abstract} subObject
+   */
+  deleteSub: function(propName, subObject) {
+    var store = subObject.store;
+    var _this = this;
+    var deferred = this.store.apiRequest(
+      { action: 'deleteSub', id: this.id,
+        propName: propName, subId: subObject.id })
+      .then(function(resp) {
+              var idx = _this[propName].indexOf(subObject);
+              if (idx !== -1) {
+                _this[propName].splice(idx, 1);
+              }
+              _this.publish(['afterPut']);
+
+            });
+
+    _this.publish(['put']);
+
+    return deferred;
+  },
 
   subscribe: function(channel, callback) {
     if (!this._subscr) {

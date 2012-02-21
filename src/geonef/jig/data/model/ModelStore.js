@@ -102,9 +102,14 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
   /** hook */
   setupEvents: function() {
+
   },
 
   destroy: function() {
+    if (this._subcr) {
+      this._subcr.forEach(dojo.unsubscribe);
+      delete this._subcr;
+    }
   },
 
   /**
@@ -134,8 +139,9 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
                     obj.fromServerValue(resp.object);
                   } else if (resp.object) {
                     // index the object first before setting values
-                    obj = self.index[id] = self.makeObject(resp.object);
-                    obj.fromServerValue(resp.object);
+                    // obj = self.index[id] = self.makeObject(resp.object);
+                    // obj.fromServerValue(resp.object);
+                    obj = self.getLazyObject(resp.object);
                   } else {
                     return null;
                   }
@@ -418,7 +424,23 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     }
 
     return this.wktFormat;
-  }
+  },
+
+  subscribe: function(channel, callback) {
+    if (!this._subscr) {
+      this._subscr = [];
+    }
+    var _h = dojo.subscribe(channel, dojo.hitch(this, callback));
+    this._subscr.push(_h);
+    return _h;
+  },
+
+  unsubscribe: function(_h) {
+    var idx = this._subscr.indexOf(_h);
+    dojo.unsubscribe(_h);
+    this._subscr.splice(idx, 1);
+  },
+
 
 });
 
