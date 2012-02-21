@@ -36,5 +36,5 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
 
 });
 
-
+return geonef.jig._Widget;
 });
