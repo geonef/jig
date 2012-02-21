@@ -1,6 +1,4 @@
-
-define('geonef/jig/_Widget', ['dijit/_Widget', 'dojo'], function(_Widget, dojo) {
-
+define("geonef/jig/_Widget", ["dijit/_Widget", "dojo"], function(_Widget, dojo) {
 
 dojo.declare('geonef.jig._Widget', dijit._Widget,
 {
