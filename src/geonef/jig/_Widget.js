@@ -1,5 +1,11 @@
 define("geonef/jig/_Widget", ["dijit/_Widget", "dojo"], function(_Widget, dojo) {
 
+/**
+ * Base class widget class
+ *
+ * Child classes should define 'makeContentNodes' as a function
+ * returning an array of node definitions (first arg to geonef.jig.makeDOM)
+ */
 dojo.declare('geonef.jig._Widget', dijit._Widget,
 {
   'class': 'jigWidget',
