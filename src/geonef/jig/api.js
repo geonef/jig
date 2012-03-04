@@ -11,6 +11,8 @@ dojo.mixin(geonef.jig.api,
   //    implement caching based in scalar params
   //
 
+  windowId: dojox.uuid.generateRandomUuid(),
+
   /**
    * @type {string} Default URL, if not given in params
    */
@@ -56,6 +58,7 @@ dojo.mixin(geonef.jig.api,
    */
   request: function(request, options) {
     options = options || {};
+    request.windowId = geonef.jig.api.windowId;
     var uuid = dojox.uuid.generateRandomUuid();
     request.promise = new geonef.jig.Deferred();
     var ret = request.promise;
