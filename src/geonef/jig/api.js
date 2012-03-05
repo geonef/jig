@@ -199,8 +199,11 @@ dojo.mixin(geonef.jig.api,
                    response.exception));
       geonef.jig.workspace.autoAnchorWidget(dump);
       dump.startup();
+    } else {
+      window.alert("Une erreur est survenue durant la requête serveur.\n"
+                   + "Elle a été enregistrée en vue d'une correction prochaine.");
     }
-    console.log('started exception', this, arguments);
+    // console.log('started exception', this, arguments);
   }
 
 });
