@@ -102,7 +102,6 @@ dojo.declare('geonef.jig.data.list.Basic',
     }
   },
 
-
   buildQuery: function() {
     return {};
   },

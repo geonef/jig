@@ -589,6 +589,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
   publish: function(argsArray) {
     argsArray = argsArray.slice(0);
     argsArray.unshift(this);
+    // console.log('publish', this.channel, argsArray);
     dojo.publish(this.channel, argsArray);
   },
 
