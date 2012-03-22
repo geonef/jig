@@ -15,8 +15,11 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
   },
 
   buildRendering: function() {
-    this.domNode = this.dom(
-      ['div', { 'class': this['class'] }, this.makeContentNodes()]);
+    if (!this.domNode) {
+      this.domNode = this.dom(
+        ['div', { 'class': this['class'] }, this.makeContentNodes()]);
+    }
+    this.inherited(arguments);
     // console.log('this.domNode', this.domNode, this);
   },
 
