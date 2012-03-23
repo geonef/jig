@@ -36,6 +36,11 @@ dojo.mixin(geonef.jig.api,
   showExceptions: false,
 
   /**
+   * Number of seconds between pings, when no API request is made during that time
+   */
+  pingDelay: 300,
+
+  /**
    * @type {Object} Parallel requests deferred to later execution
    */
   _deferredRequests: {},
@@ -57,6 +62,7 @@ dojo.mixin(geonef.jig.api,
    * @return {dojo.Deferred} promise, ensured to be geoenf.jig.Deferred if request.callback is set
    */
   request: function(request, options) {
+    geonef.jig.api.cancelPing();
     options = options || {};
     request.windowId = geonef.jig.api.windowId;
     var uuid = dojox.uuid.generateRandomUuid();
@@ -146,6 +152,7 @@ dojo.mixin(geonef.jig.api,
 	  }
         }
       }
+      geonef.jig.api.delayPing();
     };
 
     /**
@@ -204,6 +211,33 @@ dojo.mixin(geonef.jig.api,
                    + "Elle a été enregistrée en vue d'une correction prochaine.");
     }
     // console.log('started exception', this, arguments);
-  }
+  },
+
+  /**
+   * Send a dumb API request to preserve the session (timed-out)
+   *
+   * Called after an effective API request has been sent.
+   * The timeout cleared before an API request is sent.
+   */
+  delayPing: function() {
+    var api = geonef.jig.api;
+    var delay = api.pingDelay * 1000;
+    api._pingTO = window.setTimeout(api.doPing, delay);
+  },
+
+  cancelPing: function() {
+    var api = geonef.jig.api;
+    if (api._pingTO) {
+      window.clearTimeout(api._pingTO);
+      delete api._pingTO;
+    }
+  },
+
+  doPing: function() {
+    var api = geonef.jig.api;
+    api.request({ module: 'user', action: 'ping' } );
+  },
+
+
 
 });
