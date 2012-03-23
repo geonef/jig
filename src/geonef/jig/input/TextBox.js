@@ -13,6 +13,9 @@ dojo.require('dijit.form.ValidationTextBox');
 dojo.declare('geonef.jig.input.TextBox', dijit.form.ValidationTextBox,
 {
 
+  trim: true,
+
+
   postCreate: function() {
     this.inherited(arguments);
     this.connect(this.textbox, 'onkeydown', this._jigOnKeyDown);

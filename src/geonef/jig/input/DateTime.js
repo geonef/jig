@@ -82,7 +82,7 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
 
   onSubChange: function() {
     var date = this.get('value');
-    if (!this.date || this.date.getTime() !== date.getTime()) {
+    if (!this.date || !date || this.date.getTime() !== date.getTime()) {
       this.date = date;
       this.onChange();
     }
