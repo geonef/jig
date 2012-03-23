@@ -2,7 +2,7 @@
   <td>
   <span dojoType="geonef.jig.input.DateTextBox"
         dojoAttachPoint="dateInput"
-        dojoAttachEvent="onChange:onChange"
+        dojoAttachEvent="onChange:onSubChange"
         tooltipPosition="above,below"
         promptMessage="Cette date sert à ordonner l'itinéraire"
         missingMessage="La date est obligatoire !"></span>
@@ -12,7 +12,7 @@
   </td><td class="timeOnly">
   <span dojoType="dijit.form.TimeTextBox"
         dojoAttachPoint="timeInput"
-        dojoAttachEvent="onChange:onChange"
+        dojoAttachEvent="onChange:onSubChange"
         tooltipPosition="above,below"
         promptMessage="L'heure, pour distinguer les étapes d'une même journée"></span>
   </td><td class="timeOnly">

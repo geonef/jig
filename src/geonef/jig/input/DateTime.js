@@ -58,11 +58,13 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
   enableTime: function() {
     this.timeEnabled = true;
     dojo.addClass(this.domNode, 'time');
+    this.onSubChange();
   },
 
   disableTime: function() {
     this.timeEnabled = false;
     dojo.removeClass(this.domNode, 'time');
+    this.onSubChange();
 
   },
 
@@ -78,6 +80,13 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
     this.dateInput.focus();
   },
 
+  onSubChange: function() {
+    var date = this.get('value');
+    if (!this.date || this.date.getTime() !== date.getTime()) {
+      this.date = date;
+      this.onChange();
+    }
+  },
 
   // hook
   onChange: function() {},
