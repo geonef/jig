@@ -223,12 +223,16 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    * @return {dojo.Deferred} callback whose arg is the model object
    */
   add: function(object, options) {
+    // console.log('add', this, arguments);
     if (object.getId()) {
       throw new Error("object is not new, it has ID: "+object.getId()+
                       " ["+object.getSummary()+"]");
     }
     options = options || {};
     options.overwrite = false;
+    if (object.beforeCreate) {
+      object.beforeCreate();
+    }
     var dfr = this.put(object, options);
     object.publish(['create']);
 
@@ -265,42 +269,50 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   /**
    * Add (persist) a new (unpersisted) object
    *
-   * 'query' is something like:
+   * 'filter' is something like:
    *   {
    *     stringProp: { op: 'equal', value: 'test' },
    *     integerProp: { op: 'sup', value: 42 },
    *     refProp: { op: 'ref', value: 'test' },
    *   }
    *
-   * @param {Object.<string,Object>} query Query filters
+   * Options are added to the API request itself, custom options
+   * can exist depending on the API module for the model object class.
+   *
+   * Typical options:
+   *    - sort (object with keys 'name' and 'desc'
+   *    - pageLength
+   *    - page
+   *
+   * @param {Object.<string,Object>} filter Query filters
    * @param {Array.<string>} options API options (see geonef.jig.api)
    * @return {dojo.Deferred} callback whose arg is the model object
    */
-  query: function(query, options) {
-    // console.log('query', this, arguments);
+  query: function(filter, options) {
+    // console.log('filter', this, arguments);
     var implied = {};
-    var prop, filter;
+    var prop, tmpFilter;
 
-    // fix query and make up implied value from it
-    if (query) {
-      for (prop in query) if (query.hasOwnProperty(prop)) {
-        filter = query[prop];
-        if (filter instanceof geonef.jig.data.model.Abstract) {
-          filter = query[prop] = { op: 'ref', value: filter };
-        } else if (dojo.isString(filter) || !isNaN(filter)) {
-          filter = query[prop] = { op: 'equals', value: filter };
+    // fix filter and make up implied value from it
+    if (filter) {
+      for (prop in filter) if (filter.hasOwnProperty(prop)) {
+        tmpFilter = filter[prop];
+        if (tmpFilter instanceof geonef.jig.data.model.Abstract) {
+          tmpFilter = filter[prop] = { op: 'ref', value: tmpFilter };
+        } else if (dojo.isString(tmpFilter) || !isNaN(tmpFilter)) {
+          tmpFilter = filter[prop] = { op: 'equals', value: tmpFilter };
         }
-        if (['equals', 'ref'].indexOf(filter.op) !== -1) {
-          implied[prop] = filter.value;
+        if (['equals', 'ref'].indexOf(tmpFilter.op) !== -1) {
+          implied[prop] = tmpFilter.value;
         }
-        if (filter.value instanceof geonef.jig.data.model.Abstract) {
-          filter.value = filter.value.getId();
+        if (tmpFilter.value instanceof geonef.jig.data.model.Abstract) {
+          tmpFilter.value = tmpFilter.value.getId();
         }
       }
     }
 
     return this.apiRequest(dojo.mixin(
-        { action: 'query', filters: query, /* options: options || {}*/ }, options))
+        { action: 'query', filters: filter, /* options: options || {}*/ }, options))
       .then(dojo.hitch(this,
         function(resp) {
           if (!resp.results) {
@@ -348,7 +360,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     if (field) {
       var discr = dataForDiscriminator[field];
       var _class = Model.prototype.discriminatorMap[discr];
-      if (!_class) {
+      if (!discr || !_class) {
         throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
       }
       Model = geonef.jig.util.getClass(_class);
@@ -371,8 +383,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
         throw new Error("createObject(): discriminator is required");
       }
       data[field] = discriminatorValue;
+      console.log('createObject:', arguments, data, field);
     }
     var object = this.makeObject(data);
+    dojo.mixin(object, data);
     object.initNew();
     return object;
   },

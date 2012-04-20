@@ -12,15 +12,20 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
 
   postMixInProperties: function() {
     this.domWidgets = [];
+    this.inherited(arguments);
   },
 
-  buildRendering: function() {
+   buildRendering: function() {
     if (!this.domNode) {
       this.domNode = this.dom(
         ['div', { 'class': this['class'] }, this.makeContentNodes()]);
     }
     this.inherited(arguments);
     // console.log('this.domNode', this.domNode, this);
+  },
+
+  makeContentNodes: function() {
+    return null;
   },
 
   startup: function() {

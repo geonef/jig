@@ -1,10 +1,10 @@
-define("geonef/jig/data/list/Basic", ["dijit/_Widget", "dijit/_Templated", "geonef/jig/data/pane/CreatorMixin", "geonef/jig/Deferred", "geonef/jig/data/model", "geonef/jig/data/list/BasicRow", "dojo", "geonef/jig/util", "geonef/jig/button/Action", "geonef/jig/button/Link"], function(_Widget, _Templated, CreatorMixin, Deferred, model, BasicRow, dojo) {
+define("geonef/jig/data/list/Basic", ["geonef/jig/_Widget", "geonef/jig/data/pane/CreatorMixin", "geonef/jig/Deferred", "geonef/jig/data/model", "geonef/jig/data/list/BasicRow", "dojo", "geonef/jig/util", "geonef/jig/button/Action", "geonef/jig/button/Link"], function(_Widget, CreatorMixin, Deferred, model, BasicRow, dojo) {
 
 /**
  * Basic list, made from distinct row widgets
  */
 dojo.declare('geonef.jig.data.list.Basic',
-             [ dijit._Widget, dijit._Templated,
+             [ geonef.jig._Widget,
                geonef.jig.data.pane.CreatorMixin ],
 {
 
@@ -21,6 +21,18 @@ dojo.declare('geonef.jig.data.list.Basic',
    * @type {string} objectProp
    */
   objectProperty: null,
+
+  /**
+   * @type {Object} query
+   */
+  filter: {},
+
+  /**
+   * Sorting order, like { name: 'propertyName', desc: false }
+   *
+   * @type {Object} sorting
+   */
+  sorting: null,
 
   /**
    * @type {integer} max number of shown results
@@ -52,6 +64,8 @@ dojo.declare('geonef.jig.data.list.Basic',
    */
   whenReady: null,
 
+  'class': geonef.jig._Widget.prototype['class'] + ' jigDataList',
+
 
   postMixInProperties: function() {
     this.inherited(arguments);
@@ -62,8 +76,7 @@ dojo.declare('geonef.jig.data.list.Basic',
 
   buildRendering: function() {
     this.inherited(arguments);
-    dojo.addClass(this.domNode, 'jigDataList '+
-                  (this.readOnly ? 'ro' : 'rw'));
+    dojo.addClass(this.domNode, this.readOnly ? 'ro' : 'rw');
   },
 
   postCreate: function() {
@@ -98,12 +111,16 @@ dojo.declare('geonef.jig.data.list.Basic',
     if (this.objectProperty) {
       return this.object.get(this.objectProperty);
     } else {
-      return this.store.query(this.buildQuery());
+      var options = {};
+      if (this.sorting) {
+        options.sort = this.sorting;
+      }
+      return this.store.query(this.buildQuery(), options);
     }
   },
 
   buildQuery: function() {
-    return {};
+    return dojo.mixin({}, this.filter);
   },
 
   populateList: function(results) {

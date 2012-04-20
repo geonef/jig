@@ -1,6 +1,6 @@
-define("geonef/jig/data/list/BasicRow", ["dijit/_Widget", "dijit/_Templated", "dojo", "geonef/jig/util/string"], function(_Widget, _Templated, dojo, stringUtils) {
+define("geonef/jig/data/list/BasicRow", ["geonef/jig/_Widget", "dojo", "geonef/jig/util/string"], function(_Widget, dojo, stringUtils) {
 
-dojo.declare('geonef.jig.data.list.BasicRow', [ dijit._Widget, dijit._Templated ],
+dojo.declare('geonef.jig.data.list.BasicRow', geonef.jig._Widget,
 {
 
   enableClickEvent: true,
@@ -12,7 +12,7 @@ dojo.declare('geonef.jig.data.list.BasicRow', [ dijit._Widget, dijit._Templated 
 
   autoRequestProps: [],
 
-  templateString: '<div class="jigDataRow"></div>',
+  'class': 'jigDataRow',
 
 
   postMixInProperties: function() {

@@ -101,12 +101,15 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', dijit._Widget,
    * It should be used by child classed to make custom updates if needed.
    */
   onModelChange: function() {
+    this.panelPath = ["Ressources", this.object.getSummary()];
     this.onPanelPathChange();
   },
 
   onPanelPathChange: function() {},
 
   /** hook */
-  onClose: function() {},
+  onClose: function() {
+    console.log('in onClose', this, arguments);
+  },
 
 });

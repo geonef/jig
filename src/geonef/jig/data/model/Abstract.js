@@ -75,7 +75,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    * Here are the supported property attributes:
    *    - type (string):        name of type, must exist in the this.types object
    *    - readOnly (boolean):   whether the property is readOnly
-   *    - noEdit (boolean):     whether the property cannot be changed once defined
+   *    - noEdit (boolean):     whether the property can only be set at creation
    *    - compare (function):   function that take 2 values and compare them
    *                            (used to compute changed properties in 'toServerValue')
    *
@@ -332,12 +332,15 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    * @param {string} property
    * @param any value
    */
-  set: function(property, value) {
+  set: function(property, value, setAsOriginal) {
     var setter = this['set'+geonef.jig.util.string.ucFirst(property)];
     if (setter) {
       setter.call(this, value);
     } else {
       this[property] = value;
+    }
+    if (setAsOriginal) {
+      this.setOriginalValue(property, value);
     }
   },
 

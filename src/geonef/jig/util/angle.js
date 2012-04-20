@@ -5,6 +5,8 @@ dojo.require('geonef.jig.util');
 
 /**
  * Utility functions dealing with angles
+ *
+ * Utiliser les vecteurs à la place, pas ce machin qui embrouille...
  */
 dojo.mixin(geonef.jig.util.angle,
 {
