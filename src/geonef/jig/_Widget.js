@@ -8,6 +8,11 @@ define("geonef/jig/_Widget", ["dijit/_Widget", "dojo"], function(_Widget, dojo) 
  */
 dojo.declare('geonef.jig._Widget', dijit._Widget,
 {
+  /**
+   * CSS classes to be set on domNode
+   *
+   * @type {string} class
+   */
   'class': 'jigWidget',
 
   postMixInProperties: function() {
@@ -37,6 +42,10 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
     if (this.domWidgets) {
       this.domWidgets.forEach(function(w) { w.destroy(); });
       delete this.domWidgets;
+    }
+    if (this._supportingWidgets) {
+      this._supportingWidgets.forEach(function(w) { w.destroy(); });
+      delete this._supportingWidgets;
     }
     this.inherited(arguments);
   },

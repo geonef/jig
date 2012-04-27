@@ -1,13 +1,8 @@
 
 dojo.provide('geonef.jig.data.pane.AbstractDataPane');
 
-// parents
-dojo.require('dijit._Widget');
+dojo.require('geonef.jig._Widget');
 dojo.require('geonef.jig.util');
-
-// used in code
-dojo.require('geonef.ploomap.input.ExtentView');
-dojo.require('geonef.jig.data.editor.Property');
 
 /**
  * Base class for all data panes
@@ -22,7 +17,7 @@ dojo.require('geonef.jig.data.editor.Property');
  *
  * This handles init/load/events around this.object.
  */
-dojo.declare('geonef.jig.data.pane.AbstractDataPane', dijit._Widget,
+dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
 {
   /**
    * The model object - mandatory, must be given at construction
