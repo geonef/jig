@@ -59,7 +59,9 @@ dojo.declare('geonef.jig.data.list.BasicRow', geonef.jig._Widget,
   },
 
   onExecute: function() {
-
+    if (this.object.openPane) {
+      this.object.openPane();
+    }
   }
 
 });

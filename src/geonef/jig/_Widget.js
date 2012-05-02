@@ -15,6 +15,9 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
    */
   'class': 'jigWidget',
 
+  contentNodes: [],
+
+
   postMixInProperties: function() {
     this.domWidgets = [];
     this.inherited(arguments);
@@ -30,7 +33,7 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
   },
 
   makeContentNodes: function() {
-    return null;
+    return this.contentNodes;
   },
 
   startup: function() {

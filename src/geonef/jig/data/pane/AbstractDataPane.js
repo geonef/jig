@@ -34,6 +34,9 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
   autoRequestProps: [],
 
 
+  removeConfirm: "Vraiment supprimer cet objet ?",
+
+
   /**
    * @override
    */
@@ -105,6 +108,12 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
   /** hook */
   onClose: function() {
     console.log('in onClose', this, arguments);
+  },
+
+  deleteObject: function() {
+    if (!window.confirm(this.removeConfirm)) { return; }
+    this.object.store.remove(this.object)
+      .then(geonef.jig.util.busy(this.domNode));
   },
 
 });
