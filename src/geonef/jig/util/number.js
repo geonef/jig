@@ -77,6 +77,11 @@ dojo.mixin(geonef.jig.util.number,
     , str = ndims.join(o.joinSep) + ' ' + o.units[exp]
     ;
     return str;
+  },
+
+  formatBytes: function(size) {
+    return geonef.jig.util.number.formatDims([size],
+              { units: ['o', 'ko', 'Mo', 'Go', 'To'], mult: 1024 });
   }
 
 });
