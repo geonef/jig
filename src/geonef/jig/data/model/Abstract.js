@@ -195,6 +195,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
         },
         refOne: {
           fromServer: function(obj, type) {
+            if (obj === null) { return null; }
             var _Class = geonef.jig.util.getClass(type.targetModel);
             var object = geonef.jig.data.model.getStore(_Class).getLazyObject(obj);
             return object;

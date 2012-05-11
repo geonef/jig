@@ -12,7 +12,7 @@ dojo.declare('geonef.jig.data.list.BasicRow', geonef.jig._Widget,
 
   autoRequestProps: [],
 
-  'class': 'jigDataRow',
+  'class': geonef.jig._Widget.prototype['class'] + ' jigDataRow',
 
 
   postMixInProperties: function() {
