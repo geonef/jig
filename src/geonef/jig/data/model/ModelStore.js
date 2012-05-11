@@ -361,6 +361,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
       var discr = dataForDiscriminator[field];
       var _class = Model.prototype.discriminatorMap[discr];
       if (!discr || !_class) {
+        console.error("happing on store", this, ", model ", this.Model.prototype);
         throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
       }
       Model = geonef.jig.util.getClass(_class);
