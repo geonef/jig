@@ -36,13 +36,13 @@ dojo.mixin(geonef.jig.data.model,
    */
   getStore: function(Model) {
     var stores = geonef.jig.data.model._stores;
-    var module = Model.prototype.module;
-    if (!stores[module]) {
+    var classId = Model.prototype.declaredClass;
+    if (!stores[classId]) {
       var _Class = Model.prototype.Store || geonef.jig.data.model.ModelStore;
-      stores[module] = new _Class({ Model: Model });
+      stores[classId] = new _Class({ Model: Model });
     }
 
-    return stores[module];
+    return stores[classId];
   },
 
   /**

@@ -163,7 +163,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   fetchProps: function(object, props) {
     var self = this;
     return this.apiRequest({ action: 'get', id: object.getId(),
-                             fields: props })
+                             fields: props }, null, object)
       .then(function(resp) {
               // var obj = {};
               // props.forEach(function(p) { obj[p] = resp.object[p] || null; });
@@ -197,7 +197,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     var deferred = this.apiRequest(dojo.mixin(
         { action: 'put',
           object: object.toServerValue(),
-        }, options))
+        }, options), {}, object)
       .then(function(resp) {
               // console.log('in PUT then', arguments, object);
               if (!object.id) {
@@ -252,7 +252,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     return this.apiRequest(dojo.mixin(
         { action: 'duplicate',
           id: object.id,
-        }, options))
+        }, options), null, object)
       .then(function(resp) {
               obj = self.makeObject(resp.object);
               self.index[resp.object.id] = obj;
@@ -336,7 +336,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     var deferred = this.apiRequest(
         { action: 'delete',
           id: obj.getId(),
-        }).then(function(resp) {
+        }, null, obj).then(function(resp) {
                   obj.afterDelete();
                 });
     obj.publish(['delete']);
@@ -426,9 +426,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   /**
    * Specialisation of geoenf.jig.api.request, for this class
    */
-  apiRequest: function(params, options) {
+  apiRequest: function(params, options, object) {
+    var module = object ? object.module : this.module;
     return geonef.jig.api.request(
-      dojo.mixin({ module: this.module, scope: this },
+      dojo.mixin({ module: module, scope: this },
                    this.apiParams, params),
       options);
   },
