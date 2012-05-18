@@ -51,9 +51,9 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    * Example: "geonefZig/data/file".
    * If not specified, will be taken from Model's prototype
    *
-   * @type {string} module
+   * @type {string} apiModule
    */
-  module: null,
+  apiModule: null,
 
   /**
    * Local volatile cache
@@ -82,8 +82,8 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     dojo.mixin(this, options);
     this.apiParams = dojo.mixin({}, this.apiParams);
     this.postMixInProperties();
-    if (!this.module) {
-      this.module = this.Model.prototype.module;
+    if (!this.apiModule) {
+      this.apiModule = this.Model.prototype.apiModule;
     }
     if (!this.channel) {
       this.channel = this.Model.prototype.channel;
@@ -316,7 +316,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
       .then(dojo.hitch(this,
         function(resp) {
           if (!resp.results) {
-            console.error("model query ("+this.module+"): no result array", resp);
+            console.error("model query ("+this.apiModule+"): no result array", resp);
             return null;
           }
           return resp.results.map(
@@ -427,7 +427,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    * Specialisation of geoenf.jig.api.request, for this class
    */
   apiRequest: function(params, options, object) {
-    var module = object ? object.module : this.module;
+    var module = object ? object.apiModule : this.apiModule;
     return geonef.jig.api.request(
       dojo.mixin({ module: module, scope: this },
                    this.apiParams, params),
