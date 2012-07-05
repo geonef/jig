@@ -20,6 +20,11 @@ dojo.require('geonef.jig.util');
 dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
 {
   /**
+   * @override
+   */
+  'class': geonef.jig._Widget.prototype['class'] + ' jigDataPane',
+
+  /**
    * The model object - mandatory, must be given at construction
    *
    * @type {geonef.jig.data.model.Abstract}

@@ -36,6 +36,7 @@ dojo.declare('geonef.jig.data.pane.CreatorMixin', null,
    * @return {dojo.Deferred}
    */
   createNew: function(props, options, discriminatorKey) {
+    console.log('createNew', this, arguments);
     var _this = this;
     options = dojo.mixin({}, this.createOptions, options);
     return this.createNewObject(props, discriminatorKey)
@@ -79,5 +80,5 @@ dojo.declare('geonef.jig.data.pane.CreatorMixin', null,
 
 });
 
-return geonef.jig.data.pane._CreateSupport;
+return geonef.jig.data.pane.CreatorMixin;
 });

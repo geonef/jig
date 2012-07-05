@@ -23,6 +23,9 @@ dojo.declare('geonef.jig.input.TextBox', dijit.form.ValidationTextBox,
 
   postCreate: function() {
     this.inherited(arguments);
+    dojo.query('input.dijitValidationInner',
+               this.domNode)[0].setAttribute('disabled', 'disabled');
+    this.textbox.setAttribute('autocomplete', 'on');
     this.connect(this.textbox, 'onkeydown', this._jigOnKeyDown);
     // this.connect(this.textbox, 'onkeypress', this._jigOnKeyPress);
   },

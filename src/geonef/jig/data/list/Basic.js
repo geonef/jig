@@ -2,6 +2,11 @@ define("geonef/jig/data/list/Basic", ["geonef/jig/_Widget", "geonef/jig/data/pan
 
 /**
  * Basic list, made from distinct row widgets
+ *
+ * To be declared by concrete class at runtime:
+ *      - listNode : node where placeRow() will insert row widgets
+ *      - emptyNode : if defined, will be visible/hidden depending on empty results or not
+ *
  */
 dojo.declare('geonef.jig.data.list.Basic',
              [ geonef.jig._Widget,
@@ -170,7 +175,6 @@ dojo.declare('geonef.jig.data.list.Basic',
     }
     delete this.rows;
   },
-
 
   openList: function() {
     console.warn("to overload: openList()", this);

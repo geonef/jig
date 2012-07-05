@@ -15,7 +15,16 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
    */
   'class': 'jigWidget',
 
+  nodeName: 'div',
+
   contentNodes: [],
+
+  /**
+   * If true, content nodes are built upon rebuildDom(), not initial buildRendering()
+   *
+   * @type {boolean} delayedContent
+   */
+  delayedContent: false,
 
 
   postMixInProperties: function() {
@@ -24,12 +33,23 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
   },
 
    buildRendering: function() {
-    if (!this.domNode) {
-      this.domNode = this.dom(
-        ['div', { 'class': this['class'] }, this.makeContentNodes()]);
-    }
-    this.inherited(arguments);
-    // console.log('this.domNode', this.domNode, this);
+     if (!this.domNode) {
+       var nodes = this.delayedContent ? [] : this.makeContentNodes();
+       this.domNode = this.dom(
+         [this.nodeName, { 'class': this['class'] }, nodes]);
+     }
+     this.inherited(arguments);
+
+
+     var source = this.srcNodeRef;
+     var dest = this.containerNode;
+
+     if (source && dest){
+       while (source.hasChildNodes()){
+	 dest.appendChild(source.firstChild);
+       }
+     }
+     // console.log('this.domNode', this.domNode, this);
   },
 
   makeContentNodes: function() {
@@ -42,10 +62,7 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
   },
 
   destroyRendering: function() {
-    if (this.domWidgets) {
-      this.domWidgets.forEach(function(w) { w.destroy(); });
-      delete this.domWidgets;
-    }
+    this.destroyDom();
     if (this._supportingWidgets) {
       this._supportingWidgets.forEach(function(w) { w.destroy(); });
       delete this._supportingWidgets;
@@ -53,6 +70,19 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
     this.inherited(arguments);
   },
 
+  destroyDom: function() {
+    if (this.domWidgets) {
+      this.domWidgets.forEach(function(w) { w.destroy(); });
+      this.domWidgets = [];
+    }
+    this.domNode.innerHTML = '';
+  },
+
+  rebuildDom: function() {
+    this.destroyDom();
+    return this.dom(this.makeContentNodes()).map(
+      function(node) { this.domNode.appendChild(node); return node; }, this);
+  },
 
   dom: function(struct) {
     return geonef.jig.makeDOM(struct, this);

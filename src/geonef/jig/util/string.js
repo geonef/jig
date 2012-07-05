@@ -69,8 +69,10 @@ dojo.mixin(geonef.jig.util.string,
       content = dojo.trim(content)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br/>');
+        .replace(/>/g, '&gt;');
+      if (!options.noBr) {
+        content = content.replace(/\n/g, '<br/>');
+      }
     }
     return content;
   },
