@@ -13,7 +13,7 @@ dojo.require('geonef.jig.util');
  * functionnalities.
  *
  * For a pure editor (form), geonef.jig.data.editor.AbstractTemplated
- * would better fit.
+ * would better fit (form/validation/saving management).
  *
  * This handles init/load/events around this.object.
  */
@@ -89,7 +89,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    * @param {string} type
    */
   onModelChannel: function(object, type) {
-    if (object !== this.object) { return; }
+    if (object !== this.object || this._destroyed) { return; }
     if (type === 'put') {
       this.onModelChange();
     }
@@ -104,7 +104,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    * It should be used by child classed to make custom updates if needed.
    */
   onModelChange: function() {
-    this.panelPath = ["Ressources", this.object.getSummary()];
+    // this.panelPath = ["Ressources", this.object.getSummary()];
     this.onPanelPathChange();
   },
 

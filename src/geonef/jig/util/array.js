@@ -32,6 +32,7 @@ dojo.mixin(geonef.jig.util.array,
     array.forEach(
       function(obj, key) {
         obj.prev = obj.next = null;
+        obj.index = key;
         if (key > 0) {
           obj.prev = array[key - 1];
           obj.prev.next = obj;

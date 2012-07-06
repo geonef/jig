@@ -177,9 +177,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
             var list = array
               .filter(function(obj) { return !!obj.id; })
               .map(function(obj, idx) {
-                     var mObj = store.getLazyObject(obj);
-                     mObj.index = idx;
-                     return mObj;
+                     return store.getLazyObject(obj);
                    });
             if (type.chained) {
               geonef.jig.util.array.chainArray(list);

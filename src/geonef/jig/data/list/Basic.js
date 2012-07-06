@@ -28,6 +28,13 @@ dojo.declare('geonef.jig.data.list.Basic',
   objectProperty: null,
 
   /**
+   * Whether list is read-only
+   *
+   * @type {boolean} readOnly
+   */
+  readOnly: false,
+
+  /**
    * @type {Object} query
    */
   filter: {},
@@ -171,7 +178,8 @@ dojo.declare('geonef.jig.data.list.Basic',
 
   clear: function() {
     if (this.rows) {
-      this.rows.forEach(function(row) { row.destroy(); });
+      this.rows.forEach(
+        function(row) { if (!row._destroyed) { row.destroy(); } });
     }
     delete this.rows;
   },
