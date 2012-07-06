@@ -78,9 +78,12 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
     this.domNode.innerHTML = '';
   },
 
-  rebuildDom: function() {
+  /**
+   * @param arg Custom arg passed to makeContentNodes()
+   */
+  rebuildDom: function(arg) {
     this.destroyDom();
-    return this.dom(this.makeContentNodes()).map(
+    return this.dom(this.makeContentNodes(arg)).map(
       function(node) { this.domNode.appendChild(node); return node; }, this);
   },
 

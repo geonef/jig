@@ -91,7 +91,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
   onModelChannel: function(object, type) {
     if (object !== this.object || this._destroyed) { return; }
     if (type === 'put') {
-      this.onModelChange();
+      this.onModelChange(true);
     }
     if (type === 'delete') {
       this.destroy();
@@ -103,7 +103,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    *
    * It should be used by child classed to make custom updates if needed.
    */
-  onModelChange: function() {
+  onModelChange: function(saving) {
     // this.panelPath = ["Ressources", this.object.getSummary()];
     this.onPanelPathChange();
   },
