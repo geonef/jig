@@ -36,13 +36,11 @@ dojo.declare('geonef.jig.data.pane.CreatorMixin', null,
    * @return {dojo.Deferred}
    */
   createNew: function(props, options, discriminatorKey) {
-    console.log('createNew', this, arguments);
     var _this = this;
     options = dojo.mixin({}, this.createOptions, options);
     return this.createNewObject(props, discriminatorKey)
         .then(function(obj) {
                 if (!obj) { return false; }
-                console.log('obj', obj);
                 return _this.store.add(obj, options)
                     .then(function(obj) {
                             if (obj && obj.getId()) {

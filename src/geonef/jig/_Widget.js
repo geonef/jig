@@ -15,6 +15,8 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
    */
   'class': 'jigWidget',
 
+  extraClass: '',
+
   nodeName: 'div',
 
   contentNodes: [],
@@ -26,32 +28,47 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
    */
   delayedContent: false,
 
+  /**
+   * Names of node properties to hide when a sub-widget is open
+   *
+   * @type {Array.<string>} subHides
+   */
+  subHides: [],
+
 
   postMixInProperties: function() {
     this.domWidgets = [];
     this.inherited(arguments);
   },
 
-   buildRendering: function() {
-     if (!this.domNode) {
-       var nodes = this.delayedContent ? [] : this.makeContentNodes();
-       this.domNode = this.dom(
-         [this.nodeName, { 'class': this['class'] }, nodes]);
-     }
-     this.inherited(arguments);
+  buildRendering: function() {
+    if (!this.domNode) {
+      var nodes = this.delayedContent ? [] : this.makeContentNodes();
+      this.domNode = this.dom(
+        [this.nodeName, { 'class': this['class']+' '+this.extraClass }, nodes]);
+    }
+    this.inherited(arguments);
 
 
-     var source = this.srcNodeRef;
-     var dest = this.containerNode;
+    var source = this.srcNodeRef;
+    var dest = this.containerNode;
 
-     if (source && dest){
-       while (source.hasChildNodes()){
-	 dest.appendChild(source.firstChild);
-       }
-     }
-     // console.log('this.domNode', this.domNode, this);
+    if (source && dest){
+      while (source.hasChildNodes()){
+	dest.appendChild(source.firstChild);
+      }
+    }
+    // console.log('this.domNode', this.domNode, this);
   },
 
+  /**
+   * Overriden by child class to define DOM content
+   *
+   * @return {Array}    An array of arrays (see geonef.jig.makeDOM).
+   *                    It can contain DOM Elements or flat makeDOM representation.
+   *                    If it has promises, then this.delayedContent must be true
+   *                    (buildRendering() does not support asynchronous DOM).
+   */
   makeContentNodes: function() {
     return this.contentNodes;
   },
@@ -71,24 +88,72 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
   },
 
   destroyDom: function() {
+    // this.destroySubWidget();
     if (this.domWidgets) {
       this.domWidgets.forEach(function(w) { w.destroy(); });
       this.domWidgets = [];
     }
-    this.domNode.innerHTML = '';
+    if (this.domNode) {
+      this.domNode.innerHTML = '';
+    }
   },
 
   /**
    * @param arg Custom arg passed to makeContentNodes()
    */
   rebuildDom: function(arg) {
+    if (this._destroyed) { return null; }
     this.destroyDom();
-    return this.dom(this.makeContentNodes(arg)).map(
-      function(node) { this.domNode.appendChild(node); return node; }, this);
+    var domNode = this.domNode;
+    var _this = this;
+    return geonef.jig.util.whenAll(
+      this.dom(this.makeContentNodes(arg))).then(
+      function(nodes) {
+        nodes.forEach(function(node) { domNode.appendChild(node); });
+        _this.afterRebuildDom();
+        return nodes;
+      });
+  },
+
+  /**
+   * Hook
+   */
+  afterRebuildDom: function() {
   },
 
   dom: function(struct) {
     return geonef.jig.makeDOM(struct, this);
+  },
+
+  enableSubWidget: function(widget) {
+    this.subHides.forEach(
+        function(name) { dojo.style(this[name], 'display', 'none'); }, this);
+    widget.placeAt(this.opNode).startup();
+    this.subWidget = widget;
+    dojo.addClass(this.domNode, 'hasSub');
+    var _this = this;
+    widget.connect(widget, 'uninitialize',
+      function() {
+        _this.destroySubWidget();
+      });
+
+    return widget;
+  },
+
+  destroySubWidget: function() {
+    var widget = this.subWidget;
+    if (widget) {
+      delete this.subWidget;
+      if (!widget._beingDestroyed) {
+        widget.destroy();
+      }
+      this.subHides.forEach(
+          function(name) { dojo.style(this[name], 'display', ''); }, this);
+      dojo.removeClass(this.domNode, 'hasSub');
+      return true;
+    }
+
+    return false;
   }
 
 });

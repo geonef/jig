@@ -59,6 +59,30 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
     this.whenDataReady.then(geonef.jig.util.busy(this.domNode));
   },
 
+  makeDropDownNode: function(title) {
+    var node = this.dom(
+      [dijit.form.DropDownButton, {
+            _attach: 'optionsDD',
+            'class': 'nolabel gear',
+            dropDown: new dijit.TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}) }]);
+    this.dom(
+      ['div', { _insert: this.optionsDD.dropDown.containerNode },
+       [['h2', {}, title || ""],
+        ['div', {'class':'actions'}, this.makeOptions()]]]);
+
+    return node;
+  },
+
+  makeOptions: function() {
+    return [
+      [geonef.jig.button.Action, {
+         label: "Supprimer",
+         iconClass: 'remove',
+         onExecute: dojo.hitch(this, this.deleteObject)
+       }],
+    ];
+  },
+
   /**
    * @override
    */
