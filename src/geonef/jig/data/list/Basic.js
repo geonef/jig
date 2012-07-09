@@ -40,6 +40,11 @@ dojo.declare('geonef.jig.data.list.Basic',
   filter: {},
 
   /**
+   * @type {!string} fieldGroup
+   */
+  fieldGroup: null,
+
+  /**
    * Sorting order, like { name: 'propertyName', desc: false }
    *
    * @type {Object} sorting
@@ -127,6 +132,9 @@ dojo.declare('geonef.jig.data.list.Basic',
       if (this.sorting) {
         options.sort = this.sorting;
       }
+      if (this.fieldGroup) {
+        options.fieldGroup = this.fieldGroup;
+      }
       return this.store.query(this.buildQuery(), options);
     }
   },
@@ -163,7 +171,9 @@ dojo.declare('geonef.jig.data.list.Basic',
   },
 
   makeRow: function(obj, key) {
-    var row = new (this.RowClass)(dojo.mixin({ object: obj }, this.rowOptions));
+    var row = new (this.RowClass)(
+      dojo.mixin({ object: obj, listWidget: this },
+                 this.rowOptions));
     return row;
   },
 
