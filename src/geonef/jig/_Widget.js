@@ -50,16 +50,21 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
     this.inherited(arguments);
 
 
+    // console.log('this.srcNodeRef', this, arguments);
+    // console.log('this.containerNode', this, arguments);
+  },
+
+  copySrcNodeChildren: function() {
     var source = this.srcNodeRef;
     var dest = this.containerNode;
 
     if (source && dest){
       while (source.hasChildNodes()){
-	dest.appendChild(source.firstChild);
+        dest.appendChild(source.firstChild);
       }
     }
-    // console.log('this.domNode', this.domNode, this);
   },
+
 
   /**
    * Overriden by child class to define DOM content
@@ -125,7 +130,8 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
     return geonef.jig.makeDOM(struct, this);
   },
 
-  enableSubWidget: function(widget) {
+  enableSubWidget: function(widget, onDestroy) {
+    this.destroySubWidget();
     this.subHides.forEach(
         function(name) { dojo.style(this[name], 'display', 'none'); }, this);
     widget.placeAt(this.opNode).startup();
@@ -135,6 +141,9 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
     widget.connect(widget, 'uninitialize',
       function() {
         _this.destroySubWidget();
+        if (onDestroy) {
+          dojo.hitch(_this, onDestroy)();
+        }
       });
 
     return widget;

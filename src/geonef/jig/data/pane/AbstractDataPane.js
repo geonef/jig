@@ -104,6 +104,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    */
   onDataReady: function() {
     this.onModelChange();
+    this.afterModelChange();
   },
 
   /**
@@ -115,7 +116,10 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
   onModelChannel: function(object, type) {
     if (object !== this.object || this._destroyed) { return; }
     if (type === 'put') {
-      this.onModelChange(true);
+      this.onModelChange();
+    }
+    if (type === 'afterPut') {
+      this.afterModelChange();
     }
     if (type === 'delete') {
       this.destroy();
@@ -132,11 +136,16 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
     this.onPanelPathChange();
   },
 
+  /**
+   * Hook - called after changes have been saved
+   */
+  afterModelChange: function(saving) {
+  },
+
   onPanelPathChange: function() {},
 
   /** hook */
   onClose: function() {
-    console.log('in onClose', this, arguments);
   },
 
   deleteObject: function() {

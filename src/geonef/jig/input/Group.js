@@ -16,6 +16,7 @@ dojo.declare('geonef.jig.input.Group',
     this.inherited(arguments);
 
     this.containerNode = this.domNode;
+    this.copySrcNodeChildren();
 
     if (this.domNode.nodeName == 'FORM') {
       this.domNode.action = '#';

@@ -123,6 +123,8 @@ dojo.declare('geonef.jig.data.list.Basic',
 
   /**
    * Make a query or fetch 'many' prop, depending on this.objectProperty
+   *
+   * @return {dojo.Deferred}
    */
   fetchResults: function() {
     if (this.objectProperty) {
@@ -139,10 +141,16 @@ dojo.declare('geonef.jig.data.list.Basic',
     }
   },
 
+  /**
+   * @return {Object}
+   */
   buildQuery: function() {
     return dojo.mixin({}, this.filter);
   },
 
+  /**
+   * @param {Array.<geonef.jig.data.model.Abstract>} results
+   */
   populateList: function(results) {
     this.clear();
     if (this.emptyNode) {
