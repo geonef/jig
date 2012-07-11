@@ -384,7 +384,6 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
         throw new Error("createObject(): discriminator is required");
       }
       data[field] = discriminatorValue;
-      console.log('createObject:', arguments, data, field);
     }
     var object = this.makeObject(data);
     dojo.mixin(object, data);
