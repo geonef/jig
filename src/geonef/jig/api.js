@@ -41,6 +41,13 @@ dojo.mixin(geonef.jig.api,
   pingDelay: 300,
 
   /**
+   * Delay in milliseconds of extra-time to wait before sending the XHR
+   *
+   * (used for debugging)
+   */
+  debugDelay: 0,
+
+  /**
    * @type {Object} Parallel requests deferred to later execution
    */
   _deferredRequests: {},
@@ -82,7 +89,7 @@ dojo.mixin(geonef.jig.api,
             geonef.jig.api._deferredRequests = {};
             geonef.jig.api._deferred.dependsOn(geonef.jig.api._doRequest(reqs, options));
             geonef.jig.api._deferred.callback();
-          }, 0);
+          }, geonef.jig.api.debugDelay);
     }
     if (request.callback) {
       // backward compat ; api.request({}).then() preferred
