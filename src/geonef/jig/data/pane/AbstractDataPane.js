@@ -60,11 +60,17 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
   },
 
   makeDropDownNode: function(title) {
+    var _this = this;
+
     var node = this.dom(
       [dijit.form.DropDownButton, {
-            _attach: 'optionsDD',
-            'class': 'nolabel gear',
-            dropDown: new dijit.TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}) }]);
+         _attach: 'optionsDD',
+         'class': 'nolabel gear',
+         dropDown: new dijit.TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
+         onMouseEnter: dojo.hitch(null, dojo.addClass, this.domNode, 'overDD'),
+         onMouseLeave: dojo.hitch(null, dojo.removeClass, this.domNode, 'overDD'),
+       }]);
+
     this.dom(
       ['div', { _insert: this.optionsDD.dropDown.containerNode },
        [['h2', {}, title || ""],
