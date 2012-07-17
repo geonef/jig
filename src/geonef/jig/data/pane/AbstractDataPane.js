@@ -84,7 +84,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
       [geonef.jig.button.Action, {
          label: "Supprimer",
          iconClass: 'remove',
-         onExecute: dojo.hitch(this, this.deleteObject)
+         onExecute: geonef.jig.util.deferHitch(this, this.deleteObject),
        }],
     ];
   },
