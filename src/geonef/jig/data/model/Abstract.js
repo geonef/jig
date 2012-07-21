@@ -269,6 +269,10 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
   /** hook */
   initNew: function() {},
 
+  getRef: function() {
+    return this.store.idToRef(this.id);
+  },
+
   /**
    * Get value of given property - asynchronous
    *

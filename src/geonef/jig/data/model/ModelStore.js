@@ -113,7 +113,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   },
 
   /**
-   * Fetch object by ID
+   * Fetch object by ID - async
    *
    * If found in the volatile cache, no API request is made.
    *
@@ -135,6 +135,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
       return this.apiRequest(dojo.mixin({ action: 'get', id: id }, options),
                              options ? options.api : {})
           .then(function(resp) {
+                  if (resp.error) {
+                    throw new Error(resp.error);
+                    // return geonef.jig.util.newErrorDeferred(resp.error);
+                  }
                   if (obj) {
                     obj.fromServerValue(resp.object);
                   } else if (resp.object) {
@@ -148,6 +152,24 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
                   return obj;
                 });
     }
+  },
+
+  /**
+   * Get document by refID - async
+   *
+   * @param {string} ref
+   * @param {!Object} options same options as to ModelStore.get()
+   *
+   */
+  getByRef: function(ref, options) {
+    try {
+      var id = this.refToId(ref);
+    } catch (error) {
+      var d = new dojo.Deferred();
+      d.errback(error);
+      return d;
+    }
+    return this.get(id, options);
   },
 
   /**
@@ -456,6 +478,46 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     this._subscr.splice(idx, 1);
   },
 
+  /**
+   * Convert a document ID to base64-modified reference | static
+   *
+   * Used to make the URL of an iti
+   */
+  idToRef: function(id) {
+    return 'x' +
+      btoa(String.fromCharCode.apply(
+             null,
+             id//.replace(/\r|\n/g, "")
+               .replace(/([\da-fA-F]{2}) ?/g, "0x$1 ")
+               .replace(/ +$/, "")
+               .split(" "))
+          ).replace("\/", "_", 'g')
+           .replace(/\+/g, "-")
+           .replace(/A+$/, "");
+  },
+
+  /**
+   * Convert a reference ID to document ID | static
+   *
+   * Used to decode an iti URL
+   */
+  refToId: function(ref) {
+    if (ref[0] !== 'x') { return ref; }
+
+    var i;
+    var str = ref.substr(1);
+    for (i = 0; i < 16 - str.length; i++) {
+      str = str + 'A';
+    }
+    str = str.replace(/-/g, '+').replace(/_/g, "/");
+    str = atob(str);
+    var c = '';
+    for (i = 0; i < 12; i++) {
+      var code = i < str.length ? str.charCodeAt(i).toString(16) : '0';
+      c += ((code.length === 1) ? '0' : '') + code;
+    }
+    return c;
+  }
 
 });
 

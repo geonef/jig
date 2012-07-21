@@ -121,6 +121,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    */
   onModelChannel: function(object, type) {
     if (object !== this.object || this._destroyed) { return; }
+    // console.log('dataPane::onModelChannel', this, type);
     if (type === 'put') {
       this.onModelChange();
     }
