@@ -38,6 +38,10 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    */
   autoRequestProps: [],
 
+  /**
+   * Is data ready? Set to true once 'autoRequestProps' have been loaded.
+   */
+  isDataReady: false,
 
   removeConfirm: "Vraiment supprimer cet objet ?",
 
@@ -109,6 +113,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    * Called after model data is ready (props are fetched)
    */
   onDataReady: function() {
+    this.isDataReady = true;
     this.onModelChange();
     this.afterModelChange();
   },
