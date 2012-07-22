@@ -114,6 +114,7 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
     return geonef.jig.util.whenAll(
       this.dom(this.makeContentNodes(arg))).then(
       function(nodes) {
+        // console.log('rebuildDom : got nodes', nodes);
         nodes.forEach(function(node) { domNode.appendChild(node); });
         _this.afterRebuildDom();
         return nodes;

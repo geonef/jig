@@ -152,6 +152,9 @@ dojo.declare('geonef.jig.data.list.Basic',
    * @param {Array.<geonef.jig.data.model.Abstract>} results
    */
   populateList: function(results) {
+    console.log('populateList', this, arguments);
+    var scrollTop = this.domNode.scrollTop;
+    console.log('scrollTop', scrollTop, this.domNode);
     this.clear();
     if (this.emptyNode) {
       dojo.style(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
@@ -176,6 +179,21 @@ dojo.declare('geonef.jig.data.list.Basic',
       this.placeRow(moreLink, null);
       this.rows.push(moreLink);
     }
+    var _this = this;
+    geonef.jig.util.whenAll(this.rows
+        .filter(function(row) { return !!row.whenDataReady; })
+        .map(function(row) { return row.whenDataReady; }))
+      .then(function() {
+              _this.domNode.scrollTop = scrollTop;
+              console.log('scroll', scrollTop, _this.domNode.scrollTop);
+              _this.afterPopulateList(scrollTop);
+            });
+  },
+
+  /**
+   * Hook
+   */
+  afterPopulateList: function() {
   },
 
   makeRow: function(obj, key) {
