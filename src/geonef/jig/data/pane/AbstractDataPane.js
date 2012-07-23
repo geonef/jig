@@ -51,7 +51,6 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    */
   postMixInProperties: function() {
     this.inherited(arguments);
-    console.log('abstract pane bef reqprops', this.object);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
       this.object.requestProps(this.autoRequestProps) : geonef.jig.util.newResolvedDeferred();
   },
