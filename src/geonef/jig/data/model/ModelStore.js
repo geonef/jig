@@ -491,7 +491,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
                .replace(/([\da-fA-F]{2}) ?/g, "0x$1 ")
                .replace(/ +$/, "")
                .split(" "))
-          ).replace("\/", "_", 'g')
+          ).replace(new RegExp("\/", 'g'), "_")
            .replace(/\+/g, "-")
            .replace(/A+$/, "");
   },
