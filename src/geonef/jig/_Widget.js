@@ -93,7 +93,7 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
   },
 
   destroyDom: function() {
-    // this.destroySubWidget();
+    this.destroySubWidget();
     if (this.domWidgets) {
       this.domWidgets.forEach(function(w) { w.destroy(); });
       this.domWidgets = [];
@@ -134,7 +134,12 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
   enableSubWidget: function(widget, onDestroy) {
     this.destroySubWidget();
     this.subHides.forEach(
-        function(name) { dojo.style(this[name], 'display', 'none'); }, this);
+        function(name) {
+          var node = this[name];
+          if (node) {
+            dojo.style(node.domNode || node, 'display', 'none');
+          }
+        }, this);
     widget.placeAt(this.opNode).startup();
     this.subWidget = widget;
     dojo.addClass(this.domNode, 'hasSub');
@@ -158,7 +163,12 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
         widget.destroy();
       }
       this.subHides.forEach(
-          function(name) { dojo.style(this[name], 'display', ''); }, this);
+          function(name) {
+          var node = this[name];
+            if (node) {
+              dojo.style(node.domNode || node, 'display', '');
+            }
+          }, this);
       dojo.removeClass(this.domNode, 'hasSub');
       return true;
     }

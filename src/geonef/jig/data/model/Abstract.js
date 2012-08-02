@@ -146,11 +146,17 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
           }
         },
         geometry: {
-          fromServer: function(wkt) {
-            if (!wkt) {
+          fromServer: function(data, type) {
+            if (!data) {
               return null;
             }
-            wkt = wkt.replace(/^SRID=4326;/, '');
+            if (type.format === 'pointArray') {
+              return new OpenLayers.Geometry.LineString(
+                data.map(function(coords) {
+                           return new OpenLayers.Geometry.Point(coords[0], coords[1]);
+                         }));
+            }
+            var wkt = data.replace(/^SRID=4326;/, '');
             var features =  this.store.getWktFormat().read(wkt);
             if (!features) {
               return null;
@@ -161,7 +167,11 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
               return features.geometry;
             }
           },
-          toServer: function(geometry) {
+          toServer: function(geometry, type) {
+            if (!geometry) { return null; }
+            if (type.format === 'pointArray') {
+              return geometry.components.map(function(p) { return [p.x, p.y]; });
+            }
             var wkt = this.store.getWktFormat().extractGeometry(geometry);
             if (!/^SRID=/.test(wkt)) {
               wkt = 'SRID=4326;' + wkt;
