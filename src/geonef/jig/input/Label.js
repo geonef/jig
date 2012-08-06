@@ -118,15 +118,17 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
   _setValueAttr: function(value) {
     value = this.filter(value);
     this.value = value;
-    if (!this.isMapped && dojo.isObject(value)) {
+    if (value && !this.isMapped && dojo.isObject(value)) {
       if (value.getSummary) {
         value = value.getSummary();
       } else if (value.toString) {
         value = value.toString();
       }
     }
-    var display = this.isMapped ? this.map[value] :
-      (value === null || value === undefined ? '' : value);
+    var display = '';
+    if (value !== null && value !== undefined) {
+      display = this.isMapped ? this.map[value] : value;
+    }
     this.domNode.innerHTML = display;
     this.updateFalsy();
   },
