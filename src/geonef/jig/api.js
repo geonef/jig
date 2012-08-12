@@ -81,7 +81,7 @@ dojo.mixin(geonef.jig.api,
     geonef.jig.api._deferredRequests[uuid] = request;
     if (!geonef.jig.api._timeout) {
       geonef.jig.api._deferred = new geonef.jig.Deferred();
-      geonef.jig.api._timeout = window.setTimeout(
+      geonef.jig.api._timeout = dojo.global.setTimeout(
           function() {
             // execute all deferred requests
             geonef.jig.api._timeout = null;
@@ -214,7 +214,7 @@ dojo.mixin(geonef.jig.api,
       geonef.jig.workspace.autoAnchorWidget(dump);
       dump.startup();
     } else {
-      window.alert("Une erreur est survenue durant la requête serveur.\n"
+      dojo.global.alert("Une erreur est survenue durant la requête serveur.\n"
                    + "Elle a été enregistrée en vue d'une correction prochaine.");
     }
     // console.log('started exception', this, arguments);
@@ -229,13 +229,13 @@ dojo.mixin(geonef.jig.api,
   delayPing: function() {
     var api = geonef.jig.api;
     var delay = api.pingDelay * 1000;
-    api._pingTO = window.setTimeout(api.doPing, delay);
+    api._pingTO = dojo.global.setTimeout(api.doPing, delay);
   },
 
   cancelPing: function() {
     var api = geonef.jig.api;
     if (api._pingTO) {
-      window.clearTimeout(api._pingTO);
+      dojo.global.clearTimeout(api._pingTO);
       delete api._pingTO;
     }
   },

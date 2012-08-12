@@ -1,4 +1,10 @@
-define("geonef/jig/data/model/Abstract", ["dojo", "geonef/jig/util", "geonef/jig/util/string", "geonef.jig.util.array"], function(dojo, util, utilString, utilArray) {
+define("geonef/jig/data/model/Abstract", [
+         "dojo",
+         "geonef/jig/util",
+         "geonef/jig/util/string",
+         "geonef/jig/util/array"
+       ],
+       function(dojo, util, utilString, utilArray) {
 
 /**
  * Base class for all models

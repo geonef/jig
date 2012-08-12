@@ -239,11 +239,11 @@ dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 
 });
 
-dojo.provide('geonef.jig.input._MixedGridCreateList');
+// dojo.provide('geonef.jig.input._MixedGridCreateList');
 
 // parents
-dojo.require('dijit._Widget');
-dojo.require('dijit._Templated');
+// dojo.require('dijit._Widget');
+// dojo.require('dijit._Templated');
 dojo.require('geonef.jig.widget._AutoGrid');
 
 dojo.declare('geonef.jig.input._MixedGridCreateList',
