@@ -1,5 +1,6 @@
-
-dojo.provide('geonef.jig.util.color.Gradient');
+define([
+         "dojo/_base/declare",
+], function(declare) {
 
 /**
  * Class for handling simple HSL color gradients
@@ -11,13 +12,13 @@ dojo.provide('geonef.jig.util.color.Gradient');
  *
  * @see http://www.w3.org/TR/2008/WD-css3-color-20080721/#hsl-color
  */
-dojo.declare('geonef.jig.util.color.Gradient', null,
+var Self = declare(null,
 {
   color1: [0,0,0],
   color2: [0,0,0],
 
   /**
-   * Constructor
+   * Construct the gradient from 2 colors
    *
    * @param {Array.<number>} color1
    * @param {Array.<number>} color2
@@ -28,6 +29,8 @@ dojo.declare('geonef.jig.util.color.Gradient', null,
   },
 
   /**
+   * Get color at given position from the gradient
+   *
    * @param {number} position in [0 ; 1]
    * @return {Array.<number>}
    */
@@ -41,6 +44,8 @@ dojo.declare('geonef.jig.util.color.Gradient', null,
   },
 
   /**
+   * Same as getColor(), returns color in hsl() form
+   *
    * @param {number} position in [0 ; 1]
    * @return {string} expression like: "hsl(120,80%,30%)"
    */
@@ -55,10 +60,13 @@ dojo.declare('geonef.jig.util.color.Gradient', null,
    * @return {geonef.jit.util.color.Gradient}
    */
   clone: function() {
-    var clone = new geonef.jig.util.color.Gradient({
+    var clone = new Self({
                   color1: this.color1.slice(0),
                   color2: this.color2.slice(0) });
     return clone;
   }
 
+});
+
+return Self;
 });

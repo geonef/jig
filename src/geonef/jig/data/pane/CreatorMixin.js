@@ -1,7 +1,12 @@
-define("geonef/jig/data/pane/CreatorMixin", ["dojo"], function(dojo) {
+define([
+         "dojo/_base/declare",
+         "dojo/_base/lang",
+         "geonef/jig/util",
+         "geonef/jig/Deferred",
+], function(declare, lang, util, Deferred) {
 
 
-dojo.declare('geonef.jig.data.pane.CreatorMixin', null,
+return declare(null,
 {
 
   /**
@@ -37,7 +42,7 @@ dojo.declare('geonef.jig.data.pane.CreatorMixin', null,
    */
   createNew: function(props, options, discriminatorKey) {
     var _this = this;
-    options = dojo.mixin({}, this.createOptions, options);
+    options = lang.mixin({}, this.createOptions, options);
     return this.createNewObject(props, discriminatorKey)
         .then(function(obj) {
                 if (!obj) { return false; }
@@ -48,7 +53,7 @@ dojo.declare('geonef.jig.data.pane.CreatorMixin', null,
                             }
                           });
               })
-        .then(geonef.jig.util.busy(this.domNode));
+        .then(util.busy(this.domNode));
   },
 
   /**
@@ -60,7 +65,7 @@ dojo.declare('geonef.jig.data.pane.CreatorMixin', null,
    * @return {geonef.jig.Deferred}
    */
   createNewObject: function(props, discriminatorKey) {
-    var deferred = new geonef.jig.Deferred();
+    var deferred = new Deferred();
     var object = this.store.createObject(discriminatorKey);
     object.setProps(this.defaultProperties);
     object.setProps(props);
@@ -78,5 +83,4 @@ dojo.declare('geonef.jig.data.pane.CreatorMixin', null,
 
 });
 
-return geonef.jig.data.pane.CreatorMixin;
 });

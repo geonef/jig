@@ -1,4 +1,25 @@
-define("geonef/jig/data/list/Basic", ["geonef/jig/_Widget", "geonef/jig/data/pane/CreatorMixin", "geonef/jig/Deferred", "geonef/jig/data/model", "geonef/jig/data/list/BasicRow", "dojo", "geonef/jig/util", "geonef/jig/button/Action", "geonef/jig/button/Link"], function(_Widget, CreatorMixin, Deferred, model, BasicRow, dojo) {
+define([
+         "dojo/_base/declare",
+         "../../_Widget",
+         "../pane/CreatorMixin",
+
+         "dojo/_base/lang",
+         "dojo/dom-style",
+         "dojo/dom-class",
+         "dojo/string",
+
+         "../../Deferred",
+         "../model",
+         "./BasicRow",
+         "dojo",
+
+         "../../util",
+         "../../button/Action",
+         "../../button/Link"
+], function(declare, _Widget, CreatorMixin,
+            lang, style, domClass, string,
+            Deferred, model, BasicRow, dojo,
+            util, Action, Link) {
 
 /**
  * Basic list, made from distinct row widgets
@@ -8,9 +29,7 @@ define("geonef/jig/data/list/Basic", ["geonef/jig/_Widget", "geonef/jig/data/pan
  *      - emptyNode : if defined, will be visible/hidden depending on empty results or not
  *
  */
-dojo.declare('geonef.jig.data.list.Basic',
-             [ geonef.jig._Widget,
-               geonef.jig.data.pane.CreatorMixin ],
+return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
 {
 
   /**
@@ -69,7 +88,7 @@ dojo.declare('geonef.jig.data.list.Basic',
   /**
    * @type {dijit._Widget} Widget class to use for rows
    */
-  RowClass: geonef.jig.data.list.BasicRow,
+  RowClass: BasicRow,
 
   /**
    * @type {Object} Options given to row widgets
@@ -81,19 +100,19 @@ dojo.declare('geonef.jig.data.list.Basic',
    */
   whenReady: null,
 
-  'class': geonef.jig._Widget.prototype['class'] + ' jigDataList',
+  'class': _Widget.prototype['class'] + ' jigDataList',
 
 
   postMixInProperties: function() {
     this.inherited(arguments);
-    this.rowOptions = dojo.mixin({}, this.rowOptions);
-    this.whenReady = new geonef.jig.Deferred();
-    this.store = geonef.jig.data.model.getStore(this.Model);
+    this.rowOptions = lang.mixin({}, this.rowOptions);
+    this.whenReady = new Deferred();
+    this.store = model.getStore(this.Model);
   },
 
   buildRendering: function() {
     this.inherited(arguments);
-    dojo.addClass(this.domNode, this.readOnly ? 'ro' : 'rw');
+    domClass.add(this.domNode, this.readOnly ? 'ro' : 'rw');
   },
 
   postCreate: function() {
@@ -117,8 +136,8 @@ dojo.declare('geonef.jig.data.list.Basic',
 
   refresh: function() {
     this.fetchResults()
-        .then(dojo.hitch(this, this.populateList))
-        .then(geonef.jig.util.busy(this.domNode));
+        .then(lang.hitch(this, this.populateList))
+        .then(util.busy(this.domNode));
   },
 
   /**
@@ -145,7 +164,7 @@ dojo.declare('geonef.jig.data.list.Basic',
    * @return {Object}
    */
   buildQuery: function() {
-    return dojo.mixin({}, this.filter);
+    return lang.mixin({}, this.filter);
   },
 
   /**
@@ -156,12 +175,12 @@ dojo.declare('geonef.jig.data.list.Basic',
     var scrollTop = this.domNode.scrollTop;
     this.clear();
     if (this.emptyNode) {
-      dojo.style(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
+      style.set(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
     }
     if (this.countLink) {
       this.countLink.set('label', '('+(results.totalCount || results.length)+')');
     }
-    (results.length > 0 ? dojo.removeClass : dojo.addClass)(this.domNode, 'empty');
+    (results.length > 0 ? domClass.remove : domClass.add)(this.domNode, 'empty');
     var over = this.limit && this.limit < results.length &&
       results.length - this.limit;
     if (over) {
@@ -170,16 +189,16 @@ dojo.declare('geonef.jig.data.list.Basic',
     this.rows = results.map(this.makeRow, this)
                        .map(this.placeRow, this);
     if (over) {
-      var moreLink = new geonef.jig.button.Link(
-                       { label: dojo.string.substitute(this.msgMore, { count: over }),
+      var moreLink = new Link(
+                       { label: string.substitute(this.msgMore, { count: over }),
                          title: "Cliquer pour afficher",
-                         onExecute: dojo.hitch(this, this.openList) });
-      dojo.addClass(moreLink.domNode, 'jigDataRow more');
+                         onExecute: lang.hitch(this, this.openList) });
+      domClass.add(moreLink.domNode, 'jigDataRow more');
       this.placeRow(moreLink, null);
       this.rows.push(moreLink);
     }
     var _this = this;
-    geonef.jig.util.whenAll(this.rows
+    util.whenAll(this.rows
         .filter(function(row) { return !!row.whenDataReady; })
         .map(function(row) { return row.whenDataReady; }))
       .then(function() {
@@ -196,7 +215,7 @@ dojo.declare('geonef.jig.data.list.Basic',
 
   makeRow: function(obj, key) {
     var row = new (this.RowClass)(
-      dojo.mixin({ object: obj, listWidget: this },
+      lang.mixin({ object: obj, listWidget: this },
                  this.rowOptions));
     return row;
   },
@@ -245,5 +264,4 @@ dojo.declare('geonef.jig.data.list.Basic',
 
 });
 
-return geonef.jig.data.list.Basic;
 });

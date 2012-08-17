@@ -1,6 +1,13 @@
-define("geonef/jig/data/list/BasicRow", ["geonef/jig/_Widget", "dojo", "geonef/jig/util/string"], function(_Widget, dojo, stringUtils) {
+define([
+         "dojo/_base/declare",
+         "../../_Widget",
+         "dojo/_base/lang",
+         "dojo/_base/event",
+         "dojo/dom-class",
+         "../../util/string"
+], function(declare, _Widget, lang, event, domClass, string) {
 
-dojo.declare('geonef.jig.data.list.BasicRow', geonef.jig._Widget,
+return declare(_Widget,
 {
 
   enableClickEvent: true,
@@ -30,7 +37,7 @@ dojo.declare('geonef.jig.data.list.BasicRow', geonef.jig._Widget,
     if (this.object) {
       this.domNode.innerHTML = geonef.jig.util.string.escapeHtml(this.object.getSummary());
       if (this.enableClickEvent) {
-        dojo.addClass(this.domNode, 'link');
+        domClass.add(this.domNode, 'link');
       }
     }
   },
@@ -44,16 +51,16 @@ dojo.declare('geonef.jig.data.list.BasicRow', geonef.jig._Widget,
 
   startup: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(dojo.hitch(this, this.onDataReady));
+    this.whenDataReady.then(lang.hitch(this, this.onDataReady));
   },
 
   onDataReady: function() {
     this.buildRow();
   },
 
-  onItemClick: function(event) {
-    if (event) {
-      dojo.stopEvent(event);
+  onItemClick: function(evt) {
+    if (evt) {
+      event.stop(evt);
     }
     this.onExecute();
   },
@@ -66,5 +73,4 @@ dojo.declare('geonef.jig.data.list.BasicRow', geonef.jig._Widget,
 
 });
 
-return geonef.jig.data.list.BasicRow;
 });

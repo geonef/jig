@@ -1,19 +1,23 @@
 {
-	"name": "geonef/jig",
-	"version":"0.82",
-	"main": "main",
-	"dependencies": {
-		"dojo": "current"
-	},
+	"name": "geonef-jig",
 	"description": "Geonef Jig is a multi-purpose JS library for the needs of Geonef",
+	"version":"0.82",
+	"keywords": ["JavaScript", "Geonef", "Jig"],
+        "maintainers": [{ "name": "JF Gigand", "email": "jf@geonef.fr" }],
+        "contributors": [{ "name": "JF Gigand", "email": "jf@geonef.fr" }],
+        "bugs": "mailto:jf@geonef.fr",
 	"licenses": [
 		 {
-				 "type": "BSD",
-				 "url": "http://trac.dojotoolkit.org/browser/dojo/trunk/LICENSE#L13"
+				 "type": "MIT",
+				 "url": "http://opensource.org/licenses/MIT"
 		 }
 	],
-	// "bugs": "http://bugs.dojotoolkit.org/",
-	"keywords": ["JavaScript", "Geonef", "Jig"],
 	"homepage": "http://www.geonef.fr/",
+	"dependencies": {
+		"dojo": "1.8"
+	},
+	"directories": {
+		"lib": "."
+	},
 	"dojoBuild": "jig.profile.js"
 }

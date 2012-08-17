@@ -1,4 +1,13 @@
-define("geonef/jig/_Widget", ["dijit/_Widget", "dojo"], function(_Widget, dojo) {
+define([
+         "dojo/_base/declare",
+         "dijit/_Widget",
+         "dojo/_base/lang",
+         "dojo/dom-style",
+         "dojo/dom-class",
+         "dojo",
+         "./_base",
+         "./util"
+], function(declare, _Widget, lang, style, domClass, dojo, jig, util) {
 
 /**
  * Base class widget class
@@ -6,7 +15,7 @@ define("geonef/jig/_Widget", ["dijit/_Widget", "dojo"], function(_Widget, dojo) 
  * Child classes should define 'makeContentNodes' as a function
  * returning an array of node definitions (first arg to geonef.jig.makeDOM)
  */
-dojo.declare('geonef.jig._Widget', dijit._Widget,
+return declare('geonef.jig._Widget' /* oka compat */, _Widget,
 {
   /**
    * CSS classes to be set on domNode
@@ -111,7 +120,7 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
     this.destroyDom();
     var domNode = this.domNode;
     var _this = this;
-    return geonef.jig.util.whenAll(
+    return util.whenAll(
       this.dom(this.makeContentNodes(arg))).then(
       function(nodes) {
         // console.log('rebuildDom : got nodes', nodes);
@@ -128,7 +137,7 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
   },
 
   dom: function(struct) {
-    return geonef.jig.makeDOM(struct, this);
+    return jig.makeDOM(struct, this);
   },
 
   enableSubWidget: function(widget, onDestroy) {
@@ -137,18 +146,18 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
         function(name) {
           var node = this[name];
           if (node) {
-            dojo.style(node.domNode || node, 'display', 'none');
+            style.set(node.domNode || node, 'display', 'none');
           }
         }, this);
     widget.placeAt(this.opNode).startup();
     this.subWidget = widget;
-    dojo.addClass(this.domNode, 'hasSub');
+    domClass.add(this.domNode, 'hasSub');
     var _this = this;
     widget.connect(widget, 'uninitialize',
       function() {
         _this.destroySubWidget();
         if (onDestroy) {
-          dojo.hitch(_this, onDestroy)();
+          lang.hitch(_this, onDestroy)();
         }
       });
 
@@ -166,10 +175,10 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
           function(name) {
           var node = this[name];
             if (node) {
-              dojo.style(node.domNode || node, 'display', '');
+              style.set(node.domNode || node, 'display', '');
             }
           }, this);
-      dojo.removeClass(this.domNode, 'hasSub');
+      domClass.remove(this.domNode, 'hasSub');
       return true;
     }
 
@@ -178,5 +187,4 @@ dojo.declare('geonef.jig._Widget', dijit._Widget,
 
 });
 
-return geonef.jig._Widget;
 });

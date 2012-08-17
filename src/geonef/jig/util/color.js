@@ -1,13 +1,13 @@
+define([
+         "../util",
+], function(lang, util) {
 
-dojo.provide('geonef.jig.util.color');
-
-dojo.require('geonef.jig.util');
 
 /**
  * Utility functions dealing with colors
  */
-dojo.mixin(geonef.jig.util.color,
-{
+var self = {
+
   /**
    * Return whether the color is rather dark than bright
    *
@@ -18,7 +18,7 @@ dojo.mixin(geonef.jig.util.color,
    * @return {boolean}
    */
   isDark: function(color) {
-    var col = geonef.jig.util.color.toArray(color);
+    var col = self.toArray(color);
     return Math.max.apply(null, col) < 16 * 11;
   },
 
@@ -29,7 +29,7 @@ dojo.mixin(geonef.jig.util.color,
    * @return {Array.<number>}
    */
   toArray: function(color) {
-    var col = geonef.jig.util.color.normalize(color);
+    var col = self.normalize(color);
     return [parseInt(col.substr(1, 2), 16),
             parseInt(col.substr(3, 2), 16),
             parseInt(col.substr(5, 2), 16)];
@@ -52,5 +52,9 @@ dojo.mixin(geonef.jig.util.color,
     }
     return '#'+col;
   }
+
+};
+
+return self;
 
 });

@@ -1,4 +1,7 @@
-define("geonef/jig/data/model", ["geonef/jig/data/model/ModelStore"], function(ModelStore) {
+define([
+         "./model/ModelStore",
+         "dojo/_base/lang"
+], function(ModelStore, lang) {
 
 /**
  * Global model manager (singleton)
@@ -24,8 +27,8 @@ define("geonef/jig/data/model", ["geonef/jig/data/model/ModelStore"], function(M
  * @see geonef.jig.data.model.ModelStore
  * @see geonef.jig.data.model.Abstract
  */
-dojo.mixin(geonef.jig.data.model,
-{
+
+var self = {
   _stores: {},
 
   /**
@@ -35,10 +38,10 @@ dojo.mixin(geonef.jig.data.model,
    * @return {geonef.jig.data.model.ModelStore}
    */
   getStore: function(Model) {
-    var stores = geonef.jig.data.model._stores;
+    var stores = self._stores;
     var classId = Model.prototype.declaredClass;
     if (!stores[classId]) {
-      var _Class = Model.prototype.Store || geonef.jig.data.model.ModelStore;
+      var _Class = Model.prototype.Store || ModelStore;
       stores[classId] = new _Class({ Model: Model });
     }
 
@@ -53,7 +56,7 @@ dojo.mixin(geonef.jig.data.model,
    */
   normalizeProperties: function(props) {
     for (var p in props) if (props.hasOwnProperty(p)) {
-      if (!dojo.isObject(props[p])) {
+      if (typeof props[p] != 'object') {
         props[p] = { type: props[p] };
       }
       if (props[p].readOnly !== true && props[p].readOnly !== false) {
@@ -74,19 +77,26 @@ dojo.mixin(geonef.jig.data.model,
   //  */
   // flatten: function(value) {
   //   if (dojo.isArray(value)) {
-  //     return value.map(geonef.jig.data.model.flatten);
+  //     return value.map(self.flatten);
   //   } else if (dojo.isObject(value) && value) {
   //     // if (value.exportProperties) {
   //     //   value = value.exportProperties();
   //     // }
   //     return dojo.mixin({}, value);
-  //     // return geonef.jig.map(value, geonef.jig.data.model.flatten); // infinite loop
+  //     // return geonef.jig.map(value, self.flatten); // infinite loop
   //   } else {
   //     return value;
   //   }
   // }
+};
+
+// compat:
+if (!geonef.jig) { geonef.jig = {}; }
+if (!geonef.jig.data) { geonef.jig.data = {}; }
+if (!geonef.jig.data.model) { geonef.jig.data.model = {}; }
+lang.mixin(geonef.jig.data.model, self); // compat
+
+return self;
 
 });
 
-return geonef.jig.data.model;
-});

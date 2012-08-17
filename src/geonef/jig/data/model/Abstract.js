@@ -1,10 +1,21 @@
-define("geonef/jig/data/model/Abstract", [
+define([
+         "dojo/_base/declare",
+         "dojo/_base/lang",
+         "dojo/_base/Deferred",
          "dojo",
-         "geonef/jig/util",
-         "geonef/jig/util/string",
-         "geonef/jig/util/array"
-       ],
-       function(dojo, util, utilString, utilArray) {
+         "../model",
+         "../../util",
+         "../../util/string",
+         "../../util/array"
+], function(declare, lang, Deferred, dojo, model, util, string, array) {
+
+
+      var goThrough = function(value) { return value; };
+      var scalar = {
+        fromServer: goThrough,
+        toServer: goThrough,
+      };
+
 
 /**
  * Base class for all models
@@ -24,7 +35,7 @@ define("geonef/jig/data/model/Abstract", [
  * @see geonef.jig.data.model.ModelStore
  * @example geonef.jig.data.model.User
  */
-dojo.declare('geonef.jig.data.model.Abstract', null,
+return declare('geonef.jig.data.model.Abstract', null,
 {
   /**
    * Channel on which to publish notifications
@@ -96,7 +107,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    *
    * @type {Object.<string,Object>} properties
    */
-  properties: geonef.jig.data.model.normalizeProperties({
+  properties: model.normalizeProperties({
     id: { type: 'string', readOnly: true },
   }),
 
@@ -114,141 +125,98 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    *
    * @type {Object.<string,Object>} types
    */
-  types: (
-    function() {
-      var goThrough = function(value) { return value; };
-      var scalar = {
-        fromServer: goThrough,
-        toServer: goThrough,
-      };
-
-      return {
-        string: scalar,
-        integer: scalar,
-        'float': scalar,
-        'boolean': scalar,
-        date: {
-          fromServer: function(dateStr) {
-            return dateStr ? new Date(dateStr) : null;
-          },
-          toServer: function(dateObj) {
-            return dateObj ? dateObj.toString() : null;
-          }
-        },
-        array: {
-          fromServer: function(value) {
-            return dojo.isArray(value) ? value : [];
-          },
-          toServer: function(value) {
-            return dojo.isArray(value) ? value : [];
-          }
-        },
-        location: {
-          fromServer: function(obj) {
-            return new OpenLayers.LonLat(obj.longitude, obj.latitude);
-          },
-          toServer: function(lonLat) {
-            return { longitude: lonLat.lon, latitude: lonLat.lat };
-          }
-        },
-        geometry: {
-          fromServer: function(data, type) {
-            if (!data) {
-              return null;
-            }
-            if (type.format === 'pointArray') {
-              return new OpenLayers.Geometry.LineString(
-                data.map(function(coords) {
-                           return new OpenLayers.Geometry.Point(coords[0], coords[1]);
-                         }));
-            }
-            var wkt = data.replace(/^SRID=4326;/, '');
-            var features =  this.store.getWktFormat().read(wkt);
-            if (!features) {
-              return null;
-            }
-            if (dojo.isArray(features)) {
-              return features.map(function(feature) { return feature.geometry; });
-            } else {
-              return features.geometry;
-            }
-          },
-          toServer: function(geometry, type) {
-            if (!geometry) { return null; }
-            if (type.format === 'pointArray') {
-              return geometry.components.map(function(p) { return [p.x, p.y]; });
-            }
-            var wkt = this.store.getWktFormat().extractGeometry(geometry);
-            if (!/^SRID=/.test(wkt)) {
-              wkt = 'SRID=4326;' + wkt;
-            }
-            return wkt;
-          }
-        },
-        refMany: {
-          fromServer: function(array, type) {
-            if (!dojo.isArray(array)) { return []; }
-            var _Class = geonef.jig.util.getClass(type.targetModel);
-            var store = geonef.jig.data.model.getStore(_Class);
-            var list = array
-              .filter(function(obj) { return !!obj.id; })
-              .map(function(obj, idx) {
-                     return store.getLazyObject(obj);
-                   });
-            if (type.chained) {
-              geonef.jig.util.array.chainArray(list);
-            }
-            return list;
-          },
-          toServer: function(array, type) {
-            if (!dojo.isArray(array)) { return undefined; }
-            return array.map(
-              function(obj) {
-                if (!obj.id) {
-                  console.warn("refMany: toServer() will not cascade on new obj:", obj);
-                }
-                return { id: obj.id };
-              });
-          }
-        },
-        refOne: {
-          fromServer: function(obj, type) {
-            if (obj === null) { return null; }
-            var _Class = geonef.jig.util.getClass(type.targetModel);
-            var object = geonef.jig.data.model.getStore(_Class).getLazyObject(obj);
-            return object;
-          },
-          toServer: function(obj, type) {
-            // do not cascade: foreign objects have to be saved independantly
-            if (obj && !obj.id) {
-              console.warn("refOne: toServer() will not cascade on new obj:", obj);
-            }
-
-            return obj && obj.id ? { id: obj.id } : null;
-          }
-        },
-        embedMany: {
-          fromServer: function(array, type) { // same as 'refMany'
-            if (!dojo.isArray(array)) { return []; }
-            var _Class = geonef.jig.util.getClass(type.targetModel);
-            var store = geonef.jig.data.model.getStore(_Class);
-            var list = array
-              .filter(function(obj) { return !!obj.id; })
-              .map(function(obj) { return store.getLazyObject(obj); });
-            if (type.chained) {
-              geonef.jig.util.array.chainArray(list);
-            }
-            return list;
-          },
-          toServer: function(array, type) {
-            if (!dojo.isArray(array)) { return undefined; }
-            return array.map(function(item) {
-                               return item.toServerValue({ allValues: true });
-                             });
-          }
+  types: {
+    string: scalar,
+    integer: scalar,
+    'float': scalar,
+    'boolean': scalar,
+    date: {
+      fromServer: function(dateStr) {
+        return dateStr ? new Date(dateStr) : null;
+      },
+      toServer: function(dateObj) {
+        return dateObj ? dateObj.toString() : null;
+      }
+    },
+    array: {
+      fromServer: function(value) {
+        return value instanceof Array ? value : [];
+      },
+      toServer: function(value) {
+        return value instanceof Array ? value : [];
+      }
+    },
+    location: {
+      fromServer: function(obj) {
+        return new OpenLayers.LonLat(obj.longitude, obj.latitude);
+      },
+      toServer: function(lonLat) {
+        return { longitude: lonLat.lon, latitude: lonLat.lat };
+      }
+    },
+    refMany: {
+      fromServer: function(array, type) {
+        if (!(array instanceof Array)) { return []; }
+        var _Class = util.getClass(type.targetModel);
+        var store = model.getStore(_Class);
+        var list = array
+          .filter(function(obj) { return !!obj.id; })
+          .map(function(obj, idx) {
+                 return store.getLazyObject(obj);
+               });
+        if (type.chained) {
+          array.chainArray(list);
         }
-      };
-    }()),
+        return list;
+      },
+      toServer: function(array, type) {
+        if (!(array instanceof Array)) { return undefined; }
+        return array.map(
+          function(obj) {
+            if (!obj.id) {
+              console.warn("refMany: toServer() will not cascade on new obj:", obj);
+            }
+            return { id: obj.id };
+          });
+      }
+    },
+    refOne: {
+      fromServer: function(obj, type) {
+        if (obj === null) { return null; }
+        var _Class = util.getClass(type.targetModel);
+        var object = model.getStore(_Class).getLazyObject(obj);
+        return object;
+      },
+      toServer: function(obj, type) {
+        // do not cascade: foreign objects have to be saved independantly
+        if (obj && !obj.id) {
+          console.warn("refOne: toServer() will not cascade on new obj:", obj);
+        }
+
+        return obj && obj.id ? { id: obj.id } : null;
+      }
+    },
+    embedMany: {
+      fromServer: function(array, type) { // same as 'refMany'
+        if (!(array instanceof Array)) { return []; }
+        var _Class = util.getClass(type.targetModel);
+        var store = model.getStore(_Class);
+        var list = array
+          .filter(function(obj) { return !!obj.id; })
+          .map(function(obj) { return store.getLazyObject(obj); });
+        if (type.chained) {
+          array.chainArray(list);
+        }
+        return list;
+      },
+      toServer: function(array, type) {
+        if (!(array instanceof Array)) { return undefined; }
+        return array.map(function(item) {
+                           return item.toServerValue({ allValues: true });
+                         });
+      }
+    }
+  },
 
   /**
    * Store to which this obj belong to
@@ -267,9 +235,9 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
 
   constructor: function(options) {
     if (options) {
-      dojo.mixin(this, options);
+      lang.mixin(this, options);
     }
-    this.originalValues = dojo.mixin({}, this.originalValues);
+    this.originalValues = lang.mixin({}, this.originalValues);
     this.init();
   },
 
@@ -297,14 +265,14 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    *    - a dojo.Deferred object, which is then returned as is by "get"
    *    - an immediate value, which is passed as param to next deferred's callback
    *    - undefined, which is the same as if "getFoo" were not defined:
-   *                 a query is made through the store to fetch the missing property.
+   *                 a request is made through the store to fetch the missing property.
    *
    * @param {string} property   Name of property
    * @return {dojo.Deferred}
    */
   get: function(property) {
     var set, value;
-    var ucProp = geonef.jig.util.string.ucFirst(property);
+    var ucProp = string.ucFirst(property);
     var meth = 'get' + ucProp;
     if (this[meth]) {
       value = this[meth]();
@@ -315,16 +283,16 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
       }
     }
     if (value !== undefined) {
-      if (value instanceof dojo.Deferred) {
+      if (value instanceof Deferred) {
         return value;
       }
-      return geonef.jig.util.newResolvedDeferred(value);
+      return util.newResolvedDeferred(value);
     }
     if (this[property] !== undefined || !this.id) {
       // if (!this.id) {
       //   console.log('in case', this, arguments);
       // }
-      return geonef.jig.util.newResolvedDeferred(this[property]);
+      return util.newResolvedDeferred(this[property]);
     }
     return this.store
         .fetchProps(this, [property])
@@ -342,7 +310,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    */
   requestProps: function(propArray) {
     var self = this;
-    return geonef.jig.util.whenAll(
+    return util.whenAll(
       propArray.map(function(prop) { return self.get(prop); }))
     .then(function(props) {
             return self;
@@ -356,7 +324,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    * @param any value
    */
   set: function(property, value, setAsOriginal) {
-    var setter = this['set'+geonef.jig.util.string.ucFirst(property)];
+    var setter = this['set'+string.ucFirst(property)];
     if (setter) {
       setter.call(this, value);
     } else {
@@ -375,7 +343,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     var props = this.properties;
     var obj = {};
     for (p in props) {
-      if (dojo.isObject(props[p]) && props[p].type && this[p] !== undefined) {
+      if (typeof props[p] == 'object' && props[p].type && this[p] !== undefined) {
         // var typeSpec = props[p];
         // if (includeReadOnly ||
         //     (!typeSpec.readOnly && !typeSpec.noEdit)) {
@@ -457,7 +425,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    * Only JSON-compatible values are valid: Object, Array, String, Numbers, Null.
    * Be careful: no NaN, undefined, or circular-references.
    *
-   * The discriminator field, if any, is defined
+   * The discriminator field, if any, is part of the returned object.
    *
    * Available options:
    *    - setOriginal: mark current values as original
@@ -470,11 +438,11 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     var p, type, value;
     var props = this.properties;
     var struct = {};
-    options = dojo.mixin({ setOriginal: false, allValues: false }, options);
+    options = lang.mixin({ setOriginal: false, allValues: false }, options);
     if (this.id) {
       struct.id = this.id;
     }
-    for (p in props) if (dojo.isObject(props[p]) && props[p].type) {
+    for (p in props) if (typeof props[p] == 'object' && props[p].type) {
       value = this[p];
       if (value !== undefined) {
         var typeSpec = props[p];
@@ -490,7 +458,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
           // console.log('value, original', p, value, original, geonef.jig.util.isSame(value, original));
 
           if (options.allValues ||
-              !geonef.jig.util.isSame(value, this.originalValues[p])) {
+              !util.isSame(value, this.originalValues[p])) {
             struct[p] = value;
 
             if (options.setOriginal) {
@@ -510,9 +478,6 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
   },
 
   setOriginalValue: function(name, value) {
-    // console.log('setOriginalValue', this, arguments);
-    // var typeSpec = this.properties[name].type;
-    // var type = this.types[typeSpec];
     this.originalValues[name] = value;
   },
 
@@ -525,8 +490,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
    */
   createSub: function(propName, data) {
     var property = this.properties[propName];
-    var store = geonef.jig.data.model.getStore(
-      geonef.jig.util.getClass(property.targetModel));
+    var store = model.getStore(util.getClass(property.targetModel));
     var _this = this;
     var deferred = this.store.apiRequest(
       { action: 'createSub', id: this.id,
@@ -601,7 +565,7 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
     if (!this._subscr) {
       this._subscr = [];
     }
-    var _h = dojo.subscribe(channel, dojo.hitch(this, callback));
+    var _h = dojo.subscribe(channel, lang.hitch(this, callback));
     this._subscr.push(_h);
     return _h;
   },
@@ -628,5 +592,4 @@ dojo.declare('geonef.jig.data.model.Abstract', null,
 
 });
 
-return geonef.jig.data.model.Abstract;
 });

@@ -1,15 +1,15 @@
+define([
+         "../util",
+], function(util) {
 
-dojo.provide('geonef.jig.util.angle');
-
-dojo.require('geonef.jig.util');
 
 /**
  * Utility functions dealing with angles
  *
  * Utiliser les vecteurs à la place, pas ce machin qui embrouille...
  */
-dojo.mixin(geonef.jig.util.angle,
-{
+var self = {
+
   /**
    * Make sure the angle is within [-PI; PI]
    *
@@ -37,7 +37,7 @@ dojo.mixin(geonef.jig.util.angle,
    * @nosideeffects
    */
   add: function(a1, a2) {
-    return geonef.jig.util.angle.diff(a1, -a2);
+    return self.diff(a1, -a2);
   },
 
   /**
@@ -49,7 +49,7 @@ dojo.mixin(geonef.jig.util.angle,
    * @nosideeffects
    */
   diff: function(a2, a1) {
-    // better: return geonef.jig.util.angle.fix(a2 - a1);
+    // better: return self.fix(a2 - a1);
     var diff = a2 - a1;
     if (diff < -1 * Math.PI) {
       diff += 2 * Math.PI;
@@ -72,7 +72,7 @@ dojo.mixin(geonef.jig.util.angle,
     if (angle < 0) {
       angle += Math.PI;
     }
-    return geonef.jig.util.angle.fix(angle * mult);
+    return self.fix(angle * mult);
   },
 
   /**
@@ -105,7 +105,7 @@ dojo.mixin(geonef.jig.util.angle,
     if (x < 0) {
       teta = Math.PI - teta;
     }
-    return geonef.jig.util.angle.diff(teta, 0);
+    return self.diff(teta, 0);
     //return Math.atan(Math.abs((p1.y - p2.y) / (p1.x - p2.x)));
   },
 
@@ -120,8 +120,8 @@ dojo.mixin(geonef.jig.util.angle,
    * @nosideeffects
    */
   isWithin: function(angle, from, to, strict) {
-    to = geonef.jig.util.angle.diff(to, from);
-    angle = geonef.jig.util.angle.diff(angle, from);
+    to = self.diff(to, from);
+    angle = self.diff(angle, from);
     if (strict) {
       return to >= 0 ? (angle > 0 && angle < to) :
         (angle > 0 || angle < to);
@@ -129,8 +129,8 @@ dojo.mixin(geonef.jig.util.angle,
       return to >= 0 ? (angle >= 0 && angle <= to) :
         (angle >= 0 || angle <= to);
     }
-    // return  geonef.jig.util.angle.(angle, min) > 0 &&
-    //   geonef.jig.util.angle.diff(max, angle) > 0;
+    // return  self.(angle, min) > 0 &&
+    //   self.diff(max, angle) > 0;
   },
 
   /**
@@ -145,8 +145,12 @@ dojo.mixin(geonef.jig.util.angle,
     if (a2 >= 0 || a1 < 0) {	// doesn't go through the break PI:-PI
       return (a1 + a2) / 2;
     } else {
-      return geonef.jig.util.angle.diff((a1 + a2 + 2 * Math.PI) / 2, 0);
+      return self.diff((a1 + a2 + 2 * Math.PI) / 2, 0);
     }
   }
+
+};
+
+return self;
 
 });

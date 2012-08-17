@@ -1,13 +1,15 @@
+define([
+         "dojo/_base/lang",
+         "dojo/number",
+         "../util",
+], function(lang, dojoNumber, util) {
 
-dojo.provide('geonef.jig.util.number');
-
-dojo.require('geonef.jig.util');
 
 /**
  * Utility functions dealing with angles
  */
-dojo.mixin(geonef.jig.util.number,
-{
+var self = {
+
   /**
    * Format a number
    *
@@ -25,7 +27,7 @@ dojo.mixin(geonef.jig.util.number,
       var factor = nb < options.digits ? Math.pow(10, options.digits - nb) : 1;
       value = Math.round(value * factor) / factor;
     }
-    return dojo.number.format(value, options);
+    return dojoNumber.format(value, options);
   },
 
 
@@ -56,7 +58,7 @@ dojo.mixin(geonef.jig.util.number,
    * @nosideeffects
    */
   formatDims: function(dims, options) {
-    var o = dojo.mixin(
+    var o = lang.mixin(
       {
         units: [ '', 'K', 'M' ],
         mult: 1000,
@@ -80,8 +82,12 @@ dojo.mixin(geonef.jig.util.number,
   },
 
   formatBytes: function(size) {
-    return geonef.jig.util.number.formatDims([size],
+    return self.formatDims([size],
               { units: ['o', 'ko', 'Mo', 'Go', 'To'], mult: 1024 });
   }
+
+};
+
+return self;
 
 });

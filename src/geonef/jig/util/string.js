@@ -1,13 +1,14 @@
+define([
+         "dojo/_base/lang",
+         "../util",
+], function(lang, util) {
 
-dojo.provide('geonef.jig.util.string');
-
-dojo.require('geonef.jig.util');
 
 /**
  * Utility functions dealing with strings
  */
-dojo.mixin(geonef.jig.util.string,
-{
+return {
+
   /**
    * Make the first letter lowercase
    *
@@ -60,13 +61,13 @@ dojo.mixin(geonef.jig.util.string,
    * @nosideeffects
    */
   escapeHtml: function(content, options) {
-    options = dojo.mixin({ disableOnTag: null }, options);
+    options = lang.mixin({ disableOnTag: null }, options);
     content = ''+(content || '');
     var escape = !options.disableOnTag ||
       content.indexOf(options.disableOnTag) === -1;
     content = content.replace(options.disableOnTag, '');
     if (escape) {
-      content = dojo.trim(content)
+      content = lang.trim(content)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
@@ -249,6 +250,8 @@ dojo.mixin(geonef.jig.util.string,
       };
 
     })()
+
+};
 
 });
 

@@ -1,4 +1,10 @@
-define("geonef/jig/data/model/ModelStore", ["geonef/jig/api", "dojo", "geonef/jig/util"], function(api, dojo, jigUtil) {
+define([
+         "dojo/_base/declare",
+         "../../api",
+         "dojo/_base/lang",
+         "dojo",
+         "../../util",
+], function(declare, api, lang, dojo, util) {
 
 /**
  * Model store - equivalent for Doctrine repositories
@@ -37,7 +43,7 @@ define("geonef/jig/data/model/ModelStore", ["geonef/jig/api", "dojo", "geonef/ji
  * @see geonef.jig.data.model.Abstract
  * @see geonef.jig.data.model.UserStore
  */
-dojo.declare("geonef.jig.data.model.ModelStore", null,
+return declare('geonef.jig.data.model.ModelStore', null,
 {
 
   /**
@@ -79,8 +85,8 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
   constructor: function(options) {
     this.index = {};
-    dojo.mixin(this, options);
-    this.apiParams = dojo.mixin({}, this.apiParams);
+    lang.mixin(this, options);
+    this.apiParams = lang.mixin({}, this.apiParams);
     this.postMixInProperties();
     if (!this.apiModule) {
       this.apiModule = this.Model.prototype.apiModule;
@@ -129,10 +135,10 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   get: function(id, options) {
     var obj = this.index[id];
     if (obj && (!options || (!options.fields && !options.fieldGroup))) {
-      return geonef.jig.util.newResolvedDeferred(obj);
+      return util.newResolvedDeferred(obj);
     } else {
       var self = this;
-      return this.apiRequest(dojo.mixin({ action: 'get', id: id }, options),
+      return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
                              options ? options.api : {})
           .then(function(resp) {
                   if (resp.error) {
@@ -165,7 +171,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     try {
       var id = this.refToId(ref);
     } catch (error) {
-      var d = new dojo.Deferred();
+      var d = new Deferred();
       d.errback(error);
       return d;
     }
@@ -216,7 +222,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    */
   put: function(object, options) {
     var self = this;
-    var deferred = this.apiRequest(dojo.mixin(
+    var deferred = this.apiRequest(lang.mixin(
         { action: 'put',
           object: object.toServerValue(),
         }, options), {}, object)
@@ -271,7 +277,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
   duplicate: function(object, options) {
     var self = this;
     var obj;
-    return this.apiRequest(dojo.mixin(
+    return this.apiRequest(lang.mixin(
         { action: 'duplicate',
           id: object.id,
         }, options), null, object)
@@ -315,27 +321,28 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
     var implied = {};
     var prop, tmpFilter;
 
+    var Abstract = require('geonef/jig/data/model/Abstract');
     // fix filter and make up implied value from it
     if (filter) {
       for (prop in filter) if (filter.hasOwnProperty(prop)) {
         tmpFilter = filter[prop];
-        if (tmpFilter instanceof geonef.jig.data.model.Abstract) {
+        if (tmpFilter instanceof Abstract) {
           tmpFilter = filter[prop] = { op: 'ref', value: tmpFilter };
-        } else if (dojo.isString(tmpFilter) || !isNaN(tmpFilter)) {
+        } else if (typeof tmpFilter == 'string' || !isNaN(tmpFilter)) {
           tmpFilter = filter[prop] = { op: 'equals', value: tmpFilter };
         }
         if (['equals', 'ref'].indexOf(tmpFilter.op) !== -1) {
           implied[prop] = tmpFilter.value;
         }
-        if (tmpFilter.value instanceof geonef.jig.data.model.Abstract) {
+        if (tmpFilter.value instanceof Abstract) {
           tmpFilter.value = tmpFilter.value.getId();
         }
       }
     }
 
-    return this.apiRequest(dojo.mixin(
+    return this.apiRequest(lang.mixin(
         { action: 'query', filters: filter, /* options: options || {}*/ }, options))
-      .then(dojo.hitch(this,
+      .then(lang.hitch(this,
         function(resp) {
           if (!resp.results) {
             console.error("model query ("+this.apiModule+"): no result array", resp);
@@ -343,7 +350,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
           }
           return resp.results.map(
             function(data) {
-              return this.getLazyObject(dojo.mixin({}, implied, data));
+              return this.getLazyObject(lang.mixin({}, implied, data));
             }, this);
         }));
   },
@@ -386,7 +393,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
         console.error("happing on store", this, ", model ", this.Model.prototype);
         throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
       }
-      Model = geonef.jig.util.getClass(_class);
+      Model = util.getClass(_class);
     }
     var object = new Model({ store: this });
     return object;
@@ -408,7 +415,7 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
       data[field] = discriminatorValue;
     }
     var object = this.makeObject(data);
-    dojo.mixin(object, data);
+    lang.mixin(object, data);
     object.initNew();
     return object;
   },
@@ -449,25 +456,17 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
    */
   apiRequest: function(params, options, object) {
     var module = object ? object.apiModule : this.apiModule;
-    return geonef.jig.api.request(
-      dojo.mixin({ module: module, scope: this },
+    return api.request(
+      lang.mixin({ module: module, scope: this },
                    this.apiParams, params),
       options);
-  },
-
-  getWktFormat: function() {
-    if (!this.wktFormat) {
-      this.wktFormat = new OpenLayers.Format.WKT();
-    }
-
-    return this.wktFormat;
   },
 
   subscribe: function(channel, callback) {
     if (!this._subscr) {
       this._subscr = [];
     }
-    var _h = dojo.subscribe(channel, dojo.hitch(this, callback));
+    var _h = dojo.subscribe(channel, lang.hitch(this, callback));
     this._subscr.push(_h);
     return _h;
   },
@@ -521,7 +520,5 @@ dojo.declare("geonef.jig.data.model.ModelStore", null,
 
 });
 
-
-return geonef.jig.data.model.ModelStore;
 });
 

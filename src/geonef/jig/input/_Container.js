@@ -1,7 +1,12 @@
-dojo.provide('geonef.jig.input._Container');
-dojo.require('dijit.form._FormMixin');
-dojo.require('geonef.jig.util');
-dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
+define([
+         "dojo/_base/declare",
+         "dijit/form/_FormMixin",
+         "dojo/_base/lang",
+         "../util",
+], function(declare, _FormMixin, lang, util) {
+
+
+return declare(_FormMixin,
 {
 
   //
@@ -29,7 +34,7 @@ dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
 
   postMixInProperties: function() {
     this.internalValues = {};
-    this.manageValueKeys = dojo.clone(this.manageValueKeys);
+    this.manageValueKeys = lang.clone(this.manageValueKeys);
     this.inherited(arguments);
   },
 
@@ -38,10 +43,10 @@ dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
     // Find first descendants having a "name" attribute.
     //
     var list = [];
-    this.getInputRootNodes().map(geonef.jig.util.getFirstNamedDescendants)
+    this.getInputRootNodes().map(util.getFirstNamedDescendants)
       .forEach(function(set) { set.forEach(function(n) { list.push(n); }); });
     return list;
-    //return geonef.jig.util.getFirstNamedDescendants(this.domNode);
+    //return util.getFirstNamedDescendants(this.domNode);
   },
 
   getInputRootNodes: function() {
@@ -64,10 +69,9 @@ dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
     var self = this;
     var _oldChildrenCnts = this._childrenCnts || {};
     this._childrenCnts = {};
-    dojo.forEach(
-      dojo.filter(this.getDescendants(),
-		  function(item){ return item.onChange; }),
-      function(widget) {
+    this.getDescendants()
+      .filter(function(item){ return item.onChange; })
+      .forEach(function(widget) {
         if (_oldChildrenCnts.hasOwnProperty(widget.id)) {
           self._childrenCnts[widget.id] = _oldChildrenCnts[widget.id];
           delete _oldChildrenCnts[widget.id];
@@ -75,7 +79,7 @@ dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
           //console.log('connect', self, widget.id);
 	  self._childrenCnts[widget.id] =
             dojo.connect(widget, "onChange", self,
-              dojo.hitch(self, "onChange", widget));
+              lang.hitch(self, "onChange", widget));
         }
       });
     for (var i in _oldChildrenCnts) {
@@ -175,5 +179,7 @@ dojo.declare('geonef.jig.input._Container', dijit.form._FormMixin,
   getValueHook: function(value) {
     // hook
   }
+
+});
 
 });

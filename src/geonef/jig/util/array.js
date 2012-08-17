@@ -1,13 +1,13 @@
+define([
+         "../util",
+], function(util) {
 
-dojo.provide('geonef.jig.util.array');
-
-dojo.require('geonef.jig.util');
 
 /**
  * Utility functions dealing with arrays
  */
-dojo.mixin(geonef.jig.util.array,
-{
+return {
+
   /**
    * Clean an array from falsy values
    *
@@ -40,5 +40,7 @@ dojo.mixin(geonef.jig.util.array,
       });
     return array;
   }
+
+};
 
 });
