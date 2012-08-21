@@ -1,8 +1,11 @@
+define([
+         "dojo/_base/declare",
+         "../../_Widget",
+         "../../util",
+         "../../button/Action",
+         "dojo/_base/lang"
+], function(declare, _Widget, util, Action, lang) {
 
-dojo.provide('geonef.jig.data.pane.AbstractDataPane');
-
-dojo.require('geonef.jig._Widget');
-dojo.require('geonef.jig.util');
 
 /**
  * Base class for all data panes
@@ -12,17 +15,17 @@ dojo.require('geonef.jig.util');
  * It is typically a display, which can embed some editing/action
  * functionnalities.
  *
- * For a pure editor (form), geonef.jig.data.editor.AbstractTemplated
+ * For a pure editor (form), geonef.jig.data.editor.AbstractEditor
  * would better fit (form/validation/saving management).
  *
  * This handles init/load/events around this.object.
  */
-dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
+return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
 {
   /**
    * @override
    */
-  'class': geonef.jig._Widget.prototype['class'] + ' jigDataPane',
+  'class': _Widget.prototype['class'] + ' jigDataPane',
 
   /**
    * The model object - mandatory, must be given at construction
@@ -52,7 +55,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
-      this.object.requestProps(this.autoRequestProps) : geonef.jig.util.newResolvedDeferred();
+      this.object.requestProps(this.autoRequestProps) : util.newResolvedDeferred();
   },
 
   /**
@@ -60,7 +63,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    */
   buildRendering: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(geonef.jig.util.busy(this.domNode));
+    this.whenDataReady.then(util.busy(this.domNode));
   },
 
   makeDropDownNode: function(title) {
@@ -71,8 +74,8 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
          _attach: 'optionsDD',
          'class': 'nolabel gear',
          dropDown: new dijit.TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
-         onMouseEnter: dojo.hitch(null, dojo.addClass, this.domNode, 'overDD'),
-         onMouseLeave: dojo.hitch(null, dojo.removeClass, this.domNode, 'overDD'),
+         onMouseEnter: lang.hitch(null, domClass.add, this.domNode, 'overDD'),
+         onMouseLeave: lang.hitch(null, domClass.remove, this.domNode, 'overDD'),
        }]);
 
     this.dom(
@@ -85,10 +88,10 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
 
   makeOptions: function() {
     return [
-      [geonef.jig.button.Action, {
+      [Action, {
          label: "Supprimer",
          iconClass: 'remove',
-         onExecute: geonef.jig.util.deferHitch(this, this.deleteObject),
+         onExecute: util.deferHitch(this, this.deleteObject),
        }],
     ];
   },
@@ -106,7 +109,7 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
    */
   startup: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(dojo.hitch(this, this.onDataReady));
+    this.whenDataReady.then(lang.hitch(this, this.onDataReady));
   },
 
   /**
@@ -163,7 +166,9 @@ dojo.declare('geonef.jig.data.pane.AbstractDataPane', geonef.jig._Widget,
   deleteObject: function() {
     if (!window.confirm(this.removeConfirm)) { return; }
     this.object.store.remove(this.object)
-      .then(geonef.jig.util.busy(this.domNode));
+      .then(util.busy(this.domNode));
   },
+
+});
 
 });

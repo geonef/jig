@@ -1,10 +1,13 @@
+define([
+         "dojo/_base/declare",
+         "dijit/form/ValidationTextBox",
 
-dojo.provide('geonef.jig.input.TextBox');
-
-// parents
-dojo.require('dijit.form.ValidationTextBox');
-
-dojo.require('geonef.jig.util');
+         "dojo/_base/event",
+         "dojo/query",
+         "dojo/keys",
+         "../util",
+], function(declare, ValidationTextBox,
+            event, query, keys, util) {
 
 
 /**
@@ -13,7 +16,7 @@ dojo.require('geonef.jig.util');
  *
  * @class
  */
-dojo.declare('geonef.jig.input.TextBox', dijit.form.ValidationTextBox,
+return declare('geonef.jig.input.TextBox', ValidationTextBox,
 {
 
   trim: true,
@@ -23,8 +26,8 @@ dojo.declare('geonef.jig.input.TextBox', dijit.form.ValidationTextBox,
 
   postCreate: function() {
     this.inherited(arguments);
-    dojo.query('input.dijitValidationInner',
-               this.domNode)[0].setAttribute('disabled', 'disabled');
+    query('input.dijitValidationInner',
+          this.domNode)[0].setAttribute('disabled', 'disabled');
     this.textbox.setAttribute('autocomplete', 'on');
     this.connect(this.textbox, 'onkeydown', this._jigOnKeyDown);
     // this.connect(this.textbox, 'onkeypress', this._jigOnKeyPress);
@@ -34,17 +37,17 @@ dojo.declare('geonef.jig.input.TextBox', dijit.form.ValidationTextBox,
    * Intercept ENTER key to call onExecute
    */
   _jigOnKeyDown: function(e) {
-    if (e && e.keyCode === dojo.keys.ENTER) {
-      dojo.stopEvent(e);
+    if (e && e.keyCode === keys.ENTER) {
+      event.stop(e);
       var ret = this.onExecute();
       if (ret !== false && !this.noSubmit) {
         var domNode = this.domNode;
         // the timeout is need to avoid bad key event being
         // sent, for example caught by the DD button controlling
         // a TooltipDialog containing this textbox.
-        geonef.jig.util.whenTimeout(10)
+        util.whenTimeout(10)
           .then(function() {
-                  geonef.jig.util.bubbleSubmit(domNode, e);
+                  util.bubbleSubmit(domNode, e);
                 });
       }
     }
@@ -53,5 +56,7 @@ dojo.declare('geonef.jig.input.TextBox', dijit.form.ValidationTextBox,
   onExecute: function() {
     // hook
   }
+
+});
 
 });

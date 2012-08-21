@@ -2,12 +2,12 @@ define([
          "dojo/_base/declare",
          "dojo/_base/lang",
          "dojo/_base/Deferred",
-         "dojo",
+         "dojo/topic",
          "../model",
          "../../util",
          "../../util/string",
          "../../util/array"
-], function(declare, lang, Deferred, dojo, model, util, string, array) {
+], function(declare, lang, Deferred, topic, model, util, string, array) {
 
 
       var goThrough = function(value) { return value; };
@@ -31,9 +31,9 @@ define([
  *
  * For a good example of implementing a model, see geonef.jig.data.model.User.
  *
- * @see geonef.jig.data.model
- * @see geonef.jig.data.model.ModelStore
- * @example geonef.jig.data.model.User
+ * @module
+ * @see geonef/jig/data/model
+ * @see geonef/jig/data/model/ModelStore
  */
 return declare('geonef.jig.data.model.Abstract', null,
 {
@@ -243,7 +243,8 @@ return declare('geonef.jig.data.model.Abstract', null,
 
   destroy: function() {
     if (this._subcr) {
-      this._subcr.forEach(dojo.unsubscribe);
+      this._subcr.forEach(function(c) { c.remove(); });
+      delete this._subcr;
     }
   },
 
@@ -561,26 +562,34 @@ return declare('geonef.jig.data.model.Abstract', null,
     return deferred;
   },
 
+  /**
+   * Helper for dojo/topic.subscribe(), handling unsubscribe at destroy()
+   */
   subscribe: function(channel, callback) {
+    console.log('model.Abstract::subscribe', this, arguments);
     if (!this._subscr) {
       this._subscr = [];
     }
-    var _h = dojo.subscribe(channel, lang.hitch(this, callback));
+    var _h = topic.subscribe(channel, lang.hitch(this, callback));
     this._subscr.push(_h);
     return _h;
   },
 
+  /**
+   * Unsubscribe event registered with self subscribe()
+   */
   unsubscribe: function(_h) {
     var idx = this._subscr.indexOf(_h);
-    dojo.unsubscribe(_h);
+    _h.remove();
     this._subscr.splice(idx, 1);
   },
 
   publish: function(argsArray) {
+    // console.log('publish', this.channel, argsArray);
     argsArray = argsArray.slice(0);
     argsArray.unshift(this);
-    // console.log('publish', this.channel, argsArray);
-    dojo.publish(this.channel, argsArray);
+    argsArray.unshift(this.channel);
+    topic.publish.apply(topic, argsArray);
   },
 
   afterDuplicate: function() {

@@ -24,10 +24,10 @@ define([
  * (query, find, save, delete). See 'geonef.jig.data.model.ModelStore' for
  * documentation on this.
  *
+ * @module
  * @see geonef.jig.data.model.ModelStore
  * @see geonef.jig.data.model.Abstract
  */
-
 var self = {
   _stores: {},
 

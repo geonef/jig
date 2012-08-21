@@ -6,7 +6,7 @@ define([
 ], function(declare, lang, util, Deferred) {
 
 
-return declare(null,
+return declare('geonef.jig.data.pane.CreatorMixin', null,
 {
 
   /**

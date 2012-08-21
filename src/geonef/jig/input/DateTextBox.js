@@ -1,10 +1,10 @@
+define([
+         "dojo/_base/declare",
+         "dijit/form/DateTextBox",
+], function(declare, DateTextBox) {
 
-dojo.provide('geonef.jig.input.DateTextBox');
 
-// parents
-dojo.require('dijit.form.DateTextBox');
-
-dojo.declare('geonef.jig.input.DateTextBox', dijit.form.DateTextBox,
+return declare('geonef.jig.input.DateTextBox', DateTextBox,
 {
   // summary:
   //   Overload dijit DataTextBox to deal with string date value
@@ -18,7 +18,7 @@ dojo.declare('geonef.jig.input.DateTextBox', dijit.form.DateTextBox,
       return;
     }*/
     //console.log('set date value', this, value);
-    if (dojo.isString(value)) {
+    if (typeof value == 'string') {
       var displayValue = value.replace(/Z/, '').replace(/-/g, '/');
       //this.attr('displayValue', displayValue);
       var date = new Date(displayValue);
@@ -43,5 +43,7 @@ dojo.declare('geonef.jig.input.DateTextBox', dijit.form.DateTextBox,
   //   // }
   //   return value;
   // }
+
+});
 
 });

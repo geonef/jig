@@ -1,21 +1,25 @@
-dojo.provide('geonef.jig.input.DateTime');
+define([
+         "dojo/_base/declare",
+         "dijit/_Widget",
+         "dijit/_TemplatedMixin",
+         "dijit/_WidgetsInTemplateMixin",
 
-// parents
-dojo.require('dijit._Widget');
-dojo.require('dijit._Templated');
+         "dojo/dom-class",
 
-// used in template
-dojo.require('geonef.jig.input.DateTextBox');
-dojo.require('dijit.form.TimeTextBox');
+         "dojo/text!./templates/DateTime.html",
+         "./DateTextBox",
+         "dijit/form/TimeTextBox"
+], function(declare, _Widget, _TemplatedMixin, _WidgetsInTemplateMixin,
+            domClass,
+            template, DateTextBox, TimeTextBox) {
 
 
-dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
+return declare('geonef.jig.input.DateTime', [ _Widget, _TemplatedMixin, _WidgetsInTemplateMixin ],
 {
   name: 'date',
   required: false,
   timeEnabled: null,
-  templateString: dojo.cache('geonef.jig.input', 'templates/DateTime.html'),
-  widgetsInTemplate: true,
+  templateString: template,
 
   buildRendering: function() {
     this.inherited(arguments);
@@ -57,13 +61,13 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
 
   enableTime: function() {
     this.timeEnabled = true;
-    dojo.addClass(this.domNode, 'time');
+    domClass.add(this.domNode, 'time');
     this.onSubChange();
   },
 
   disableTime: function() {
     this.timeEnabled = false;
-    dojo.removeClass(this.domNode, 'time');
+    domClass.remove(this.domNode, 'time');
     this.onSubChange();
 
   },
@@ -91,5 +95,6 @@ dojo.declare('geonef.jig.input.DateTime', [ dijit._Widget, dijit._Templated ],
   // hook
   onChange: function() {},
 
+});
 
 });

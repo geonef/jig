@@ -53,6 +53,7 @@ return declare('geonef.jig._Widget' /* oka compat */, _Widget,
   buildRendering: function() {
     if (!this.domNode) {
       var nodes = this.delayedContent ? [] : this.makeContentNodes();
+      // console.log('_Widget nodeName=', this.nodeName, nodes);
       this.domNode = this.dom(
         [this.nodeName, { 'class': this['class']+' '+this.extraClass }, nodes]);
     }

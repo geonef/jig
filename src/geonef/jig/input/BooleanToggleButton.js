@@ -1,9 +1,10 @@
-dojo.provide('geonef.jig.input.BooleanToggleButton');
+define([
+         "dojo/_base/declare",
+         "dijit/form/ToggleButton",
+], function(declare, ToggleButton) {
 
-// parents
-dojo.require('dijit.form.ToggleButton');
 
-dojo.declare('geonef.jig.input.BooleanToggleButton', [ dijit.form.ToggleButton ],
+return declare('geonef.jig.input.BooleanToggleButton', ToggleButton,
 {
   // summary:
   //   Same as dijit ToggleButton, but act as a boolean input
@@ -18,5 +19,7 @@ dojo.declare('geonef.jig.input.BooleanToggleButton', [ dijit.form.ToggleButton ]
   _getValueAttr: function() {
     return this.attr('checked');
   }
+
+});
 
 });

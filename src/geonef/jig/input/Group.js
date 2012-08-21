@@ -1,10 +1,16 @@
-dojo.provide('geonef.jig.input.Group');
+define([
+         "dojo/_base/declare",
+         "../_Widget",
+         "./_Container",
 
-dojo.require('geonef.jig._Widget');
-dojo.require('geonef.jig.input._Container');
+         "dojo/dom-construct",
+         "dojo/_base/event",
 
-dojo.declare('geonef.jig.input.Group',
-		[ geonef.jig._Widget, geonef.jig.input._Container ],
+], function(declare, _Widget, _Container,
+            construct, event) {
+
+
+return declare('geonef.jig.input.Group', [ _Widget, _Container ],
 {
 
   nodeName: 'div',
@@ -35,14 +41,14 @@ dojo.declare('geonef.jig.input.Group',
 
   submit: function() {
     console.log('submit', this, arguments);
-    var sb = dojo.create('input', { type: 'submit', style: 'display:none' }, this.domNode);
+    var sb = construct.create('input', { type: 'submit', style: 'display:none' }, this.domNode);
     sb.click();
-    dojo.destroy(sb);
+    construct.destroy(sb);
   },
 
   onFormSubmit: function(event) {
     console.log('Group onFormSubmit', this, arguments);
-    dojo.stopEvent(event);
+    event.stop(event);
     this.onExecute();
 
     return false;
@@ -50,5 +56,7 @@ dojo.declare('geonef.jig.input.Group',
 
   onExecute: function() {
   }
+
+});
 
 });

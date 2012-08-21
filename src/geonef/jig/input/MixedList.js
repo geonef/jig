@@ -1,18 +1,67 @@
+define([
+         "dojo/_base/declare",
+         "dijit/_Widget",
+         "dijit/_TemplatedMixin",
+         "dijit/_WidgetsInTemplateMixin",
+         "../widget/_AutoGrid",
 
-dojo.provide('geonef.jig.input.MixedList');
+         "../util",
+         "dojo/_base/lang",
+         "dojo/dom-construct",
+         "dojo/dom-style",
+         "dojo/query",
+         "dojo/aspect",
+         "dojo/dnd/Source",
+         "dijit/registry",
 
-// parents
-dojo.require('dijit._Widget');
-dojo.require('dijit._Templated');
+         "../button/Action",
+         "dijit/form/DropDownButton",
+         "dijit/TooltipDialog",
+         "dojo/text!./templates/MixedList.html"
+], function(declare, _Widget, _TemplatedMixin, _WidgetsInTemplateMixin, _AutoGrid,
+            util, lang, construct, style, query, aspect, Source, registry,
+            Action, DropDownButton, TooltipDialog, template) {
 
-// used in template
-dojo.require('dijit.form.DropDownButton');
-dojo.require('dijit.TooltipDialog');
 
-// used in code
-dojo.require('dojo.dnd.Source');
+/**
+ * Button to choose the type
+ */
+declare('geonef.jig.input._MixedGridCreateList',
+        [ _Widget, _TemplatedMixin, _WidgetsInTemplateMixin, _AutoGrid ],
+{
+  label: 'Créer nouveau',
 
-dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
+  mixedListWidget: '',
+
+  postMixInProperties: function() {
+    this.inherited(arguments);
+    this.mixedListWidget = registry.byId(this.mixedListWidget);
+  },
+
+
+  getGridMembers: function() {
+    return this.mixedListWidget.availableModules;
+  },
+
+  processGridMember: function(member, tr) {
+    var self = this
+    , button = new Action({
+                 label: member,
+	         onClick: function() {
+                   var item = {};
+                   item[self.mixedListWidget.childClassSuffixProperty] = member;
+                   self.mixedListWidget.addItem(item);
+	         }});
+    ;
+    construct.place(button.domNode, tr);
+    button.startup();
+  }
+
+
+});
+
+
+return declare('geonef.jig.input.MixedList', [ _Widget, _WidgetsInTemplateMixin ],
 {
   // summary:
   //   List of objects, which are represented through objects of different classes
@@ -74,15 +123,10 @@ dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   ////////////////////////////////////////////////////////////////////
   // Protected properties
 
-  templateString: dojo.cache("geonef.jig.input", "templates/MixedList.html"),
+  templateString: template,
 
   widgetsInTemplate: true,
 
-  // attributeMap: object
-  //    Attribute map (dijit._Widget)
-  attributeMap: dojo.mixin(dojo.clone(dijit._Widget.prototype.attributeMap), {
-    //label: { node: 'labelNode', type: 'innerHTML' }
-  }),
 
   postMixInProperties: function() {
     this.inherited(arguments);
@@ -97,12 +141,12 @@ dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 
   postCreate: function() {
     this.inherited(arguments);
-    dojo.style(this.button.domNode, 'display', this.readOnly ? 'none': '');
+    style.set(this.button.domNode, 'display', this.readOnly ? 'none': '');
   },
 
   buildListNodes: function() {
     var position = this.addButtonAtBottom ? 'first' : 'last';
-    var dc = dojo.create;
+    var dc = construct.create;
     if (this.listType === 'div') {
       this.listNode = dc('div', { 'class': 'list' }, this.domNode, position);
     } else if (this.listType === 'table') {
@@ -117,26 +161,26 @@ dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     if (this.readOnly) { return; }
     this.listNode.dndType = this.id;
     this.listNode.type = this.id;
-    this.dnd = new dojo.dnd.Source(
+    this.dnd = new Source(
       this.listNode,
       {
         withHandles: true,
         singular: true,
         autoSync: true,
         accept: this.id+'-dnd',
-        creator: dojo.hitch(this, 'dndAvatarCreator')
+        creator: lang.hitch(this, 'dndAvatarCreator')
       });
     this.connect(this.dnd, 'onDrop', 'onChange');
   },
 
   dndAvatarCreator: function(item) {
-    var avatar = dojo.create('div', { innerHTML: "Déplacement..." });
+    var avatar = construct.create('div', { innerHTML: "Déplacement..." });
     return { node: avatar, data: item, type: this.id+'-dnd' };
   },
 
   _getValueAttr: function() {
-    var value = dojo.query('> *', this.listNode)
-      .map(dijit.byNode)
+    var value = query('> *', this.listNode)
+      .map(registry.byNode)
       .map(function(w) { return w.attr('value'); });
     if (this.reverseOrder) {
       value.reverse();
@@ -151,7 +195,7 @@ dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
     widgets.forEach(function(w) { w.destroy(); });
     var self = this;
     if (value) {
-      if (dojo.isArray(value)) {
+      if (value instanceof Array) {
         if (this.reverseOrder) {
           value = value.slice(0); // don't modify parameter
           value.reverse();
@@ -185,7 +229,7 @@ dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 
   makeWidgetFromItem: function(item) {
     var className = this.inflectClassName(item);
-    var Class = geonef.jig.util.getClass(className);
+    var Class = util.getClass(className);
     var widget = new Class();
     widget.attr('value', item);
     this.installConnectsOnWidget(widget);
@@ -194,11 +238,11 @@ dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
 
   installConnectsOnWidget: function(widget) {
     var self = this;
-    var dc = dojo.connect;
+    var dc = aspect.connect;
     var _cnt = [
       dc(widget, 'destroy', this,
          function() {
-           _cnt.forEach(dojo.disconnect);
+           _cnt.forEach(function(_c) { _c.remove(); });
            var idx = self.widgets.indexOf(widget);
            if (idx !== -1) {
              self.widgets.splice(idx, 1);
@@ -238,53 +282,5 @@ dojo.declare('geonef.jig.input.MixedList', [ dijit._Widget, dijit._Templated ],
   }
 
 });
-
-// dojo.provide('geonef.jig.input._MixedGridCreateList');
-
-// parents
-// dojo.require('dijit._Widget');
-// dojo.require('dijit._Templated');
-dojo.require('geonef.jig.widget._AutoGrid');
-
-dojo.declare('geonef.jig.input._MixedGridCreateList',
-             [ dijit._Widget, dijit._Templated, geonef.jig.widget._AutoGrid ],
-{
-  // summary:
-  //   button to choose the type
-  //
-
-  label: 'Créer nouveau',
-
-  mixedListWidget: '',
-
-  postMixInProperties: function() {
-    this.inherited(arguments);
-    this.mixedListWidget = dijit.byId(this.mixedListWidget);
-  },
-
-
-  getGridMembers: function() {
-    return this.mixedListWidget.availableModules;
-  },
-
-  processGridMember: function(member, tr) {
-    var
-      //buttonNode = dojo.create('button', {}, tr)
-    //, img = dojo.create('img', { src: Class.prototype.icon }, buttonNode)
-    //, br = dojo.create('br', {}, buttonNode)
-    //, span = dojo.create('span', { innerHTML: member }, buttonNode)
-      self = this
-    , button = new geonef.jig.button.Action({
-                 label: member,
-	         onClick: function() {
-                   var item = {};
-                   item[self.mixedListWidget.childClassSuffixProperty] = member;
-                   self.mixedListWidget.addItem(item);
-	         }});
-    ;
-    dojo.place(button.domNode, tr);
-    button.startup();
-  }
-
 
 });

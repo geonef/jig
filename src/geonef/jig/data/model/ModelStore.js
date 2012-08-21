@@ -2,17 +2,20 @@ define([
          "dojo/_base/declare",
          "../../api",
          "dojo/_base/lang",
-         "dojo",
+         "dojo/topic",
          "../../util",
-], function(declare, api, lang, dojo, util) {
+], function(declare, api, lang, topic, util) {
 
 /**
- * Model store - equivalent for Doctrine repositories
+ * @module
+ * @class ModelStore
+ * @summary Model store - equivalent for Doctrine repositories
  *
- * It is a singleton, meant to be retrieved from geonef.jig.data.model
- * Needs to be instanciated with the 'Model' property.
+ * @description
+ *   It is a singleton, meant to be retrieved from geonef.jig.data.model
+ *   Needs to be instanciated with the 'Model' property.
  *
- * Example:
+ * @example
  *   var customStore = geonef.jig.data.model.getStore(geonef.jig.data.model.Custom);
  *
  *   // customStore instanceof geonef.jig.data.mode.ModelStore (true)
@@ -25,7 +28,7 @@ define([
  *             customObject.set('prop', 'value');
  *             customStore.put(customObject)
  *                        .then(function() {
- *                                  console.log("saved', customObject);
+ *                                  console.log("saved", customObject);
  *                              });
  *           });
  *
@@ -37,13 +40,16 @@ define([
  *                 console.log("saved", obj);
  *             });
  *
- * For an example of a custom store, see geonef.jig.data.model.UserStore.
+ *   // For an example of a custom store, see geonef.jig.data.model.UserStore.
  *
- * @see geonef.jig.data.model
- * @see geonef.jig.data.model.Abstract
- * @see geonef.jig.data.model.UserStore
+ * @see module:geonef/jig/data/model
+ * @see module:geonef/jig/data/model/Abstract
+ * @see module:geonef/jig/data/model/UserStore
  */
 return declare('geonef.jig.data.model.ModelStore', null,
+/**
+ * @lends ModelStore.prototype
+ */
 {
 
   /**
@@ -83,6 +89,9 @@ return declare('geonef.jig.data.model.ModelStore', null,
   apiParams: {},
 
 
+  /**
+   * constructor
+   */
   constructor: function(options) {
     this.index = {};
     lang.mixin(this, options);
@@ -113,7 +122,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
 
   destroy: function() {
     if (this._subcr) {
-      this._subcr.forEach(dojo.unsubscribe);
+      this._subcr.forEach(function(c) { c.remove(); });
       delete this._subcr;
     }
   },
@@ -270,7 +279,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
   /**
    * Duplicate the given object (through server API)
    *
-   * @param {geonef.jig.data.model.Abstract} object the model object
+   * @param {module:geonef/jig/data/model/Abstract} object the model object
    * @param {Object} options API options (see geonef.jig.api)
    * @return {dojo.Deferred} callback whose arg is the model object
    */
@@ -462,18 +471,24 @@ return declare('geonef.jig.data.model.ModelStore', null,
       options);
   },
 
+  /**
+   * Helper for dojo/topic.subscribe(), handling unsubscribe at destroy()
+   */
   subscribe: function(channel, callback) {
     if (!this._subscr) {
       this._subscr = [];
     }
-    var _h = dojo.subscribe(channel, lang.hitch(this, callback));
+    var _h = topic.subscribe(channel, lang.hitch(this, callback));
     this._subscr.push(_h);
     return _h;
   },
 
+  /**
+   * Unsubscribe event registered with self subscribe()
+   */
   unsubscribe: function(_h) {
     var idx = this._subscr.indexOf(_h);
-    dojo.unsubscribe(_h);
+    _h.remove();
     this._subscr.splice(idx, 1);
   },
 

@@ -1,8 +1,12 @@
+define([
+         "dojo/_base/declare",
+         "dijit/_Widget",
+         "dojo/_base/lang",
+         "dojo/dom",
+         "dojo/dom-construct",
+         "dojo/dom-style",
+], function(declare, _Widget, lang, dom, construct, style) {
 
-dojo.provide('geonef.jig.input.Label');
-
-// parents
-dojo.require('dijit._Widget');
 
 /**
  * Dumb HTMLElement whose innerHTML is updated with this' value. Read-only.
@@ -11,7 +15,7 @@ dojo.require('dijit._Widget');
  *
  * @class geonef.jig.input.Label
  */
-dojo.declare('geonef.jig.input.Label', dijit._Widget,
+return declare('geonef.jig.input.Label', _Widget,
 {
   /**
    * Input name
@@ -81,7 +85,7 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
       this.domNodeName = this.srcNodeRef ?
         this.srcNodeRef.nodeName.toLowerCase() : 'span';
     }
-    this.domNode = dojo.create(this.domNodeName, {'class':'jigInputLabel'});
+    this.domNode = construct.create(this.domNodeName, {'class':'jigInputLabel'});
   },
 
   startup: function() {
@@ -91,13 +95,13 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
 
   updateFalsy: function() {
     if (this.hideElementIfFalsy && this._started) {
-      if (dojo.isString(this.hideElementIfFalsy)) {
-        this.hideElementIfFalsy = dojo.byId(this.hideElementIfFalsy);
+      if (typeof this.hideElementIfFalsy == 'string') {
+        this.hideElementIfFalsy = dom.byId(this.hideElementIfFalsy);
       }
       var falsy = !this.value ||
-        (dojo.isString(this.value) && dojo.trim(this.value) === '0');
-      dojo.style(this.hideElementIfFalsy, 'display',
-                 falsy ? 'none' : '');
+        (typeof this.value == 'string' && lang.trim(this.value) === '0');
+      style.set(this.hideElementIfFalsy, 'display',
+                falsy ? 'none' : '');
     }
   },
 
@@ -108,8 +112,8 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
   },
 
   _setMapAttr: function(map) {
-    if (dojo.isString(map)) {
-      map = dojo.getObject(map);
+    if (typeof map == 'string') {
+      map = lang.getObject(map);
     }
     this.map = map;
     this.attr('value', this.value);
@@ -118,7 +122,7 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
   _setValueAttr: function(value) {
     value = this.filter(value);
     this.value = value;
-    if (value && !this.isMapped && dojo.isObject(value)) {
+    if (value && !this.isMapped && typeof value == 'object') {
       if (value.getSummary) {
         value = value.getSummary();
       } else if (value.toString) {
@@ -138,5 +142,6 @@ dojo.declare('geonef.jig.input.Label', dijit._Widget,
     this.updateFalsy();
   }
 
+});
 
 });

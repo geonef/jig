@@ -9,7 +9,7 @@ define([
          "./workspace",
          "./util",
          "./Deferred",
-], function(lang, window, xhr, json, dojo, generateRandomUuid,
+], function(lang, window, request, json, dojo, generateRandomUuid,
             jig, workspace, util, Deferred) {
 
 var self = {
@@ -75,17 +75,17 @@ var self = {
    * @param {?Object} object for parameters to pass to dojo XHR.
    * @return {dojo.Deferred} promise, ensured to be geoenf.jig.Deferred if request.callback is set
    */
-  request: function(request, options) {
+  request: function(req, options) {
     self.cancelPing();
     options = options || {};
-    request.windowId = self.windowId;
+    req.windowId = self.windowId;
     var uuid = generateRandomUuid();
-    request.promise = new Deferred();
-    var ret = request.promise;
+    req.promise = new Deferred();
+    var ret = req.promise;
     if (options) {
-      request.__options = options;
+      req.__options = options;
     }
-    self._deferredRequests[uuid] = request;
+    self._deferredRequests[uuid] = req;
     if (!self._timeout) {
       self._deferred = new Deferred();
       self._timeout = window.global.setTimeout(
@@ -98,15 +98,15 @@ var self = {
             self._deferred.callback();
           }, self.debugDelay);
     }
-    if (request.callback) {
+    if (req.callback) {
       // backward compat ; api.request({}).then() preferred
       ret = new Deferred();
-      request.promise
-        .then(lang.hitch(request.scope || window, request.callback))
+      req.promise
+        .then(lang.hitch(req.scope || window, req.callback))
         .then(function() { ret.callback(); });
     }
-    delete request.scope;
-    delete request.callback;
+    delete req.scope;
+    delete req.callback;
 
     return ret;
   },
@@ -116,25 +116,25 @@ var self = {
    *
    * @return {dojo.Deferred} from XHR call
    */
-  _doRequest: function(request, options) {
+  _doRequest: function(req, options) {
 
     /**
      * Process single-request response
      */
     var _processResponseReq =
-      function(request, response, xhr) {
-        var options = request.__options || {};
+      function(req, response, xhr) {
+        var options = req.__options || {};
 	if (response.status === 'error') {
 	  console.error('error status from API', response);
 	}
 	if (response.status === 'exception' && !options.ignoreException) {
 	  console.error('Server API exception', response);
-          self.processException(request, response);
+          self.processException(req, response);
 	}
         try {
-          request.promise.resolve(response);
+          req.promise.resolve(response);
         } catch (error) {
-          console.error("exception in API request callback", request, response);
+          console.error("exception in API request callback", req, response);
         }
       };
 
@@ -151,18 +151,18 @@ var self = {
       catch (e) {
 	console.error('JiG  API response: invalid JSON string: ',
 	              text, xhr);
-	if (typeof request.transportError == 'function') {
-	  request.transportError(text, xhr);
+	if (typeof req.transportError == 'function') {
+	  req.transportError(text, xhr);
 	}
 	return;
       }
       // check if one req or many in the structure
-      if (typeof request.callback == 'function') {
-	_processResponseReq(request, data, xhr);
+      if (typeof req.callback == 'function') {
+	_processResponseReq(req, data, xhr);
       } else {
 	for (var i in data) {
           if (data.hasOwnProperty(i)) {
-	    _processResponseReq(request[i], data[i], xhr);
+	    _processResponseReq(req[i], data[i], xhr);
 	  }
         }
       }
@@ -192,17 +192,17 @@ var self = {
 
     var requestToSend;
     if (request.module) {
-      requestToSend = _prepareRequest(request);
+      requestToSend = _prepareRequest(req);
     } else {
       requestToSend = {};
-      for (var i in request) {
-        if (request.hasOwnProperty(i)) {
-          requestToSend[i] = _prepareRequest(request[i]);
+      for (var i in req) {
+        if (req.hasOwnProperty(i)) {
+          requestToSend[i] = _prepareRequest(req[i]);
         }
       }
     }
     dojo.publish('noticeTopic', [ true ]);
-    return xhr.post(lang.mixin(
+    return request.post(lang.mixin(
                       {
                         url: options.url || self.url,
                         handleAs: 'text', //'json',
@@ -212,11 +212,11 @@ var self = {
                       }, options), true);
   },
 
-  processException: function(request, response) {
+  processException: function(req, response) {
     if (self.showExceptions) {
       var Class = util.getClass('geonef.jig.tool.dev.ExceptionDump');
       var dump = new Class(
-        lang.mixin({ context: { request: request, response: response }},
+        lang.mixin({ context: { request: req, response: response }},
                    response.exception));
       workspace.autoAnchorWidget(dump);
       dump.startup();
@@ -250,6 +250,8 @@ var self = {
   },
 
 };
+
+geonef.jig.api = self;
 
 return self;
 

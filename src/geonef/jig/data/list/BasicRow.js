@@ -4,8 +4,9 @@ define([
          "dojo/_base/lang",
          "dojo/_base/event",
          "dojo/dom-class",
+         "../../util",
          "../../util/string"
-], function(declare, _Widget, lang, event, domClass, string) {
+], function(declare, _Widget, lang, event, domClass, util, string) {
 
 return declare(_Widget,
 {
@@ -19,23 +20,23 @@ return declare(_Widget,
 
   autoRequestProps: [],
 
-  'class': geonef.jig._Widget.prototype['class'] + ' jigDataRow',
+  'class': _Widget.prototype['class'] + ' jigDataRow',
 
 
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
-      this.object.requestProps(this.autoRequestProps) : geonef.jig.util.newResolvedDeferred();
+      this.object.requestProps(this.autoRequestProps) : util.newResolvedDeferred();
   },
 
   buildRendering: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(geonef.jig.util.busy(this.domNode));
+    this.whenDataReady.then(util.busy(this.domNode));
   },
 
   buildRow: function() {
     if (this.object) {
-      this.domNode.innerHTML = geonef.jig.util.string.escapeHtml(this.object.getSummary());
+      this.domNode.innerHTML = string.escapeHtml(this.object.getSummary());
       if (this.enableClickEvent) {
         domClass.add(this.domNode, 'link');
       }

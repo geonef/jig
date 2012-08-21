@@ -1,11 +1,14 @@
+define([
+         "dojo/_base/declare",
+         "dijit/form/CheckBox",
+
+         "dojo/_base/lang",
+         "dijit/registry",
+], function(declare, CheckBox,
+            lang, registry) {
 
 
-dojo.provide('geonef.jig.input.BooleanCheckBox');
-
-// parents
-dojo.require('dijit.form.CheckBox');
-
-dojo.declare('geonef.jig.input.BooleanCheckBox', [ dijit.form.CheckBox ],
+return declare('geonef.jig.input.BooleanCheckBox', CheckBox,
 {
   // summary:
   //   Same as dijit.CheckBox, but deals with boolean value
@@ -37,10 +40,10 @@ dojo.declare('geonef.jig.input.BooleanCheckBox', [ dijit.form.CheckBox ],
       this._toggleInputCnt = undefined;
     }
     if (this.toggleInput) {
-      var w = dijit.byId(this.toggleInput);
+      var w = registry.byId(this.toggleInput);
       var savedValue; // static to all calls to the closure below
       var notNull = function(v) { return v !== null && v !== undefined && v !== ''; };
-      var updateFromValue = dojo.hitch(this,
+      var updateFromValue = lang.hitch(this,
         function() {
           var value = w.attr('value');
           if (notNull(value)) {
@@ -70,5 +73,7 @@ dojo.declare('geonef.jig.input.BooleanCheckBox', [ dijit.form.CheckBox ],
       updateFromValue();
     }
   }
+
+});
 
 });
