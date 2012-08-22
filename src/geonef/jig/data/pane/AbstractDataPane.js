@@ -3,8 +3,9 @@ define([
          "../../_Widget",
          "../../util",
          "../../button/Action",
-         "dojo/_base/lang"
-], function(declare, _Widget, util, Action, lang) {
+         "dojo/_base/lang",
+         "dojo/_base/window"
+], function(declare, _Widget, util, Action, lang, window) {
 
 
 /**
@@ -164,7 +165,7 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
   },
 
   deleteObject: function() {
-    if (!window.confirm(this.removeConfirm)) { return; }
+    if (!window.global.confirm(this.removeConfirm)) { return; }
     this.object.store.remove(this.object)
       .then(util.busy(this.domNode));
   },

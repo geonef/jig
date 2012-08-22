@@ -25,6 +25,8 @@ define([
 
 /**
  * Button to choose the type
+ *
+ * TODO: avoid global def, when coberting template to makeDOM()
  */
 declare('geonef.jig.input._MixedGridCreateList',
         [ _Widget, _TemplatedMixin, _WidgetsInTemplateMixin, _AutoGrid ],
