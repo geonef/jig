@@ -5,15 +5,15 @@ define([
          "dojo/dom-style",
          "dojo/dom-class",
          "dojo",
-         "./_base",
-         "./util"
-], function(declare, _Widget, lang, style, domClass, dojo, jig, util) {
+         "./util/makeDOM",
+         "./util/promise",
+], function(declare, _Widget, lang, style, domClass, dojo, makeDOM, promise) {
 
 /**
  * Base class widget class
  *
  * Child classes should define 'makeContentNodes' as a function
- * returning an array of node definitions (first arg to geonef.jig.makeDOM)
+ * returning an array of node definitions (first arg to geonef/jig/util/makeDOM)
  */
 return declare('geonef.jig._Widget' /* oka compat */, _Widget,
 {
@@ -79,7 +79,7 @@ return declare('geonef.jig._Widget' /* oka compat */, _Widget,
   /**
    * Overriden by child class to define DOM content
    *
-   * @return {Array}    An array of arrays (see geonef.jig.makeDOM).
+   * @return {Array}    An array of arrays (see geonef/jig/util/makeDOM).
    *                    It can contain DOM Elements or flat makeDOM representation.
    *                    If it has promises, then this.delayedContent must be true
    *                    (buildRendering() does not support asynchronous DOM).
@@ -121,7 +121,7 @@ return declare('geonef.jig._Widget' /* oka compat */, _Widget,
     this.destroyDom();
     var domNode = this.domNode;
     var _this = this;
-    return util.whenAll(
+    return promise.whenAll(
       this.dom(this.makeContentNodes(arg))).then(
       function(nodes) {
         // console.log('rebuildDom : got nodes', nodes);
@@ -138,7 +138,7 @@ return declare('geonef.jig._Widget' /* oka compat */, _Widget,
   },
 
   dom: function(struct) {
-    return jig.makeDOM(struct, this);
+    return makeDOM(struct, this);
   },
 
   enableSubWidget: function(widget, onDestroy) {

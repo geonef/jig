@@ -155,11 +155,11 @@ return declare('geonef.jig.data.model.Abstract', null,
       }
     },
     refMany: {
-      fromServer: function(array, type) {
-        if (!(array instanceof Array)) { return []; }
+      fromServer: function(ar, type) {
+        if (!(ar instanceof Array)) { return []; }
         var _Class = util.getClass(type.targetModel);
         var store = model.getStore(_Class);
-        var list = array
+        var list = ar
           .filter(function(obj) { return !!obj.id; })
           .map(function(obj, idx) {
                  return store.getLazyObject(obj);
@@ -169,9 +169,9 @@ return declare('geonef.jig.data.model.Abstract', null,
         }
         return list;
       },
-      toServer: function(array, type) {
-        if (!(array instanceof Array)) { return undefined; }
-        return array.map(
+      toServer: function(ar, type) {
+        if (!(ar instanceof Array)) { return undefined; }
+        return ar.map(
           function(obj) {
             if (!obj.id) {
               console.warn("refMany: toServer() will not cascade on new obj:", obj);
@@ -197,11 +197,11 @@ return declare('geonef.jig.data.model.Abstract', null,
       }
     },
     embedMany: {
-      fromServer: function(array, type) { // same as 'refMany'
-        if (!(array instanceof Array)) { return []; }
+      fromServer: function(ar, type) { // same as 'refMany'
+        if (!(ar instanceof Array)) { return []; }
         var _Class = util.getClass(type.targetModel);
         var store = model.getStore(_Class);
-        var list = array
+        var list = ar
           .filter(function(obj) { return !!obj.id; })
           .map(function(obj) { return store.getLazyObject(obj); });
         if (type.chained) {
@@ -209,11 +209,11 @@ return declare('geonef.jig.data.model.Abstract', null,
         }
         return list;
       },
-      toServer: function(array, type) {
-        if (!(array instanceof Array)) { return undefined; }
-        return array.map(function(item) {
-                           return item.toServerValue({ allValues: true });
-                         });
+      toServer: function(ar, type) {
+        if (!(ar instanceof Array)) { return undefined; }
+        return ar.map(function(item) {
+                        return item.toServerValue({ allValues: true });
+                      });
       }
     }
   },
@@ -566,7 +566,7 @@ return declare('geonef.jig.data.model.Abstract', null,
    * Helper for dojo/topic.subscribe(), handling unsubscribe at destroy()
    */
   subscribe: function(channel, callback) {
-    console.log('model.Abstract::subscribe', this, arguments);
+    // console.log('model.Abstract::subscribe', this, arguments);
     if (!this._subscr) {
       this._subscr = [];
     }

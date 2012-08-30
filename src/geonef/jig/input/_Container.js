@@ -2,8 +2,8 @@ define([
          "dojo/_base/declare",
          "dijit/form/_FormMixin",
          "dojo/_base/lang",
-         "../util",
-], function(declare, _FormMixin, lang, util) {
+         "../util/widget",
+], function(declare, _FormMixin, lang, widget) {
 
 
 return declare(_FormMixin,
@@ -43,7 +43,7 @@ return declare(_FormMixin,
     // Find first descendants having a "name" attribute.
     //
     var list = [];
-    this.getInputRootNodes().map(util.getFirstNamedDescendants)
+    this.getInputRootNodes().map(widget.getFirstNamedDescendants)
       .forEach(function(set) { set.forEach(function(n) { list.push(n); }); });
     return list;
     //return util.getFirstNamedDescendants(this.domNode);
