@@ -8,24 +8,13 @@ var profile = (function()
       "geonef/jig/package.json":1,
     };
 
-    return (mid in list) || (/^geonef\/jig\/resources\//.test(mid) && !/\.css$/.test(filename)) || /(png|jpg|jpeg|gif|tiff)$/.test(filename);
+    return mid in list;
   };
-
-  // var excludes = [
-  // ];
-
-  // var excludesRe = new RegExp(("^geonef/jig/(" + excludes.join("|") + ")").replace(/\//, "\\/"));
-
-  // var usesDojoProvideEtAl = function(mid){
-  //   return excludesRe.test(mid);
-  // };
-
 
   return {
     resourceTags:{
       test: function(filename, mid){
         return false; // no test yet
-	// return testResourceRe.test(mid) || mid=="dijit/robot" || mid=="dijit/robotx";
       },
 
       copyOnly: function(filename, mid){
@@ -41,7 +30,6 @@ var profile = (function()
 
       miniExclude: function(filename, mid){
         return false;
-      	// return /^dijit\/bench\//.test(mid) || /^dijit\/themes\/themeTest/.test(mid);
       }
     },
 
