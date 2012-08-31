@@ -8,9 +8,9 @@ geonef/jig is a Javascript library which provides various fonctionalities.
 
 It is divided into different parts:
 
-* data : data model & data widgets [> see documentation](doc/data.md)
-* input : kind of form widgets, can be nested [> see documentation](doc/input.md)
-* util : various utilities [see doc](> documentation/util.md)
+* data : data model & data widgets [> see documentation](blob/master/doc/data.md)
+* input : kind of form widgets, can be nested [> see documentation](blob/master/doc/input.md)
+* util : various utilities [> see documentation](blob/master/doc/util.md)
 
 
 Requirements
