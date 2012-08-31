@@ -60,7 +60,7 @@ var self = {
   _deferredRequests: {},
 
   /**
-   * @type {geonef.jig.Deferred} Global XHR promise for pending XHR call
+   * @type {dojo.Deferred} Global XHR promise for pending XHR call
    */
   _deferred: null,
 
@@ -250,8 +250,6 @@ var self = {
   },
 
 };
-
-geonef.jig.api = self;
 
 return self;
 

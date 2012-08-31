@@ -63,15 +63,14 @@ declare('geonef.jig.input._MixedGridCreateList',
 });
 
 
+/**
+ * List of objects, which are represented through objects of different classes
+ *
+ * The class name is found by concatanating this.childClassPrefix with the
+ * value of the property names with this.childClassSuffixProperty.
+ */
 return declare('geonef.jig.input.MixedList', [ _Widget, _WidgetsInTemplateMixin ],
 {
-  // summary:
-  //   List of objects, which are represented through objects of different classes
-  //
-  // description:
-  //   The class name is found by concatanating this.childClassPrefix with the
-  //   value of the property names with this.childClassSuffixProperty.
-  //
 
   ////////////////////////////////////////////////////////////////////
   // External properties (set via constructor or attr setter)

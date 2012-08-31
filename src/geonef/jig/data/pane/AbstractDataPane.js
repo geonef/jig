@@ -1,11 +1,12 @@
 define([
          "dojo/_base/declare",
          "../../_Widget",
-         "../../util",
+         "../../util/promise",
+         "../../util/widget",
          "../../button/Action",
          "dojo/_base/lang",
-         "dojo/_base/window"
-], function(declare, _Widget, util, Action, lang, window) {
+         "dojo/_base/window",
+], function(declare, _Widget, promise, widget, util, Action, lang, window) {
 
 
 /**
@@ -56,7 +57,7 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
-      this.object.requestProps(this.autoRequestProps) : util.newResolvedDeferred();
+      this.object.requestProps(this.autoRequestProps) : promise.newResolved();
   },
 
   /**
@@ -64,7 +65,7 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
    */
   buildRendering: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(util.busy(this.domNode));
+    this.whenDataReady.then(widget.busy(this.domNode));
   },
 
   makeDropDownNode: function(title) {
@@ -92,7 +93,7 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
       [Action, {
          label: "Supprimer",
          iconClass: 'remove',
-         onExecute: util.deferHitch(this, this.deleteObject),
+         onExecute: promise.deferHitch(this, this.deleteObject),
        }],
     ];
   },
@@ -167,7 +168,7 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
   deleteObject: function() {
     if (!window.global.confirm(this.removeConfirm)) { return; }
     this.object.store.remove(this.object)
-      .then(util.busy(this.domNode));
+      .then(widget.busy(this.domNode));
   },
 
 });

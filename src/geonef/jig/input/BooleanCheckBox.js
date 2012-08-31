@@ -8,15 +8,24 @@ define([
             lang, registry) {
 
 
+/**
+ * Same as dijit.CheckBox, but deals with boolean value
+ *
+ * dijit.form.CheckBox deals with the HTML way (string value),
+ * which is usually not what we want
+ */
 return declare('geonef.jig.input.BooleanCheckBox', CheckBox,
 {
-  // summary:
-  //   Same as dijit.CheckBox, but deals with boolean value
-  //
-
   value: false,
 
+  /**
+   * id of input widget to disable according to checkbox state
+   *
+   * If provided, the corresponding widget is disabled when this checkbox
+   * is set to false. (disabled in the sense of .set('disable', true))
+   */
   toggleInput: '',
+
 
   startup: function() {
     this.inherited(arguments);

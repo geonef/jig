@@ -8,7 +8,7 @@ define([
  *
  * Here are the explanations of how the client model works.
  *
- * A model is basically a class inheriting 'geonef.jig.data.mode.Abstract'.
+ * A model is basically a class inheriting from 'geonef.jig.data.mode.Abstract'.
  * It contains all information, including: property names & types, the publish
  * channel and business methods.
  *

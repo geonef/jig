@@ -9,7 +9,15 @@ define([
 ], function(declare, _Widget, _Container,
             construct, event) {
 
-
+/**
+ * Dumb widget extending geonef.jig.input._Container
+ *
+ * - use this class when an input group is needed as a widget
+ * - use _Container when the functionality can be used as part
+ *   of an existing widget's logic.
+ *
+ * @see geonef.jig.input._Container
+ */
 return declare('geonef.jig.input.Group', [ _Widget, _Container ],
 {
 
@@ -31,7 +39,7 @@ return declare('geonef.jig.input.Group', [ _Widget, _Container ],
       var _this = this;
       this._onSubmit = function() {
         // would be called by geonef.jig.util.bubbleSubmit
-        console.log('Group _onSubmit', this, arguments);
+        // console.log('Group _onSubmit', this, arguments);
         _this.submit();
         // _this.domNode.submit();
       };
@@ -40,14 +48,14 @@ return declare('geonef.jig.input.Group', [ _Widget, _Container ],
   },
 
   submit: function() {
-    console.log('submit', this, arguments);
+    // console.log('submit', this, arguments);
     var sb = construct.create('input', { type: 'submit', style: 'display:none' }, this.domNode);
     sb.click();
     construct.destroy(sb);
   },
 
   onFormSubmit: function(event) {
-    console.log('Group onFormSubmit', this, arguments);
+    // console.log('Group onFormSubmit', this, arguments);
     event.stop(event);
     this.onExecute();
 

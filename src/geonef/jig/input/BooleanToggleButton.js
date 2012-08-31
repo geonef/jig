@@ -3,13 +3,11 @@ define([
          "dijit/form/ToggleButton",
 ], function(declare, ToggleButton) {
 
-
+/**
+ * Same as dijit.ToggleButton, but act as a boolean input
+ */
 return declare('geonef.jig.input.BooleanToggleButton', ToggleButton,
 {
-  // summary:
-  //   Same as dijit ToggleButton, but act as a boolean input
-  //
-
   name: 'booleanToggle',
 
   _setValueAttr: function(state) {

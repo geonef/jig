@@ -3,7 +3,6 @@ define([
          "dojo/aspect",
          "dojo/on",
          "dijit/_Contained",
-         "../widget/Processing",
          "dijit/registry"
 ], function(lang, aspect, on, _Contained, Processing, registry) {
 
@@ -51,6 +50,7 @@ var self = {
    * @return {function} must be called to stop the busy effect
    */
   busy: function(node) {
+    var Processing = require("geonef/jig/widget/Processing");
     var control = new Processing({ processingNode: node });
     control.startup();
     return function(arg) {

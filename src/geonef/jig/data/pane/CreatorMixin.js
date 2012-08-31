@@ -2,7 +2,7 @@ define([
          "dojo/_base/declare",
          "dojo/_base/lang",
          "geonef/jig/util",
-         "geonef/jig/Deferred",
+         "dojo/Deferred",
 ], function(declare, lang, util, Deferred) {
 
 

@@ -4,9 +4,10 @@ define([
          "dojo/_base/lang",
          "dojo/_base/event",
          "dojo/dom-class",
-         "../../util",
+         "../../util/widget",
+         "../../util/promise",
          "../../util/string"
-], function(declare, _Widget, lang, event, domClass, util, string) {
+], function(declare, _Widget, lang, event, domClass, widget, promise, string) {
 
 return declare(_Widget,
 {
@@ -26,12 +27,12 @@ return declare(_Widget,
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
-      this.object.requestProps(this.autoRequestProps) : util.newResolvedDeferred();
+      this.object.requestProps(this.autoRequestProps) : promise.newResolved();
   },
 
   buildRendering: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(util.busy(this.domNode));
+    this.whenDataReady.then(widget.busy(this.domNode));
   },
 
   buildRow: function() {

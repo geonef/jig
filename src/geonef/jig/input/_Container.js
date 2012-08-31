@@ -9,28 +9,35 @@ define([
 return declare(_FormMixin,
 {
 
-  //
-  // Name of this item: required if we are a child of another _Container
+  /**
+   * Name of this item: required if we are a child of another _Container
+   */
   name: '',
 
-  // arrayContainer: Boolean
-  //    If true, will return an array (in doc order) rather than a name/value object
+  /**
+   * If true, will return an array (in doc order) rather than a name/value object
+   *
+   * @type {boolean}
+   */
   arrayContainer: false,
 
-  // booleanUnion: Boolean
-  //    If true, returned value is the array of sub-widgets' names whose value is true
-  //    Implies that arrayContainer==true
+  /**
+   * If true, returned value is the array of sub-widgets' names whose value is true
+   * Implies that arrayContainer==true
+   *
+   * @type {boolean}
+   */
   booleanUnion: false,
 
-  // manageValueKeys: array of string
-  //    All keps specified there are managed by this.attr instead of sub-widgets
+  /**
+   * All keps specified there are managed by this.attr instead of sub-widgets
+   *
+   * @type {Array.<string>}
+   */
   manageValueKeys: [],
 
   additionalRoots: [],
 
-  // syncThisAttr: Boolean
-  //    If true, any sub-value changed will call this' setter for the attr with same name as sub-value
-  //syncThisAttrs: false,
 
   postMixInProperties: function() {
     this.internalValues = {};
@@ -38,34 +45,36 @@ return declare(_FormMixin,
     this.inherited(arguments);
   },
 
+  /**
+   * Find first descendants widgets having a "name" property
+   *
+   * When a widget is met, if it has a "name" property, the search does not go deeper.
+   * If it does not, its sub-widgets are scanned recursively.
+   */
   getDescendants: function() {
-    //
-    // Find first descendants having a "name" attribute.
-    //
     var list = [];
     this.getInputRootNodes().map(widget.getFirstNamedDescendants)
       .forEach(function(set) { set.forEach(function(n) { list.push(n); }); });
     return list;
-    //return util.getFirstNamedDescendants(this.domNode);
   },
 
   getInputRootNodes: function() {
     return [ this.domNode ].concat(this.additionalRoots);
   },
 
+  /**
+   * @override
+   */
   connectChildren: function(){
-    // summary:
-    //          overload of parent's
-    //
     this.inherited(arguments);
     this.updateChildren();
   },
 
+  /**
+   * need to call this to rescan children and update the "onChange" connections :
+   * remove the old ones * and add the new ones
+   */
   updateChildren: function() {
-    // need to call this to rescan children
-    // and update the "onChange" connections : remove the old ones
-    // and add the new ones
-    //var conns = this._changeConnections,
     var self = this;
     var _oldChildrenCnts = this._childrenCnts || {};
     this._childrenCnts = {};
@@ -152,7 +161,6 @@ return declare(_FormMixin,
   },
 
   _getValueAttr: function() {
-    //console.log('internal', this.internalValues, this);
     var descendants = this.getDescendants();
     var value;
     if (this.booleanUnion) {

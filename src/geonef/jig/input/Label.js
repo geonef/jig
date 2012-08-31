@@ -9,7 +9,10 @@ define([
 
 
 /**
- * Dumb HTMLElement whose innerHTML is updated with this' value. Read-only.
+ * Dumb HTMLElement whose innerHTML is updated with this' value - READ-ONLY
+ *
+ * This won't be much useful unless specific functionalities are used,
+ * such as isMapped/map or hideElementIfFalsy.
  *
  * A value map can be specified, see property isMapped.
  *
