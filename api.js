@@ -65,13 +65,9 @@ var self = {
   _deferred: null,
 
   /**
-   * Make API request
+   * Make API request - asynchronous
    *
-   *    Custom params are:
-   *            - defer: boolean
-   *                    if true, the request is remembered, and is executed
-   *                    the next time a request is made with a falsy defer.
-   *
+   * @param {Object} req Request object
    * @param {?Object} object for parameters to pass to dojo XHR.
    * @return {dojo.Deferred} promise, ensured to be geoenf.jig.Deferred if request.callback is set
    */
