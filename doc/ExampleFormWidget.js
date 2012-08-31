@@ -3,6 +3,7 @@ define([
          "geonef/jig/_Widget",
          "geonef/jig/input/_Container",
 
+         "geonef/jig/input/Group",
          "geonef/jig/input/TextBox",
          "dijit/form/Button",
          "dijit/form/NumberSpinner",
@@ -16,9 +17,12 @@ define([
 
 
 /**
- * This is a double example:
- *      - based on jig/_Widget to show the efficiency of jig.util.makeDOM()
- *      - extending jig/input/_Container
+ * This is a double example.
+ *
+ * Because of geonef/jig/_Widget, we can express the DOM through makeContentNodes
+ *
+ * Because of _Container, this class behaves like a Group:
+ *   this.get("value"), this.set("value"), this.validate(), this.isValid()
  */
 return declare([_Widget, _Container],
 {
@@ -41,7 +45,7 @@ return declare([_Widget, _Container],
       ['p', {'class':'intro'}, "Some introduction text"],
       ['div', {}, [
          [TextBox, { name: "surname" }],
-         [NumberSpinner, { name: "age", _attach: "ageInput" }], // this is attached as this.ageInput
+         [NumberSpinner, { name: "age", _attach: "ageInput" }], // widget will be attached as this.ageInput
          [Group, { name: "work" }, [
             [TextBox, { name: "company" }]
             [Select, {
@@ -52,6 +56,7 @@ return declare([_Widget, _Container],
                  { value: "tester", label: "Tester" },
                ]
              }]
+            // Here we could nest another group in this group (no limit)
           ]]
        ]]
       ['div', {}, [
