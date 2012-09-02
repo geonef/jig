@@ -6,8 +6,7 @@ define([
 ], function(declare, _FormMixin, lang, widget) {
 
 
-return declare(_FormMixin,
-{
+return declare('geonef.jig.input._Container', [_FormMixin], {
 
   /**
    * Name of this item: required if we are a child of another _Container

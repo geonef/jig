@@ -1,6 +1,6 @@
 define([
          "dojo/_base/lang",
-         "dojo/dom-construct",
+         "dojo/dom-construct"
 ], function(lang, construct) {
 
 function addChildTo(node, childNode) {

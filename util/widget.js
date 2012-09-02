@@ -4,7 +4,7 @@ define([
          "dojo/on",
          "dijit/_Contained",
          "dijit/registry"
-], function(lang, aspect, on, _Contained, Processing, registry) {
+], function(lang, aspect, on, _Contained, registry) {
 
 
 var self = {

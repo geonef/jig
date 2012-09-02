@@ -1,7 +1,7 @@
 define([
          "dojo/_base/Deferred",
          "dojo/_base/lang",
-         "dojo/_base/window",
+         "dojo/_base/window"
 ], function(Deferred, lang, window) {
 
 
@@ -113,7 +113,7 @@ var self = {
     checkFunc();
 
     return promise;
-  },
+  }
 
 
 };
