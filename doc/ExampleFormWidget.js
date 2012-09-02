@@ -12,7 +12,7 @@ define([
          "dojo/_base/lang",
          "geonef/jig/api"
 ], function(declare, _Widget, _Container,
-            TextBox, Button, NumberSpinner, Select,
+            Group, TextBox, Button, NumberSpinner, Select,
             lang, api) {
 
 
@@ -38,16 +38,29 @@ return declare([_Widget, _Container],
    *
    * All widgets created there will be destroyed automatically
    * at this.destroyRendering().
+   *
+   * This has many advantages:
+   *    - use widgets the same way as DOM elements, no worry about startup() and destroy()
+   *    - clear, indented interface, more concise than HTML
+   *    - easy to split into different functions, for overloading
+   *
+   * @override
    */
   makeContentNodes: function() {
     return [
       ['h2', {'class':'top'}, "My widget title"],
-      ['p', {'class':'intro'}, "Some introduction text"],
+      ['p', {'class':'intro'}, "Some introduction text, with <b><i>possible</i> markup</b>"],
+      ['p', {'class':'intro', _attach: "hintNode" }, [          // node will be attached as this.hintNode
+         ['span', {}, "or sucessive "],
+         ['i', { style: "color: #f00;" }, [
+            ['span', {}, "elements and"],
+            ['b', {}, "markup"]]]
+       ]],
       ['div', {}, [
          [TextBox, { name: "surname" }],
          [NumberSpinner, { name: "age", _attach: "ageInput" }], // widget will be attached as this.ageInput
          [Group, { name: "work" }, [
-            [TextBox, { name: "company" }]
+            [TextBox, { name: "company" }],
             [Select, {
                name: "type",
                options: [
@@ -67,13 +80,15 @@ return declare([_Widget, _Container],
          [Button, {
             label: "Cancel",
             onClick: lang.hitch(this, this.actionCancel)
-          }],
-       ]],
+          }]
+       ]]
     ];
   },
 
   /**
    * Let's set some initial value to the form
+   *
+   * @override
    */
   postCreate: function() {
     this.set('value', {
@@ -85,7 +100,8 @@ return declare([_Widget, _Container],
                }
              });
 
-    this.ageInput.set("disabled", true); // example
+    this.ageInput.set("disabled", true);                // example
+    style.set(this.hintNode, "display", "none");        // example
 
     this.inherited(arguments);
   },
@@ -100,6 +116,7 @@ return declare([_Widget, _Container],
     }
 
     var data = this.get('value');
+
     api.request(lang.mixin({ action: 'saveProps' }, data))
       .then(function(response) {
               console.log("From API request got response: ", response);
