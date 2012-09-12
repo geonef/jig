@@ -1,6 +1,4 @@
-define([
-         "../util",
-], function(util) {
+define([], function() {
 
 
 /**

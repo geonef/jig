@@ -4,10 +4,10 @@ define([
          "dojo/_base/Deferred",
          "dojo/topic",
          "../model",
-         "../../util",
+         "../../util/value",
          "../../util/string",
          "../../util/array"
-], function(declare, lang, Deferred, topic, model, util, string, array) {
+], function(declare, lang, Deferred, topic, model, value, string, array) {
 
 
       var goThrough = function(value) { return value; };
@@ -37,6 +37,15 @@ define([
  */
 return declare('geonef.jig.data.model.Abstract', null,
 {
+  /**
+   * Store class to use for this model.
+   *
+   * If null, default ModelStore is used.
+   *
+   * @type {Function} Store
+   */
+  Store: null,
+
   /**
    * Channel on which to publish notifications
    *
@@ -157,7 +166,7 @@ return declare('geonef.jig.data.model.Abstract', null,
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }
-        var _Class = util.getClass(type.targetModel);
+        var _Class = value.getClass(type.targetModel);
         var store = model.getStore(_Class);
         var list = ar
           .filter(function(obj) { return !!obj.id; })
@@ -183,7 +192,7 @@ return declare('geonef.jig.data.model.Abstract', null,
     refOne: {
       fromServer: function(obj, type) {
         if (obj === null) { return null; }
-        var _Class = util.getClass(type.targetModel);
+        var _Class = value.getClass(type.targetModel);
         var object = model.getStore(_Class).getLazyObject(obj);
         return object;
       },
@@ -199,7 +208,7 @@ return declare('geonef.jig.data.model.Abstract', null,
     embedMany: {
       fromServer: function(ar, type) { // same as 'refMany'
         if (!(ar instanceof Array)) { return []; }
-        var _Class = util.getClass(type.targetModel);
+        var _Class = value.getClass(type.targetModel);
         var store = model.getStore(_Class);
         var list = ar
           .filter(function(obj) { return !!obj.id; })
@@ -287,13 +296,13 @@ return declare('geonef.jig.data.model.Abstract', null,
       if (value instanceof Deferred) {
         return value;
       }
-      return util.newResolvedDeferred(value);
+      return promise.newResolved(value);
     }
     if (this[property] !== undefined || !this.id) {
       // if (!this.id) {
       //   console.log('in case', this, arguments);
       // }
-      return util.newResolvedDeferred(this[property]);
+      return promise.newResolved(this[property]);
     }
     return this.store
         .fetchProps(this, [property])
@@ -311,7 +320,7 @@ return declare('geonef.jig.data.model.Abstract', null,
    */
   requestProps: function(propArray) {
     var self = this;
-    return util.whenAll(
+    return promise.whenAll(
       propArray.map(function(prop) { return self.get(prop); }))
     .then(function(props) {
             return self;

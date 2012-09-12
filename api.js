@@ -5,12 +5,8 @@ define([
          "dojo/json",
          "dojo",
          "dojox/uuid/generateRandomUuid",
-         "./_base",
-         "./workspace",
-         "./util",
-         "./Deferred",
-], function(lang, window, request, json, dojo, generateRandomUuid,
-            jig, workspace, util, Deferred) {
+         "dojo/Deferred",
+], function(lang, window, request, json, dojo, generateRandomUuid, Deferred) {
 
 var self = {
   //
@@ -90,8 +86,12 @@ var self = {
             self._timeout = null;
             var reqs = lang.mixin({}, self._deferredRequests);
             self._deferredRequests = {};
-            self._deferred.dependsOn(self._doRequest(reqs, options));
-            self._deferred.callback();
+            self._doRequest(reqs, options).then(
+              function() {
+                self._deferred.resolve();
+              });
+            // self._deferred.dependsOn(self._doRequest(reqs, options));
+            // self._deferred.callback();
           }, self.debugDelay);
     }
     if (req.callback) {
@@ -99,7 +99,7 @@ var self = {
       ret = new Deferred();
       req.promise
         .then(lang.hitch(req.scope || window, req.callback))
-        .then(function() { ret.callback(); });
+        .then(function() { ret.resolve(); });
     }
     delete req.scope;
     delete req.callback;
@@ -210,11 +210,11 @@ var self = {
 
   processException: function(req, response) {
     if (self.showExceptions) {
-      var Class = util.getClass('geonef.jig.tool.dev.ExceptionDump');
+      var Class = require("geonef/jig/util").getClass('geonef.jig.tool.dev.ExceptionDump');
       var dump = new Class(
         lang.mixin({ context: { request: req, response: response }},
                    response.exception));
-      workspace.autoAnchorWidget(dump);
+      require("geonef/jig/workspace").autoAnchorWidget(dump);
       dump.startup();
     } else {
       window.global.alert("Une erreur est survenue durant la requête serveur.\n"

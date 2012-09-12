@@ -3,8 +3,9 @@ define([
          "../../api",
          "dojo/_base/lang",
          "dojo/topic",
-         "../../util",
-], function(declare, api, lang, topic, util) {
+         "../../util/promise",
+         "../../util/value",
+], function(declare, api, lang, topic, promise, value) {
 
 /**
  * @module
@@ -144,7 +145,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
   get: function(id, options) {
     var obj = this.index[id];
     if (obj && (!options || (!options.fields && !options.fieldGroup))) {
-      return util.newResolvedDeferred(obj);
+      return promise.newResolved(obj);
     } else {
       var self = this;
       return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
@@ -402,7 +403,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
         console.error("happing on store", this, ", model ", this.Model.prototype);
         throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
       }
-      Model = util.getClass(_class);
+      Model = value.getClass(_class);
     }
     var object = new Model({ store: this });
     return object;

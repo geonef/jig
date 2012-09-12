@@ -1,7 +1,6 @@
 define([
          "dojo/_base/lang",
-         "../util",
-], function(lang, util) {
+], function(lang) {
 
 
 /**
