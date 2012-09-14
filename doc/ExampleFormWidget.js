@@ -10,10 +10,11 @@ define([
          "dijit/form/Select",
 
          "dojo/_base/lang",
+         "dojo/dom-style",
          "geonef/jig/api"
 ], function(declare, _Widget, _Container,
             Group, TextBox, Button, NumberSpinner, Select,
-            lang, api) {
+            lang, style, api) {
 
 
 /**
@@ -71,7 +72,7 @@ return declare([_Widget, _Container],
              }]
             // Here we could nest another group in this group (no limit)
           ]]
-       ]]
+       ]],
       ['div', {}, [
          [Button, {
             label: "OK",
