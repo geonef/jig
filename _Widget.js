@@ -57,7 +57,9 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
         [this.nodeName, { 'class': this['class']+' '+this.extraClass }, nodes]);
     }
     this.inherited(arguments);
-
+    if (!this.containerNode) {
+        this.containerNode = this.domNode;
+    }
 
     // console.log('this.srcNodeRef', this, arguments);
     // console.log('this.containerNode', this, arguments);
