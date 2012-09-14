@@ -6,7 +6,7 @@ define([
          "dojo/dom-class",
          "dojo",
          "./util/makeDOM",
-         "./util/promise",
+         "./util/promise"
 ], function(declare, _Widget, lang, style, domClass, dojo, makeDOM, promise) {
 
 /**
@@ -15,8 +15,7 @@ define([
  * Child classes should define 'makeContentNodes' as a function
  * returning an array of node definitions (first arg to geonef/jig/util/makeDOM)
  */
-return declare('geonef.jig._Widget', _Widget,
-{
+return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
   /**
    * CSS classes to be set on domNode
    *
@@ -52,14 +51,18 @@ return declare('geonef.jig._Widget', _Widget,
 
   buildRendering: function() {
     if (!this.domNode) {
-      var attrs = { 'class': this['class']+' '+this.extraClass };
-      if (this.srcNodeRef && this.srcNodeRef.hasAttribute('style')) {
-        attrs.style = this.srcNodeRef.getAttribute('style');
-      }
       var nodes = this.delayedContent ? [] : this.makeContentNodes();
-      this.domNode = this.dom([this.nodeName, attrs, nodes]);
+      // console.log('_Widget nodeName=', this.nodeName, nodes);
+      this.domNode = this.dom(
+        [this.nodeName, { 'class': this['class']+' '+this.extraClass }, nodes]);
     }
     this.inherited(arguments);
+    if (!this.containerNode) {
+        this.containerNode = this.domNode;
+    }
+
+    // console.log('this.srcNodeRef', this, arguments);
+    // console.log('this.containerNode', this, arguments);
   },
 
   copySrcNodeChildren: function() {
