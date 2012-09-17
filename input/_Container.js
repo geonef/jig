@@ -2,8 +2,9 @@ define([
          "dojo/_base/declare",
          "dijit/form/_FormMixin",
          "dojo/_base/lang",
+         "dojo/aspect",
          "../util/widget",
-], function(declare, _FormMixin, lang, widget) {
+], function(declare, _FormMixin, lang, aspect, widget) {
 
 
 return declare('geonef.jig.input._Container', [_FormMixin], {
@@ -44,6 +45,13 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
     this.inherited(arguments);
   },
 
+  buildRendering: function() {
+    this.inherited(arguments);
+    if (!this.containerNode) {
+      this.containerNode = this.domNode;
+    }
+  },
+
   /**
    * Find first descendants widgets having a "name" property
    *
@@ -65,6 +73,7 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
    * @override
    */
   connectChildren: function(){
+    console.log('connectChildren', this, arguments);
     this.inherited(arguments);
     this.updateChildren();
   },
@@ -74,24 +83,25 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
    * remove the old ones * and add the new ones
    */
   updateChildren: function() {
+    console.log('updateChildren', this, arguments);
     var self = this;
     var _oldChildrenCnts = this._childrenCnts || {};
     this._childrenCnts = {};
     this.getDescendants()
-      .filter(function(item){ return item.onChange; })
+      .filter(function(item){ return !!item.onChange; })
       .forEach(function(widget) {
         if (_oldChildrenCnts.hasOwnProperty(widget.id)) {
           self._childrenCnts[widget.id] = _oldChildrenCnts[widget.id];
           delete _oldChildrenCnts[widget.id];
         } else {
 	  self._childrenCnts[widget.id] =
-            dojo.connect(widget, "onChange", self,
-              lang.hitch(self, "onChange", widget));
+            aspect.after(widget, "onChange", lang.hitch(self, self.onChange, widget));
         }
       });
     for (var i in _oldChildrenCnts) {
       if (_oldChildrenCnts.hasOwnProperty(i)) {
-        dojo.disconnect(_oldChildrenCnts[i]);
+        _oldChildrenCnts[i].remove();
+        delete _oldChildrenCnts[i];
       }
     }
   },
@@ -169,7 +179,7 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
       }*/
     } else {
       var self = this;
-      value = dojo.mixin({}, this.internalValues);
+      value = lang.mixin({}, this.internalValues);
       descendants.forEach(
         function(w) { value[w.name] = w.get('value'); });
       this.manageValueKeys.forEach(
@@ -181,6 +191,11 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
 
   getValueHook: function(value) {
     // hook
+  },
+
+  startup: function() {
+    this.inherited(arguments);
+    this.connectChildren();
   }
 
 });

@@ -51,18 +51,14 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
 
   buildRendering: function() {
     if (!this.domNode) {
+      var attrs = { 'class': this['class']+' '+this.extraClass };
+      if (this.srcNodeRef && this.srcNodeRef.hasAttribute('style')) {
+        attrs.style = this.srcNodeRef.getAttribute('style');
+      }
       var nodes = this.delayedContent ? [] : this.makeContentNodes();
-      // console.log('_Widget nodeName=', this.nodeName, nodes);
-      this.domNode = this.dom(
-        [this.nodeName, { 'class': this['class']+' '+this.extraClass }, nodes]);
+      this.domNode = this.dom([this.nodeName, attrs, nodes]);
     }
     this.inherited(arguments);
-    if (!this.containerNode) {
-        this.containerNode = this.domNode;
-    }
-
-    // console.log('this.srcNodeRef', this, arguments);
-    // console.log('this.containerNode', this, arguments);
   },
 
   copySrcNodeChildren: function() {
@@ -91,7 +87,7 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
 
   startup: function() {
     this.inherited(arguments);
-    this.domWidgets.forEach(function(w) { w.startup(); });
+    this.domWidgets.forEach(function(w) { if (!w._started) { w.startup(); }});
   },
 
   destroyRendering: function() {
