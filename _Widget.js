@@ -2,12 +2,13 @@ define([
          "dojo/_base/declare",
          "dijit/_Widget",
          "dojo/_base/lang",
+         "dojo/_base/fx",
          "dojo/dom-style",
          "dojo/dom-class",
          "dojo",
          "./util/makeDOM",
          "./util/promise"
-], function(declare, _Widget, lang, style, domClass, dojo, makeDOM, promise) {
+], function(declare, _Widget, lang, fx, style, domClass, dojo, makeDOM, promise) {
 
 /**
  * Base class widget class
@@ -181,6 +182,18 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
     }
 
     return false;
+  },
+
+  fadeIn:function(options){
+    fx.fadeIn(lang.mixin({
+      node: this.domNode
+    }, options || {})).play();
+  },
+
+  fadeOut:function(options){
+    fx.fadeOut(lang.mixin({
+      node: this.domNode
+    }, options || {})).play();
   }
 
 });
