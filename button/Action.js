@@ -21,7 +21,7 @@ define([
  * At some point, it should replace geonef.jig.button.Action as well,
  * providing a simpler implementation & DOM structure.
  */
-return declare('geonef.jig.button.Link', _Widget,
+return declare(_Widget,
 { //--indent after--
 
   /**
@@ -99,7 +99,7 @@ return declare('geonef.jig.button.Link', _Widget,
     if (this.label) {
       this.domNode.innerHTML = this.label;
     }
-    domClass.add(this.domNode, 'link '+this.cssClasses);
+    domClass.add(this.domNode, 'button '+this.cssClasses);
     if (this.domNode.nodeName !== 'A') {
       this.connect(this.domNode, 'onclick', 'onClick');
     }
