@@ -82,6 +82,11 @@ return declare(_Widget,
    */
   autoInstanciate: '',
 
+  /**
+   * If 'autoInstanciate' is set, use this to provide options for instanciation
+   */
+  autoInstanciateOptions: null,
+
 
   buildRendering: function() {
     //console.log('buildRendering', this, arguments);
@@ -154,7 +159,10 @@ return declare(_Widget,
 
   onExecute: function() {
     if (this.autoInstanciate) {
-      require("geonef/jig/workspace").autoAnchorInstanciate(this.autoInstanciate);
+      // geonef/jig/workspace is private to Geonef's
+      // Replace this 'onExecute' function to suit your application.
+      require("geonef/jig/workspace").autoAnchorInstanciate(
+        this.autoInstanciate, null, this.autoInstanciateOptions);
     }
   },
 
