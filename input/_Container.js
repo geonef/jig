@@ -48,7 +48,7 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
   buildRendering: function() {
     this.inherited(arguments);
     if (!this.containerNode) {
-      this.containerNode = this.domNode;
+      this.containerNode = this.domNode; // needed by parent _FormMixin
     }
   },
 
@@ -73,7 +73,7 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
    * @override
    */
   connectChildren: function(){
-    console.log('connectChildren', this, arguments);
+    // console.log('connectChildren', this, arguments);
     this.inherited(arguments);
     this.updateChildren();
   },
@@ -83,7 +83,7 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
    * remove the old ones * and add the new ones
    */
   updateChildren: function() {
-    console.log('updateChildren', this, arguments);
+    // console.log('updateChildren', this, arguments);
     var self = this;
     var _oldChildrenCnts = this._childrenCnts || {};
     this._childrenCnts = {};

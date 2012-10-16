@@ -50,7 +50,7 @@ var self = {
    * @return {function} must be called to stop the busy effect
    */
   busy: function(node) {
-    var Processing = require("geonef/jig/widget/Processing");
+    var Processing = require("geonef/jig/tool/Processing");
     var control = new Processing({ processingNode: node });
     control.startup();
     return function(arg) {
@@ -72,9 +72,9 @@ var self = {
   /**
    * Makes a single-time dojo.connect - OBSOLETE
    *
-   * Warning: since dojo 1.7, this function has been update to
-   *          use dojo.aspect.after (upgrade of dojo.connect) or
-   *          dojo.on, if 'obj' is an 'addEventListener' method.
+   * OBSOLETE: since dojo 1.7, this function has been updated to
+   *           use dojo.aspect.after (upgrade of dojo.connect) or
+   *           dojo.on, if 'obj' has an 'addEventListener' method.
    *
    * This works the same as with dojo.connect, but for once only:
    * the handler is automatically disconnected the first time
@@ -100,7 +100,7 @@ var self = {
       if (/^on/.test(event)) {
         event = event.substr(2);
       } else {
-        console.warn("jig.connectOnce: obj has an addEventListener method "
+        console.warn("widget.connectOnce: obj has an addEventListener method "
                      + "but event does not start with 'on'", event, obj);
       }
       _h = on(obj, event, callback);

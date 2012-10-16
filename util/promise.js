@@ -30,7 +30,7 @@ var self = {
   whenAll: function(deferreds) {
     var count = deferreds.length;
     if (!count) {
-      return self.newResolvedDeferred([]);
+      return self.newResolved([]);
     }
     var all = new Deferred();
     var values = deferreds.map(function() { return null; });

@@ -137,7 +137,7 @@ return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
   refresh: function() {
     this.fetchResults()
         .then(lang.hitch(this, this.populateList))
-        .then(util.busy(this.domNode));
+;//        .then(util.busy(this.domNode));
   },
 
   /**
@@ -172,6 +172,7 @@ return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
    */
   populateList: function(results) {
     // console.log('populateList', this, arguments);
+    if (this._destroyed) { return; }
     var scrollTop = this.domNode.scrollTop;
     this.clear();
     if (this.emptyNode) {
@@ -202,6 +203,7 @@ return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
         .filter(function(row) { return !!row.whenDataReady; })
         .map(function(row) { return row.whenDataReady; }))
       .then(function() {
+              if (_this._destroyed) { return; }
               _this.domNode.scrollTop = scrollTop;
               _this.afterPopulateList(scrollTop);
             });

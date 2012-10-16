@@ -4,10 +4,10 @@ define([
          "dojo/_base/lang",
          "dojo/dom-style",
          "dojo/dom-class",
-         "dojo",
+         "dojo/aspect",
          "./util/makeDOM",
          "./util/promise"
-], function(declare, _Widget, lang, style, domClass, dojo, makeDOM, promise) {
+], function(declare, _Widget, lang, style, domClass, aspect, makeDOM, promise) {
 
 /**
  * Base class widget class
@@ -139,6 +139,7 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
   },
 
   enableSubWidget: function(widget, onDestroy) {
+    console.log('enableSubWidget', this, arguments);
     this.destroySubWidget();
     this.subHides.forEach(
         function(name) {
@@ -151,8 +152,9 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
     this.subWidget = widget;
     domClass.add(this.domNode, 'hasSub');
     var _this = this;
-    widget.connect(widget, 'uninitialize',
+    aspect.before(widget, 'destroy',
       function() {
+        console.log('in', this, arguments);
         _this.destroySubWidget();
         if (onDestroy) {
           lang.hitch(_this, onDestroy)();
@@ -165,6 +167,7 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
   destroySubWidget: function() {
     var widget = this.subWidget;
     if (widget) {
+      console.log('destroySubWidget', this, arguments);
       delete this.subWidget;
       if (!widget._beingDestroyed) {
         widget.destroy();
@@ -176,7 +179,9 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
               style.set(node.domNode || node, 'display', '');
             }
           }, this);
-      domClass.remove(this.domNode, 'hasSub');
+      if (this.domNode) {
+        domClass.remove(this.domNode, 'hasSub');
+      }
       return true;
     }
 

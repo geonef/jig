@@ -53,7 +53,7 @@ return declare('geonef.jig.data.pane.CreatorMixin', null,
                             }
                           });
               })
-        .then(util.busy(this.domNode));
+;//        .then(util.busy(this.domNode));
   },
 
   /**

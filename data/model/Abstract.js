@@ -6,8 +6,9 @@ define([
          "../model",
          "../../util/value",
          "../../util/string",
-         "../../util/array"
-], function(declare, lang, Deferred, topic, model, value, string, array) {
+         "../../util/array",
+         "../../util/promise"
+], function(declare, lang, Deferred, topic, model, value, string, array, promise) {
 
 
       var goThrough = function(value) { return value; };
@@ -445,7 +446,7 @@ return declare('geonef.jig.data.model.Abstract', null,
    * @return {Object}
    */
   toServerValue: function(options) {
-    var p, type, value;
+    var p, type, _value;
     var props = this.properties;
     var struct = {};
     options = lang.mixin({ setOriginal: false, allValues: false }, options);
@@ -453,8 +454,8 @@ return declare('geonef.jig.data.model.Abstract', null,
       struct.id = this.id;
     }
     for (p in props) if (typeof props[p] == 'object' && props[p].type) {
-      value = this[p];
-      if (value !== undefined) {
+      _value = this[p];
+      if (_value !== undefined) {
         var typeSpec = props[p];
         type = this.types[typeSpec.type];
         if (typeSpec.readOnly ||
@@ -462,17 +463,17 @@ return declare('geonef.jig.data.model.Abstract', null,
           continue;
         }
 
-        value = type.toServer.call(this, value, typeSpec);
-        if (value !== undefined) {
+        _value = type.toServer.call(this, _value, typeSpec);
+        if (_value !== undefined) {
           var original = this.originalValues[p];
-          // console.log('value, original', p, value, original, geonef.jig.util.isSame(value, original));
+          // console.log('value, original', p, _value, original, geonef.jig.value.isSame(_value, original));
 
           if (options.allValues ||
-              !util.isSame(value, this.originalValues[p])) {
-            struct[p] = value;
+              !value.isSame(_value, this.originalValues[p])) {
+            struct[p] = _value;
 
             if (options.setOriginal) {
-              this.setOriginalValue(value);
+              this.setOriginalValue(_value);
             }
           }
         }
@@ -487,8 +488,8 @@ return declare('geonef.jig.data.model.Abstract', null,
     return struct;
   },
 
-  setOriginalValue: function(name, value) {
-    this.originalValues[name] = value;
+  setOriginalValue: function(name, _value) {
+    this.originalValues[name] = _value;
   },
 
   /**
@@ -500,7 +501,7 @@ return declare('geonef.jig.data.model.Abstract', null,
    */
   createSub: function(propName, data) {
     var property = this.properties[propName];
-    var store = model.getStore(util.getClass(property.targetModel));
+    var store = model.getStore(value.getClass(property.targetModel));
     var _this = this;
     var deferred = this.store.apiRequest(
       { action: 'createSub', id: this.id,

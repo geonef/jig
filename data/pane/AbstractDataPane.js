@@ -6,7 +6,8 @@ define([
          "../../button/Action",
          "dojo/_base/lang",
          "dojo/_base/window",
-], function(declare, _Widget, promise, widget, util, Action, lang, window) {
+         "dojo/dom-class",
+], function(declare, _Widget, promise, widget, Action, lang, window, domClass) {
 
 
 /**
