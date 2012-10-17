@@ -6,7 +6,7 @@ define([
 /**
  * Utility functions dealing with strings
  */
-return {
+return { //--noindent--
 
   /**
    * Make the first letter lowercase

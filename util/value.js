@@ -1,8 +1,11 @@
+/**
+ * Various utilities about JS values
+ */
 define([
          "dojo/_base/lang",
 ], function(lang) {
 
-var self = {
+var self = { //--noindent--
 
   /**
    * Get given class, fetch it if needed

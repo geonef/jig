@@ -1,13 +1,15 @@
+/**
+ * Utilities about widgets
+ */
 define([
-         "dojo/_base/lang",
-         "dojo/aspect",
-         "dojo/on",
-         "dijit/_Contained",
-         "dijit/registry"
+  "dojo/_base/lang",
+  "dojo/aspect",
+  "dojo/on",
+  "dijit/_Contained",
+  "dijit/registry"
 ], function(lang, aspect, on, _Contained, registry) {
 
-
-var self = {
+var self = { //--noindent--
 
   //  Unused
   //
@@ -92,10 +94,10 @@ var self = {
   connectOnce: function(obj, event, context, method) {
     var _h;
     var callback = lang.hitch(context, function() {
-                   _h.remove();
-                   // dojo.disconnect(_h);
-                   method.apply(context, arguments);
-                 });
+      _h.remove();
+      // dojo.disconnect(_h);
+      method.apply(context, arguments);
+    });
     if (obj.addEventListener) {
       if (/^on/.test(event)) {
         event = event.substr(2);
@@ -126,6 +128,6 @@ var self = {
 
 };
 
-return self;
+  return self;
 
 });

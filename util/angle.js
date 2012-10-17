@@ -1,13 +1,12 @@
-define([
-         "../util",
-], function(util) {
-
-
 /**
  * Utility functions dealing with angles
  *
  * Utiliser les vecteurs à la place, pas ce machin qui embrouille...
  */
+define([
+         "../util",
+], function(util) {
+
 var self = {
 
   /**

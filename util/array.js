@@ -1,10 +1,9 @@
-define([], function() {
-
-
 /**
  * Utility functions dealing with arrays
  */
-return {
+define([], function() {
+
+return { //--noindent--
 
   /**
    * Clean an array from falsy values

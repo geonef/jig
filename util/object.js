@@ -1,10 +1,13 @@
+/**
+ * Object utilities
+ */
 define([
-         "dojo/_base/lang",
+  "dojo/_base/lang",
 ], function(lang) {
 
-var h = lang.hitch;
+  var h = lang.hitch;
 
-var self = {
+var self = { //--noindent--
 
   /**
    * Same as dojo.map, but also works with objects.
@@ -129,6 +132,6 @@ var self = {
 
 };
 
-return self;
+  return self;
 
 });
