@@ -26,7 +26,7 @@ var self = { //--noindent--
                         "(options object is:", options, ")");
           throw new Error("Invalid option"+k+"given to object"+obj.toString());
         }
-        obj[k] = options;
+        obj[k] = options[k];
       }
     }
     return obj;
