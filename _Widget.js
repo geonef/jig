@@ -24,10 +24,28 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
    */
   'class': 'jigWidget',
 
+  /**
+   * Other CSS classes to be added on domNode
+   *
+   * This proprty works the same as 'class', they are distinct for the
+   * convenience of inheritance.
+   *
+   * @type {string} extraClass
+   */
   extraClass: '',
 
+  /**
+   * Nom du noeud DOM domNode du widget
+   *
+   * @type {string} nodeName
+   */
   nodeName: 'div',
 
+  /**
+   * Static alternative to implementing makeContentNodes()
+   *
+   * @type {Array.<Array>} contentNodes
+   */
   contentNodes: [],
 
   /**
@@ -45,11 +63,17 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
   subHides: [],
 
 
+  /**
+   * @override
+   */
   postMixInProperties: function() {
     this.domWidgets = [];
     this.inherited(arguments);
   },
 
+  /**
+   * @override
+   */
   buildRendering: function() {
     if (!this.domNode) {
       var attrs = { 'class': this['class']+' '+this.extraClass };
@@ -62,6 +86,11 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
     this.inherited(arguments);
   },
 
+  /**
+   * Copy children nodes from this.srcNodeRef to this.containerNode
+   *
+   * this.containerNode has to be defined
+   */
   copySrcNodeChildren: function() {
     var source = this.srcNodeRef;
     var dest = this.containerNode;
@@ -86,11 +115,17 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
     return this.contentNodes;
   },
 
+  /**
+   * @override
+   */
   startup: function() {
     this.inherited(arguments);
     this.domWidgets.forEach(function(w) { if (!w._started) { w.startup(); }});
   },
 
+  /**
+   * @override
+   */
   destroyRendering: function() {
     this.destroyDom();
     if (this._supportingWidgets) {
@@ -100,6 +135,9 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
     this.inherited(arguments);
   },
 
+  /**
+   * @override
+   */
   destroyDom: function() {
     this.destroySubWidget();
     if (this.domWidgets) {
@@ -112,6 +150,10 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
   },
 
   /**
+   * Rebuild the DOM
+   *
+   * this.domNode itself remain unchanged, only its descendants are destroyed
+   *
    * @param arg Custom arg passed to makeContentNodes()
    */
   rebuildDom: function(arg) {
@@ -135,10 +177,20 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
   afterRebuildDom: function() {
   },
 
+  /**
+   * Kind of helper to util/makeDOM, using this as obj
+   */
   dom: function(struct) {
     return makeDOM(struct, this);
   },
 
+  /**
+   * Add a widget within this.domNode and manage it's lifecycle
+   *
+   * @type {dijit/_WidgetBase} widget
+   * @type {Function} onDestroy
+   * @return {dijit/_WidgetBase} the given widget
+   */
   enableSubWidget: function(widget, onDestroy) {
     this.destroySubWidget();
     this.subHides.forEach(
@@ -163,6 +215,11 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
     return widget;
   },
 
+  /**
+   * Destroy a subwidget added with enablSubWidget
+   *
+   * @return {boolean} Whether the widget was not already closed
+   */
   destroySubWidget: function() {
     var widget = this.subWidget;
     if (widget) {
