@@ -17,6 +17,7 @@ define([
  * returning an array of node definitions (first arg to geonef/jig/util/makeDOM)
  */
 return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
+
   /**
    * CSS classes to be set on domNode
    *

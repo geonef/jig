@@ -46,6 +46,13 @@ return declare(_Widget,
   publish: '',
 
   /**
+   * CSS classes to be set on domNode
+   *
+   * @type {string} class
+   */
+  "class": "button",
+
+  /**
    * Additional CSS classes to set
    *
    * @type {string}
@@ -104,7 +111,7 @@ return declare(_Widget,
     if (this.label) {
       this.domNode.innerHTML = this.label;
     }
-    domClass.add(this.domNode, 'button '+this.cssClasses);
+    domClass.add(this.domNode, this["class"]+" "+this.cssClasses);
     if (this.domNode.nodeName !== 'A') {
       this.connect(this.domNode, 'onclick', 'onClick');
     }
