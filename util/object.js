@@ -7,6 +7,23 @@ var h = lang.hitch;
 var self = {
 
   /**
+   * Transform object properties to array items
+   *
+   * @param {Object} obj Object to process
+   * @return {Array}
+   */
+  toArray: function(obj) {
+    var arr = [];
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        arr.push(obj[key]);
+      }
+    }
+
+    return arr;
+  },
+
+  /**
    * Same as dojo.map, but also works with objects.
    *
    * If an array is given, it's the same than dojo.map.
@@ -19,6 +36,7 @@ var self = {
    * @param {!Object|Array} obj object or array to iterate on
    * @param {function(*, string|number, !Object|Array)} func callback function
    * @param {Object=} thisObj object to bind to callback function as "this"
+   * @return {Object}
    */
   map: function(obj, func, thisObj) {
     if (obj instanceof Array) {
