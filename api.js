@@ -1,14 +1,14 @@
 define([
-         "dojo/_base/lang",
-         "dojo/_base/window",
-         "dojo/_base/xhr",
-         "dojo/json",
-         "dojo",
-         "dojox/uuid/generateRandomUuid",
-         "dojo/Deferred",
+  "dojo/_base/lang",
+  "dojo/_base/window",
+  "dojo/_base/xhr",
+  "dojo/json",
+  "dojo",
+  "dojox/uuid/generateRandomUuid",
+  "dojo/Deferred",
 ], function(lang, window, request, json, dojo, generateRandomUuid, Deferred) {
 
-var self = {
+var self = { //--noindent--
   //
   // todo:
   //    implement caching based in scalar params
@@ -81,18 +81,18 @@ var self = {
     if (!self._timeout) {
       self._deferred = new Deferred();
       self._timeout = window.global.setTimeout(
-          function() {
-            // execute all deferred requests
-            self._timeout = null;
-            var reqs = lang.mixin({}, self._deferredRequests);
-            self._deferredRequests = {};
-            self._doRequest(reqs, options).then(
-              function() {
-                self._deferred.resolve();
-              });
-            // self._deferred.dependsOn(self._doRequest(reqs, options));
-            // self._deferred.callback();
-          }, self.debugDelay);
+        function() {
+          // execute all deferred requests
+          self._timeout = null;
+          var reqs = lang.mixin({}, self._deferredRequests);
+          self._deferredRequests = {};
+          self._doRequest(reqs, options).then(
+            function() {
+              self._deferred.resolve();
+            });
+          // self._deferred.dependsOn(self._doRequest(reqs, options));
+          // self._deferred.callback();
+        }, self.debugDelay);
     }
     if (req.callback) {
       // backward compat ; api.request({}).then() preferred
@@ -199,13 +199,13 @@ var self = {
     }
     dojo.publish('noticeTopic', [ true ]);
     return request.post(lang.mixin(
-                      {
-                        url: options.url || self.url,
-                        handleAs: 'text', //'json',
-                        postData: json.stringify(requestToSend),
-                        load: _processResponse,
-                        error: _processError
-                      }, options), true);
+      {
+        url: options.url || self.url,
+        handleAs: 'text', //'json',
+        postData: json.stringify(requestToSend),
+        load: _processResponse,
+        error: _processError
+      }, options), true);
   },
 
   processException: function(req, response) {
@@ -218,7 +218,7 @@ var self = {
       dump.startup();
     } else {
       window.global.alert("Une erreur est survenue durant la requête serveur.\n"
-                   + "Elle a été enregistrée en vue d'une correction prochaine.");
+                          + "Elle a été enregistrée en vue d'une correction prochaine.");
     }
     // console.log('started exception', this, arguments);
   },
@@ -247,6 +247,6 @@ var self = {
 
 };
 
-return self;
+  return self;
 
 });
