@@ -1,10 +1,36 @@
+/**
+ * Object utilities
+ */
 define([
-         "dojo/_base/lang",
+  "dojo/_base/lang",
 ], function(lang) {
 
-var h = lang.hitch;
+  var h = lang.hitch;
 
-var self = {
+var self = { //--noindent--
+
+  /**
+   * Comme dojo.mixin, avec validation - utilisé par les constructeurs
+   *
+   * Valide que les options doivent exister dans la chaîne de prototypes
+   * de l'objet.
+   *
+   * @type {Object} obj
+   * @type {!Object} options
+   */
+  mixOptions: function(obj, options) {
+    if (options) {
+      for (var k in options) if (options.hasOwnProperty(k)) {
+        if (obj[k] === undefined) {
+          console.error("Invalid option", k, "given to object", obj,
+                        "(options object is:", options, ")");
+          throw new Error("Invalid option"+k+"given to object"+obj.toString());
+        }
+        obj[k] = options[k];
+      }
+    }
+    return obj;
+  },
 
   /**
    * Transform object properties to array items
@@ -147,6 +173,6 @@ var self = {
 
 };
 
-return self;
+  return self;
 
 });

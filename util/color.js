@@ -1,12 +1,11 @@
-define([
-         "../util",
-], function(lang, util) {
-
-
 /**
  * Utility functions dealing with colors
  */
-var self = {
+define([
+  "../util",
+], function(lang, util) {
+
+var self = { //--noindent--
 
   /**
    * Return whether the color is rather dark than bright
@@ -55,6 +54,6 @@ var self = {
 
 };
 
-return self;
+  return self;
 
 });

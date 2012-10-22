@@ -1,3 +1,6 @@
+/**
+ * Various utilities about JS values
+ */
 define([
   "dojo/_base/lang",
   "dojo/_base/kernel",

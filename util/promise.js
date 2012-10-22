@@ -1,3 +1,6 @@
+/**
+ * Utilities about deferred, promises and asynchronicity in general
+ */
 define([
          "dojo/_base/Deferred",
          "dojo/_base/lang",

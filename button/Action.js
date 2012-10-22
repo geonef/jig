@@ -21,7 +21,7 @@ define([
  * At some point, it should replace geonef.jig.button.Action as well,
  * providing a simpler implementation & DOM structure.
  */
-return declare('geonef.jig.button.Link', _Widget,
+return declare(_Widget,
 { //--indent after--
 
   /**
@@ -44,6 +44,13 @@ return declare('geonef.jig.button.Link', _Widget,
    * @type {string}
    */
   publish: '',
+
+  /**
+   * CSS classes to be set on domNode
+   *
+   * @type {string} class
+   */
+  "class": "button",
 
   /**
    * Additional CSS classes to set
@@ -82,6 +89,11 @@ return declare('geonef.jig.button.Link', _Widget,
    */
   autoInstanciate: '',
 
+  /**
+   * If 'autoInstanciate' is set, use this to provide options for instanciation
+   */
+  autoInstanciateOptions: null,
+
 
   buildRendering: function() {
     //console.log('buildRendering', this, arguments);
@@ -99,7 +111,7 @@ return declare('geonef.jig.button.Link', _Widget,
     if (this.label) {
       this.domNode.innerHTML = this.label;
     }
-    domClass.add(this.domNode, 'link '+this.cssClasses);
+    domClass.add(this.domNode, this["class"]+" "+this.cssClasses);
     if (this.domNode.nodeName !== 'A') {
       this.connect(this.domNode, 'onclick', 'onClick');
     }
@@ -154,7 +166,10 @@ return declare('geonef.jig.button.Link', _Widget,
 
   onExecute: function() {
     if (this.autoInstanciate) {
-      require("geonef/jig/workspace").autoAnchorInstanciate(this.autoInstanciate);
+      // geonef/jig/workspace is private to Geonef's
+      // Replace this 'onExecute' function to suit your application.
+      require("geonef/jig/workspace").autoAnchorInstanciate(
+        this.autoInstanciate, null, this.autoInstanciateOptions);
     }
   },
 

@@ -1,14 +1,13 @@
-define([
-         "dojo/_base/lang",
-         "dojo/number",
-         "../util",
-], function(lang, dojoNumber, util) {
-
-
 /**
  * Utility functions dealing with angles
  */
-var self = {
+define([
+  "dojo/_base/lang",
+  "dojo/number",
+  "../util",
+], function(lang, dojoNumber, util) {
+
+var self = { //--noindent--
 
   /**
    * Format a number
@@ -67,9 +66,9 @@ var self = {
         decimalSep: ','
       }, options);
     var
-      max = Math.max.apply(null, dims)
+    max = Math.max.apply(null, dims)
     , logNp = function(x, base) {
-                return Math.max(0, Math.floor(Math.log(x) / Math.log(base))); }
+      return Math.max(0, Math.floor(Math.log(x) / Math.log(base))); }
     , exp = Math.min(logNp(max, o.mult), o.units.length - 1)
     , getU = function(x) { return x < 0 ? x :
                            Math.round((x / Math.pow(o.mult, exp)) *
@@ -83,11 +82,11 @@ var self = {
 
   formatBytes: function(size) {
     return self.formatDims([size],
-              { units: ['o', 'ko', 'Mo', 'Go', 'To'], mult: 1024 });
+                           { units: ['o', 'ko', 'Mo', 'Go', 'To'], mult: 1024 });
   }
 
 };
 
-return self;
+  return self;
 
 });
