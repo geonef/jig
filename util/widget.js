@@ -110,6 +110,20 @@ var self = {
     return _h;
   },
 
+  /**
+   * Focus on the given widget
+   *
+   * @param {dijit._Widget} widget
+   * @return {object}
+   */
+  focus: function(widget) {
+    var parent = registry.getEnclosingWidget(widget.domNode.parentNode);
+    if (parent.selectChild) {
+      parent.selectChild(widget);
+    }
+    return widget;
+  },
+
 };
 
 return self;

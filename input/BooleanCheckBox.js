@@ -50,6 +50,10 @@ return declare('geonef.jig.input.BooleanCheckBox', CheckBox,
     }
     if (this.toggleInput) {
       var w = registry.byId(this.toggleInput);
+      if (!w) {
+        console.warn("widget ID not found: ", this.toggleInput);
+        return;
+      }
       var savedValue; // static to all calls to the closure below
       var notNull = function(v) { return v !== null && v !== undefined && v !== ''; };
       var updateFromValue = lang.hitch(this,
