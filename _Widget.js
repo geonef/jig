@@ -32,6 +32,10 @@ return declare('geonef.jig._Widget' /* oka compat */, [_Widget], {
   /**
    * If true, content nodes are built upon rebuildDom(), not initial buildRendering()
    *
+   * In this case, the concrete class has the responsability to build
+   * rebuildDom() (typically, when some data used by makeContentNodes() were
+   * sucessfully loaded).
+   *
    * @type {boolean} delayedContent
    */
   delayedContent: false,

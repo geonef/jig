@@ -5,7 +5,7 @@ define([
          "dojo/topic",
          "../../util/promise",
          "../../util/value",
-], function(declare, api, lang, topic, promise, value) {
+], function(declare, api, lang, topic, async, value) {
 
 /**
  * @module
@@ -140,12 +140,12 @@ return declare('geonef.jig.data.model.ModelStore', null,
    *
    * @param {string} id Identifier
    * @param {!Object} options Hash of options
-   * @return {geonef.jig.data.model.Abstract}
+   * @return {dojo/Deferred}
    */
   get: function(id, options) {
     var obj = this.index[id];
     if (obj && (!options || (!options.fields && !options.fieldGroup))) {
-      return promise.newResolved(obj);
+      return async.newResolved(obj);
     } else {
       var self = this;
       return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
@@ -156,16 +156,15 @@ return declare('geonef.jig.data.model.ModelStore', null,
                     // return geonef.jig.util.newErrorDeferred(resp.error);
                   }
                   if (obj) {
-                    obj.fromServerValue(resp.object);
+                    return async.bindArg(obj, obj.fromServerValue(resp.object));
                   } else if (resp.object) {
                     // index the object first before setting values
                     // obj = self.index[id] = self.makeObject(resp.object);
                     // obj.fromServerValue(resp.object);
-                    obj = self.getLazyObject(resp.object);
+                    return self.getLazyObject(resp.object);
                   } else {
                     return null;
                   }
-                  return obj;
                 });
     }
   },
@@ -175,7 +174,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
    *
    * @param {string} ref
    * @param {!Object} options same options as to ModelStore.get()
-   *
+   * @return {dojo/Deferred}
    */
   getByRef: function(ref, options) {
     try {
@@ -200,15 +199,13 @@ return declare('geonef.jig.data.model.ModelStore', null,
    */
   fetchProps: function(object, props) {
     var self = this;
-    return this.apiRequest({ action: 'get', id: object.getId(),
-                             fields: props }, null, object)
+    return this.apiRequest({
+      action: 'get', id: object.getId(),
+      fields: props
+    }, null, object)
       .then(function(resp) {
-              // var obj = {};
-              // props.forEach(function(p) { obj[p] = resp.object[p] || null; });
-              // object.fromServerValue(obj);
-              object.fromServerValue(resp.object);
-              return object;
-            });
+        return async.bindArg(object, object.fromServerValue(resp.object));
+      });
   },
 
   /**
@@ -232,19 +229,21 @@ return declare('geonef.jig.data.model.ModelStore', null,
    */
   put: function(object, options) {
     var self = this;
-    var deferred = this.apiRequest(lang.mixin(
-        { action: 'put',
-          object: object.toServerValue(),
-        }, options), {}, object)
+    var deferred = this.apiRequest(lang.mixin({
+      action: 'put',
+      object: object.toServerValue(),
+    }, options), {}, object)
       .then(function(resp) {
-              // console.log('in PUT then', arguments, object);
-              if (!object.id) {
-                self.index[resp.object.id] = object;
-              }
-              object.fromServerValue(resp.object);
-              object.publish(['afterPut']);
-              return object;
-            });
+        // console.log('in PUT then', arguments, object);
+        if (!object.id) {
+          self.index[resp.object.id] = object;
+        }
+        return async.bindArg(object, object.fromServerValue(resp.object));
+      })
+      .then(function() {
+        object.publish(['afterPut']);
+        return object;
+      });
     object.publish(['put']);
     return deferred;
   },
@@ -287,21 +286,20 @@ return declare('geonef.jig.data.model.ModelStore', null,
   duplicate: function(object, options) {
     var self = this;
     var obj;
-    return this.apiRequest(lang.mixin(
-        { action: 'duplicate',
-          id: object.id,
-        }, options), null, object)
+    return this.apiRequest(lang.mixin({
+      action: 'duplicate', id: object.id,
+    }, options), null, object)
       .then(function(resp) {
-              obj = self.makeObject(resp.object);
-              self.index[resp.object.id] = obj;
-              obj.fromServerValue(resp.object);
-              return obj.afterDuplicate();
-            })
+        obj = self.makeObject(resp.object);
+        self.index[resp.object.id] = obj;
+        return async.bindArg(obj, obj.fromServerValue(resp.object));
+      })
+      .then(function() { return obj.afterDuplicate(); })
       .then(function() {
-              obj.publish(['put']);
-              obj.publish(['afterPut']);
-              return obj;
-            });
+        obj.publish(['put']);
+        obj.publish(['afterPut']);
+        return obj;
+      });
   },
 
   /**
@@ -358,10 +356,10 @@ return declare('geonef.jig.data.model.ModelStore', null,
             console.error("model query ("+this.apiModule+"): no result array", resp);
             return null;
           }
-          return resp.results.map(
+          return async.whenAll(resp.results.map(
             function(data) {
               return this.getLazyObject(lang.mixin({}, implied, data));
-            }, this);
+            }, this));
         }));
   },
 
@@ -437,16 +435,14 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * which has an identifier.
    *
    * @param {Object} data Hash of property values (must have a valid 'id' key)
-   * @return {geonef.jig.data.model.Abstract}
+   * @return {dojo/Deferred}
    */
   getLazyObject: function(data) {
     var obj = this.index[data.id];
     if (!obj) {
       obj = this.index[data.id] = this.makeObject(data);
     }
-    obj.fromServerValue(data);
-
-    return obj;
+    return async.bindArg(obj, obj.fromServerValue(data));
   },
 
   /**

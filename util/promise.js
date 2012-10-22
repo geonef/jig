@@ -10,6 +10,8 @@ var self = {
   /**
    * Generate an already-resolved deferred
    *
+   * WILL SOON BE OBSOLETE IN FAVOR OF bindArg() with no promise
+   *
    * Useful for async-style function which return a sync value.
    * This can be seen as an "async wrapper" for sync values.
    *
@@ -22,9 +24,31 @@ var self = {
   },
 
   /**
+   * Bind the given arg the the promise and return the new (bound) promise
+   *
+   * Kind of dojo's lang.hitch().
+   * If no promise is given, a new one is created, already resolved.
+   *
+   * @param {mixed} arg
+   * @param {dojo.Deferred} promise
+   * @return {dojo.Deferred}
+   */
+  bindArg: function(arg, promise) {
+    if (!promise) {
+      promise = new Deferred();
+      promise.resolve(arg);
+      return promise;
+    }
+    return promise.then(function() { return arg; });
+  },
+
+
+  /**
    * Multiplex multiple deferreds
    *
-   * @deprecated use dojo's instead
+   * TODO: use directly dojo/promise/all
+   *
+   * @deprecated use dojo's dojo/promise/all instead
    * @return {dojo.Deferred}
    */
   whenAll: function(deferreds) {
