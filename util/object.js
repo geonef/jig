@@ -22,7 +22,7 @@ var self = { //--noindent--
     if (options) {
       for (var k in options) if (options.hasOwnProperty(k)) {
         if (obj[k] === undefined) {
-          console.error("Invalid option", k, "given to object", obj,
+          console.error("mixOptions(): invalid option", k, "given to object", obj,
                         "(options object is:", options, ")");
           throw new Error("Invalid option"+k+"given to object"+obj.toString());
         }
