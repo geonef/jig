@@ -120,18 +120,24 @@ var self = { //--noindent--
     var _processResponseReq =
       function(req, response, xhr) {
         var options = req.__options || {};
+        if (response.error) {
+          req.promise.reject(response.error);
+          return;
+        }
 	if (response.status === 'error') {
 	  console.error('error status from API', response);
 	}
 	if (response.status === 'exception' && !options.ignoreException) {
 	  console.error('Server API exception', response);
           self.processException(req, response);
+          req.promise.reject({ name: "unknown:exception" });
+          return;
 	}
-        try {
+        // try {
           req.promise.resolve(response);
-        } catch (error) {
-          console.error("exception in API request callback", req, response);
-        }
+        // } catch (error) {
+        // console.error("exception in API request callback", req, response);
+        // }
       };
 
     /**

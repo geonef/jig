@@ -428,7 +428,7 @@ return declare('geonef.jig.data.model.Abstract', null,
         var typeSpec = typeN;
         type = this.types[typeSpec.type];
 
-        deferred.push(when(
+        deferreds.push(when(
           type.fromServer.call(this, props[p], typeSpec)).then(function(value) {
             _this[p] = value;
             _this.setOriginalValue(p, props[p]);
