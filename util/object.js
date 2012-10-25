@@ -2,8 +2,9 @@
  * Object utilities
  */
 define([
+  "dojo/has",
   "dojo/_base/lang",
-], function(lang) {
+], function(has, lang) {
 
   var h = lang.hitch;
 
@@ -19,15 +20,20 @@ var self = { //--noindent--
    * @type {!Object} options
    */
   mixOptions: function(obj, options) {
-    if (options) {
-      for (var k in options) if (options.hasOwnProperty(k)) {
-        if (obj[k] === undefined) {
-          console.error("Invalid option", k, "given to object", obj,
-                        "(options object is:", options, ")");
-          throw new Error("Invalid option"+k+"given to object"+obj.toString());
+    if (has("geonef-debug-args")) { // todo: set statically
+      if (options) {
+        // we want inherited properties
+        for (var k in options) {
+          if (obj[k] === undefined) {
+            console.error("mixOptions(): invalid option", k, "given to object", obj,
+                          "(options object is:", options, ")");
+            throw new Error("Invalid option "+k+" given to object"+obj.toString());
+          }
+          obj[k] = options[k];
         }
-        obj[k] = options[k];
       }
+    } else {
+      lang.mixin(obj, options);
     }
     return obj;
   },
