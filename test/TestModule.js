@@ -63,9 +63,22 @@ return declare(null, { //--noindent--
    */
   runChildTests: function() {
     var _this = this;
+    var tests = this.childTests;
+    var options = this.getChildrenOptions();
 
-    return this.childTests.reduce(function(prev, child) {
-      return when(prev, lang.hitch(_this, _this.runChildTest, child));
+    if (typeof tests === "object") {
+      tests = [];
+      for (var key in this.childTests) {
+        var test = this.childTests[key];
+        if (!test.name) {
+          test.name = key;
+        }
+        tests.push(test);
+      }
+    }
+
+    return tests.reduce(function(prev, child) {
+      return when(prev, lang.hitch(_this, _this.runChildTest, child, options));
     }, undefined);
   },
 
@@ -78,13 +91,15 @@ return declare(null, { //--noindent--
    * - object: the 'class' property tells the test class, and object is
    *           given as constructor options.
    *
+   * @param {mixed} childTest
+   * @param {!Object} options
    * @return {mixed} return value of child test, or promise is it's async
    */
-  runChildTest: function(childTest) {
-    var options, _this = this;
+  runChildTest: function(childTest, options) {
+    var _this = this;
 
     if (typeof childTest === "object") {
-      options = lang.mixin({}, childTest);
+      options = lang.mixin({}, childTest, options);
       childTest = options["class"];
       delete options["class"];
     }
@@ -100,6 +115,9 @@ return declare(null, { //--noindent--
     }
   },
 
+  getChildrenOptions: function() {
+    return {};
+  },
 
 
   /**

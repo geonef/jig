@@ -6,7 +6,7 @@ define([
   "dojo/_base/declare",
 ], function(module, declare) {
 
-    "use strict";
+  "use strict";
 
 return declare(null, { //--noindent--
 
@@ -15,19 +15,19 @@ return declare(null, { //--noindent--
   },
 
   isTrue: function(bool, message) {
-    return this.passOrFail(bool, "assert isTrue", message);
+    return this.passOrFail(bool, ["assert isTrue", message]);
   },
 
   isFalse: function(bool, message) {
-    return this.passOrFail(!bool, "assert isFalse", message);
+    return this.passOrFail(!bool, ["assert isFalse", message]);
   },
 
   equal: function(obj1, obj2, message) {
-    return this.passOrFail(obj1 == obj2, "assert equal", message);
+    return this.passOrFail(obj1 == obj2, ["assert equal", message]);
   },
 
   notEqual: function(obj1, obj2, message) {
-    return this.passOrFail(obj1 != obj2, "assert notEqual", message);
+    return this.passOrFail(obj1 != obj2, ["assert notEqual", message]);
   },
 
   strictEqual: function(obj1, obj2, message) {
@@ -40,14 +40,14 @@ return declare(null, { //--noindent--
                            ["assert notStrictEqual", message, obj1, obj2]);
   },
 
-  instanceOf: function(_class, obj, message) {
-    return this.passOrFail(
-      obj instanceof _class,
-      "assert instanceOf "+
-        (_class.name ||
-         _class.prototype.declaredClass ||
-         _class.prototype.CLASS_NAME), message);
-  },
+    instanceOf: function(_class, obj, message) {
+      return this.passOrFail(
+        obj instanceof _class,
+        ["assert instanceOf "+
+         (_class.name ||
+          _class.prototype.declaredClass ||
+          _class.prototype.CLASS_NAME), message, obj]);
+    },
 
   match: function(re, value, message) {
     var match = re.test(value);
@@ -56,6 +56,9 @@ return declare(null, { //--noindent--
 
   passOrFail: function(state, messages) {
     if (messages  instanceof Array) {
+      if (state) {
+        messages = messages.slice(0, 2);
+      }
       messages = messages.join(" ~ ");
     }
     if (state) {

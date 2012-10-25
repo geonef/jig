@@ -173,11 +173,13 @@ return declare('geonef.jig.data.model.Abstract', null,
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }
-        var _Class = value.getClass(type.targetModel);
-        var store = model.getStore(_Class);
-        return async.
-          whenAll(ar.filter(function(obj) { return !!obj.id; })
-                  .map(function(obj, idx) { return store.getLazyObject(obj); }))
+        return value.getModule(type.targetModel)
+          .then(function(_Class) {
+            var store = model.getStore(_Class);
+            return async.
+              whenAll(ar.filter(function(obj) { return !!obj.id; })
+                      .map(function(obj, idx) { return store.getLazyObject(obj); }));
+          })
           .then(function(objList) {
             if (type.chained) {
               array.chainArray(objList);
@@ -199,8 +201,10 @@ return declare('geonef.jig.data.model.Abstract', null,
     refOne: {
       fromServer: function(obj, type) {
         if (obj === null) { return null; }
-        var _Class = value.getClass(type.targetModel);
-        return model.getStore(_Class).getLazyObject(obj);
+        return value.getModule(type.targetModel)
+          .then(function(_Class) {
+            return model.getStore(_Class).getLazyObject(obj);
+          });
       },
       toServer: function(obj, type) {
         // do not cascade: foreign objects have to be saved independantly
@@ -214,11 +218,13 @@ return declare('geonef.jig.data.model.Abstract', null,
     embedMany: {
       fromServer: function(ar, type) { // same as 'refMany'
         if (!(ar instanceof Array)) { return []; }
-        var _Class = value.getClass(type.targetModel);
-        var store = model.getStore(_Class);
-        return async.
-          whenAll(ar.filter(function(obj) { return !!obj.id; })
-                  .map(function(obj) { return store.getLazyObject(obj); }))
+        return value.getModule(type.targetModel)
+          .then(function(_Class) {
+            var store = model.getStore(_Class);
+            return async.
+              whenAll(ar.filter(function(obj) { return !!obj.id; })
+                      .map(function(obj) { return store.getLazyObject(obj); }));
+          })
           .then(function(objList) {
             if (type.chained) {
               array.chainArray(objList);

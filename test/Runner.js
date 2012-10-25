@@ -6,18 +6,26 @@
  *      - save all successes/failures and dump them at end (within structure)
  */
 define([
+  "module",
   "require",
   "dojo/_base/declare",
   "dojo/_base/lang",
   "dojo/when",
   "dojo/Deferred",
-], function(require, declare, lang, when, Deferred) {
+], function(module, require, declare, lang, when, Deferred) {
 
   "use strict";
 
 return declare('geonef/jig/test/Runner', null, { //--noindent--
 
+  clearConsole: true,
+
   timeout: 15000,
+
+
+  constructor: function(options) {
+    lang.mixin(this, options);
+  },
 
   /**
    * Run the tests
@@ -25,16 +33,20 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
    * @param {Function} func     Test function to execute
    */
   run: function(func) {
+    if (this.clearConsole) {
+      console.clear();
+    }
     console.log('STARTING TEST PROCEDURE', this);
     this.currentGroup = null;
-    var finish = lang.hitch(this, this.finish);
     var ret;
     if (func.prototype && func.prototype.execute) {
       ret = this.classGroup(func);
     } else {
       ret = this.group(func, "[root]");
     }
-    when(ret, finish);
+    return when(ret,
+                lang.hitch(this, this.finish, true),
+                lang.hitch(this, this.finish, false));
   },
 
   /**
@@ -46,13 +58,18 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
    * @param {Function} func
    * @return {mixed}
    */
-  group: function(name, func) {
+  group: function(nameOrScope, func) {
     var args = lang._toArray(arguments, 2);
+    var name = nameOrScope;
 
-    if (typeof name === "function") {
+    if (typeof nameOrScope === "object") {
+      name = func.name || func.nom;
+      func = lang.hitch(nameOrScope, func);
+
+    } else if (typeof nameOrScope === "function") {
       args.unshift(func);
-      func = name;
-      name = name.name || "[anonymous]";
+      func = nameOrScope;
+      name = nameOrScope.name || "[anonymous]";
     }
     args.unshift(this);
 
@@ -120,11 +137,11 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
    * This is useful in promise-style code :
    *    myAsyncFunc().then(test.hitchGroup(function myDeferredGroup() { ... }))
    *
-   * @param {string?} name (optional)
+   * @param {string?} nameOrScope (optional)
    * @param {Function} func
    * @return {mixed}
    */
-  hitchGroup: function(name, func) {
+  hitchGroup: function(nameOrScope, func) {
     return lang.hitch.apply(
       null, lang._toArray(arguments, 0, [this, this.group]));
   },
@@ -143,8 +160,9 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
    * @return {mixed} Return value from class' execute()
    */
   classGroup: function(TestClass, options) {
-    var name = TestClass.prototype.declaredClass  ||
-      options.name || "<class>";
+    var name = (options && options.name) ||
+      TestClass.prototype.name ||
+      TestClass.prototype.declaredClass  || "<class>";
     var _this = this;
     return this.group(name, function() {
       var obj = new TestClass(_this, options);
@@ -235,11 +253,12 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
   //   }
   // },
 
-  finish: function() {
+  finish: function(isSuccess, lastRet) {
     this.finished = true;
     console.log('TEST PROCEDURE IS FINISHED!', this);
     this.processGroups();
     this.showReport();
+    return isSuccess;
     // var msg = this.test.totalFailureCount > 0 ?
     //   "The test procedure has failed :(\n"
     //   + this.test.totalFailureCount+" errors have been reported, "
@@ -295,7 +314,9 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
     };
 
     dumpGroup(this.rootGroup, true);
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

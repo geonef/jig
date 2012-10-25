@@ -25,6 +25,7 @@ return declare(TestModule, { //--noindent--
    */
   execute: function() {
     this.assert.isTrue(true, "dumb assert (in execute)");
+    return 42;
   },
 
   /**
