@@ -2,7 +2,7 @@ define([
          "dojo/_base/declare",
          "dojo/_base/lang",
          "dojo/Deferred",
-         "dojo/DeferredList",
+         "dojo/promise/all",
          "dojo/topic",
          "dojo/when",
 
@@ -11,7 +11,7 @@ define([
          "../../util/string",
          "../../util/array",
          "../../util/promise"
-], function(declare, lang, Deferred, DeferredList, topic, when,
+], function(declare, lang, Deferred, allPromises, topic, when,
             model, value, string, array, async) {
 
 
@@ -437,13 +437,7 @@ return declare('geonef.jig.data.model.Abstract', null,
       }
     }
 
-    return (new DeferredList(deferreds)).then(
-      function(arg) {
-        console.log("Abstract::fromServerValue, arg is:", arg,
-                    "(would be good to have an array of 'client values')",
-                    "server values are:", props);
-        return _this;
-      });
+    return allPromises(deferreds);
   },
 
   /**
