@@ -90,11 +90,11 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
 
     var _this = this;
     function finish() {
-      _this.rlog("-- END --");
+      _this.rlog("END");
       _this.currentGroup = group.parentGroup;
     }
 
-    _this.rlog("-- BEGIN --");
+    _this.rlog("BEGIN");
     var ret;
     try {
       ret = func.apply(null, args);
@@ -227,7 +227,8 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
   },
 
   rlog: function(message) {
-    console.log("  "+this.getAbsName()+" | ", message);
+    console.warn(this.getAbsName()+" | "+ message);
+    // console.log("  "+this.getAbsName()+" | ", message);
   },
 
 
