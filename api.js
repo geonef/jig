@@ -217,8 +217,8 @@ var self = { //--noindent--
       require("geonef/jig/workspace").autoAnchorWidget(dump);
       dump.startup();
     } else {
-      window.global.alert("Une erreur est survenue durant la requête serveur.\n"
-                          + "Elle a été enregistrée en vue d'une correction prochaine.");
+      window.global.alert("Une erreur est survenue durant la requête serveur.\n" +
+                          "Elle a été enregistrée en vue d'une correction prochaine.");
     }
     // console.log('started exception', this, arguments);
   },
