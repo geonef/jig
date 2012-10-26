@@ -2,7 +2,7 @@ define([
          "dojo/_base/declare",
          "dojo/_base/lang",
          "dojo/Deferred",
-         "dojo/DeferredList",
+         "dojo/promise/all",
          "dojo/topic",
          "dojo/when",
 
@@ -11,7 +11,7 @@ define([
          "../../util/string",
          "../../util/array",
          "../../util/promise"
-], function(declare, lang, Deferred, DeferredList, topic, when,
+], function(declare, lang, Deferred, allPromises, topic, when,
             model, value, string, array, async) {
 
 
@@ -173,11 +173,13 @@ return declare('geonef.jig.data.model.Abstract', null,
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }
-        var _Class = value.getClass(type.targetModel);
-        var store = model.getStore(_Class);
-        return async.
-          whenAll(ar.filter(function(obj) { return !!obj.id; })
-                  .map(function(obj, idx) { return store.getLazyObject(obj); }))
+        return value.getModule(type.targetModel)
+          .then(function(_Class) {
+            var store = model.getStore(_Class);
+            return async.
+              whenAll(ar.filter(function(obj) { return !!obj.id; })
+                      .map(function(obj, idx) { return store.getLazyObject(obj); }));
+          })
           .then(function(objList) {
             if (type.chained) {
               array.chainArray(objList);
@@ -199,8 +201,10 @@ return declare('geonef.jig.data.model.Abstract', null,
     refOne: {
       fromServer: function(obj, type) {
         if (obj === null) { return null; }
-        var _Class = value.getClass(type.targetModel);
-        return model.getStore(_Class).getLazyObject(obj);
+        return value.getModule(type.targetModel)
+          .then(function(_Class) {
+            return model.getStore(_Class).getLazyObject(obj);
+          });
       },
       toServer: function(obj, type) {
         // do not cascade: foreign objects have to be saved independantly
@@ -214,11 +218,13 @@ return declare('geonef.jig.data.model.Abstract', null,
     embedMany: {
       fromServer: function(ar, type) { // same as 'refMany'
         if (!(ar instanceof Array)) { return []; }
-        var _Class = value.getClass(type.targetModel);
-        var store = model.getStore(_Class);
-        return async.
-          whenAll(ar.filter(function(obj) { return !!obj.id; })
-                  .map(function(obj) { return store.getLazyObject(obj); }))
+        return value.getModule(type.targetModel)
+          .then(function(_Class) {
+            var store = model.getStore(_Class);
+            return async.
+              whenAll(ar.filter(function(obj) { return !!obj.id; })
+                      .map(function(obj) { return store.getLazyObject(obj); }));
+          })
           .then(function(objList) {
             if (type.chained) {
               array.chainArray(objList);
@@ -428,7 +434,7 @@ return declare('geonef.jig.data.model.Abstract', null,
         var typeSpec = typeN;
         type = this.types[typeSpec.type];
 
-        deferred.push(when(
+        deferreds.push(when(
           type.fromServer.call(this, props[p], typeSpec)).then(function(value) {
             _this[p] = value;
             _this.setOriginalValue(p, props[p]);
@@ -437,13 +443,7 @@ return declare('geonef.jig.data.model.Abstract', null,
       }
     }
 
-    return (new DeferredList(deferreds)).then(
-      function(arg) {
-        console.log("Abstract::fromServerValue, arg is:", arg,
-                    "(would be good to have an array of 'client values')",
-                    "server values are:", props);
-        return _this;
-      });
+    return allPromises(deferreds);
   },
 
   /**

@@ -1,12 +1,37 @@
 define([
+  "require",
+  "dojo/_base/declare",
   "dojo/_base/lang",
   "dojo/_base/window",
   "dojo/_base/xhr",
   "dojo/json",
-  "dojo",
+  "dojo/topic",
+  "./util/value",
+
   "dojox/uuid/generateRandomUuid",
   "dojo/Deferred",
-], function(lang, window, request, json, dojo, generateRandomUuid, Deferred) {
+], function(require, declare, lang, window, request, json, topic, value,
+            generateRandomUuid, Deferred) {
+
+var ApiError = declare(Error, {
+
+  constructor: function(errorData) {
+    this.name = "ApiError";
+    this.type = errorData.name;
+    this.message = "Request " + errorData.message;
+    this.error = errorData;
+  },
+
+  // toString: function() {
+  //   return 'ApiError "'+this.name+'": '+this.message;
+  // },
+  // toLocaleString: function() {
+  //   return 'ApiError "'+this.name+'": '+this.message;
+  // },
+
+
+  declaredClass: "ApiError"
+});
 
 var self = { //--noindent--
   //
@@ -118,20 +143,26 @@ var self = { //--noindent--
      * Process single-request response
      */
     var _processResponseReq =
-      function(req, response, xhr) {
+      function(req, response) {
         var options = req.__options || {};
+        if (response.error) {
+          req.promise.reject(new ApiError(response.error));
+          return;
+        }
 	if (response.status === 'error') {
-	  console.error('error status from API', response);
+          console.error('error status from API', response);
 	}
 	if (response.status === 'exception' && !options.ignoreException) {
-	  console.error('Server API exception', response);
+          console.error('Server API exception', response);
           self.processException(req, response);
+          req.promise.reject({ name: "unknown:exception" });
+          return;
 	}
-        try {
-          req.promise.resolve(response);
-        } catch (error) {
-          console.error("exception in API request callback", req, response);
-        }
+        // try {
+        req.promise.resolve(response);
+        // } catch (error) {
+        // console.error("exception in API request callback", req, response);
+        // }
       };
 
     /**
@@ -139,27 +170,27 @@ var self = { //--noindent--
      */
     var _processResponse = function(text, xhr) {
       //console.log('JiG API Response', xhr, text);
-      dojo.publish('noticeTopic', [ false ]);
-      var ret = 0, data = null;
+      // topic.publish('noticeTopic', false);
+      var data = null;
       try {
-	data = json.parse(text);
+        data = json.parse(text);
       }
       catch (e) {
-	console.error('JiG  API response: invalid JSON string: ',
-	              text, xhr);
-	if (typeof req.transportError == 'function') {
-	  req.transportError(text, xhr);
+        console.error('JiG  API response: invalid JSON string: ',
+                      text, xhr);
+	if (typeof req.transportError === 'function') {
+          req.transportError(text, xhr);
 	}
 	return;
       }
       // check if one req or many in the structure
-      if (typeof req.callback == 'function') {
-	_processResponseReq(req, data, xhr);
+      if (typeof req.callback === 'function') {
+        _processResponseReq(req, data, xhr);
       } else {
-	for (var i in data) {
+        for (var i in data) {
           if (data.hasOwnProperty(i)) {
-	    _processResponseReq(req[i], data[i], xhr);
-	  }
+            _processResponseReq(req[i], data[i], xhr);
+          }
         }
       }
       self.delayPing();
@@ -169,7 +200,7 @@ var self = { //--noindent--
      * Process XHR (transport) failure
      */
     var _processError = function(error, xhr) {
-      dojo.publish('noticeTopic', [ false ]);
+      // topic.publish('noticeTopic', false);
       console.error('JiG API Error: ', error, xhr);
     };
 
@@ -197,7 +228,7 @@ var self = { //--noindent--
         }
       }
     }
-    dojo.publish('noticeTopic', [ true ]);
+    // topic.publish('noticeTopic', true);
     return request.post(lang.mixin(
       {
         url: options.url || self.url,
@@ -210,12 +241,14 @@ var self = { //--noindent--
 
   processException: function(req, response) {
     if (self.showExceptions) {
-      var Class = require("geonef/jig/util").getClass('geonef.jig.tool.dev.ExceptionDump');
-      var dump = new Class(
-        lang.mixin({ context: { request: req, response: response }},
-                   response.exception));
-      require("geonef/jig/workspace").autoAnchorWidget(dump);
-      dump.startup();
+      value.getModule('geonef/jig/tool/dev/ExceptionDump').then(
+        function(_Class) {
+          var dump = new _Class(
+            lang.mixin({ context: { request: req, response: response }},
+                       response.exception));
+          require("geonef/jig/workspace").autoAnchorWidget(dump);
+          dump.startup();
+        });
     } else {
       window.global.alert("Une erreur est survenue durant la requête serveur.\n" +
                           "Elle a été enregistrée en vue d'une correction prochaine.");

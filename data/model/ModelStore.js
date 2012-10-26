@@ -147,7 +147,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
     if (obj && (!options || (!options.fields && !options.fieldGroup))) {
       return async.newResolved(obj);
     } else {
-      var self = this;
+      var _this = this;
       return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
                              options ? options.api : {})
           .then(function(resp) {
@@ -159,9 +159,9 @@ return declare('geonef.jig.data.model.ModelStore', null,
                     return async.bindArg(obj, obj.fromServerValue(resp.object));
                   } else if (resp.object) {
                     // index the object first before setting values
-                    // obj = self.index[id] = self.makeObject(resp.object);
+                    // obj = _this.index[id] = _this.makeObject(resp.object);
                     // obj.fromServerValue(resp.object);
-                    return self.getLazyObject(resp.object);
+                    return _this.getLazyObject(resp.object);
                   } else {
                     return null;
                   }
@@ -177,14 +177,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * @return {dojo/Deferred}
    */
   getByRef: function(ref, options) {
-    try {
-      var id = this.refToId(ref);
-    } catch (error) {
-      var d = new Deferred();
-      d.errback(error);
-      return d;
-    }
-    return this.get(id, options);
+    return this.get(this.refToId(ref), options);
   },
 
   /**
@@ -198,7 +191,6 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * @return {dojo.Deferred} callback whose arg is the property value
    */
   fetchProps: function(object, props) {
-    var self = this;
     return this.apiRequest({
       action: 'get', id: object.getId(),
       fields: props
@@ -228,15 +220,18 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * @return {dojo.Deferred} callback whose arg is the model object
    */
   put: function(object, options) {
-    var self = this;
-    var deferred = this.apiRequest(lang.mixin({
-      action: 'put',
-      object: object.toServerValue(),
-    }, options), {}, object)
+    var _this = this;
+    var deferred = object.toServerValue()
+      .then(function(value) {
+        return _this.apiRequest(lang.mixin({
+          action: 'put',
+          object: value,
+        }, options), {}, object);
+      })
       .then(function(resp) {
         // console.log('in PUT then', arguments, object);
         if (!object.id) {
-          self.index[resp.object.id] = object;
+          _this.index[resp.object.id] = object;
         }
         return async.bindArg(object, object.fromServerValue(resp.object));
       })
@@ -244,6 +239,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
         object.publish(['afterPut']);
         return object;
       });
+
     object.publish(['put']);
     return deferred;
   },
@@ -284,14 +280,14 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * @return {dojo.Deferred} callback whose arg is the model object
    */
   duplicate: function(object, options) {
-    var self = this;
+    var _this = this;
     var obj;
     return this.apiRequest(lang.mixin({
       action: 'duplicate', id: object.id,
     }, options), null, object)
       .then(function(resp) {
-        obj = self.makeObject(resp.object);
-        self.index[resp.object.id] = obj;
+        obj = _this.makeObject(resp.object);
+        _this.index[resp.object.id] = obj;
         return async.bindArg(obj, obj.fromServerValue(resp.object));
       })
       .then(function() { return obj.afterDuplicate(); })
@@ -401,7 +397,9 @@ return declare('geonef.jig.data.model.ModelStore', null,
         console.error("happing on store", this, ", model ", this.Model.prototype);
         throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
       }
-      Model = value.getClass(_class);
+      throw new Error("ModelStore::makeObject[discr="+discr+"]: "+
+                      "needs a fix for async loading of discr class module");
+      //Model = value.getClass(_class);
     }
     var object = new Model({ store: this });
     return object;
