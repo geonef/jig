@@ -10,9 +10,10 @@ define([
          "../../util/value",
          "../../util/string",
          "../../util/array",
-         "../../util/promise"
+         "../../util/object",
+         "../../util/promise",
 ], function(declare, lang, Deferred, allPromises, topic, when,
-            model, value, string, array, async) {
+            model, value, string, array, object, async) {
 
 
       var goThrough = function(value) { return value; };
@@ -424,26 +425,47 @@ return declare('geonef.jig.data.model.Abstract', null,
    * @param {Object} props
    * @return {dojo/Deferred}
    */
-  fromServerValue: function(props) {
-    var p, typeN, type, value, serverValue;
-    var deferreds = [], _this = this;
+  fromServerValue: function(props, options) {
+    options = object.mixOptions({
+      setOriginal: true,
+    }, options);
 
-    for (p in props) if (props.hasOwnProperty(p)) {
+    var p, typeN, type, value, serverValue, _this = this;
+
+    return allPromises(object.map(props, function(prop, p) {
       typeN = this.properties[p];
-      if (typeN) {
-        var typeSpec = typeN;
-        type = this.types[typeSpec.type];
+      if (!typeN) {
+        return null;
+        }
 
-        deferreds.push(when(
-          type.fromServer.call(this, props[p], typeSpec)).then(function(value) {
-            _this[p] = value;
-            _this.setOriginalValue(p, props[p]);
-            return value;
-          }));
-      }
-    }
+      var typeSpec = typeN;
+      type = this.types[typeSpec.type];
 
-    return allPromises(deferreds);
+      return when(type.fromServer.call(this, prop, typeSpec))
+        .then(function(value) {
+          _this[p] = value;
+          if (options.setOriginal) {
+            _this.setOriginalValue(p, prop);
+          }
+          return value;
+        });
+    }, this));
+
+    // for (p in props) if (props.hasOwnProperty(p)) {
+    //   typeN = this.properties[p];
+    //   if (typeN) {
+    //     var typeSpec = typeN;
+    //     type = this.types[typeSpec.type];
+
+    //     deferreds.push(when(
+    //       type.fromServer.call(this, props[p], typeSpec)).then(function(value) {
+    //         _this[p] = value;
+    //         _this.setOriginalValue(p, props[p]);
+    //         return value;
+    //       }));
+    //   }
+    // }
+    // return allPromises(deferreds);
   },
 
   /**
@@ -464,10 +486,15 @@ return declare('geonef.jig.data.model.Abstract', null,
    * @return {dojo/Deferred}
    */
   toServerValue: function(options) {
+    options = object.mixOptions({
+      setOriginal: false,
+      allValues: false
+    }, options);
+
     var p, type, _value;
     var props = this.properties;
     var struct = {};
-    options = lang.mixin({ setOriginal: false, allValues: false }, options);
+
     if (this.id) {
       struct.id = this.id;
     }
