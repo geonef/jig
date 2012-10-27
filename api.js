@@ -18,7 +18,7 @@ var ApiError = declare(Error, {
   constructor: function(errorData) {
     this.name = "ApiError";
     this.type = errorData.name;
-    this.message = "Request " + errorData.message;
+    this.message = errorData.message || "(no details)";
     this.error = errorData;
   },
 
@@ -150,12 +150,14 @@ var self = { //--noindent--
           return;
         }
 	if (response.status === 'error') {
+          // this type of response is deprecated
           console.error('error status from API', response);
 	}
 	if (response.status === 'exception' && !options.ignoreException) {
+          // this type of response is deprecated
           console.error('Server API exception', response);
           self.processException(req, response);
-          req.promise.reject({ name: "unknown:exception" });
+          req.promise.reject(new ApiError({name: "unknown:exception"}));
           return;
 	}
         // try {
@@ -171,23 +173,28 @@ var self = { //--noindent--
     var _processResponse = function(text, xhr) {
       //console.log('JiG API Response', xhr, text);
       // topic.publish('noticeTopic', false);
-      var data = null;
+      var i, data = null;
       try {
         data = json.parse(text);
       }
       catch (e) {
         console.error('JiG  API response: invalid JSON string: ',
                       text, xhr);
-	if (typeof req.transportError === 'function') {
-          req.transportError(text, xhr);
-	}
+        for (i in req) {
+          if (req.hasOwnProperty(i)) {
+            req[i].promise.reject(new ApiError({
+              name: "transport:failed",
+              message: "invalid JSON"
+            }));
+          }
+        }
 	return;
       }
       // check if one req or many in the structure
       if (typeof req.callback === 'function') {
         _processResponseReq(req, data, xhr);
       } else {
-        for (var i in data) {
+        for (i in data) {
           if (data.hasOwnProperty(i)) {
             _processResponseReq(req[i], data[i], xhr);
           }
@@ -200,8 +207,12 @@ var self = { //--noindent--
      * Process XHR (transport) failure
      */
     var _processError = function(error, xhr) {
-      // topic.publish('noticeTopic', false);
-      console.error('JiG API Error: ', error, xhr);
+      console.error('JiG API transport Error: ', error, xhr);
+      for (var i in req) {
+        if (req.hasOwnProperty(i)) {
+          req[i].promise.reject(new ApiError({name: "transport:failed"}));
+        }
+      }
     };
 
     /**
@@ -228,15 +239,13 @@ var self = { //--noindent--
         }
       }
     }
-    // topic.publish('noticeTopic', true);
-    return request.post(lang.mixin(
-      {
-        url: options.url || self.url,
-        handleAs: 'text', //'json',
-        postData: json.stringify(requestToSend),
-        load: _processResponse,
-        error: _processError
-      }, options), true);
+
+    return request.post(lang.mixin({
+      url: options.url || self.url,
+      handleAs: 'text',
+      postData: json.stringify(requestToSend),
+    }, options), true)
+    .then(_processResponse, _processError);
   },
 
   processException: function(req, response) {
