@@ -8,18 +8,19 @@
  * providing a simpler implementation & DOM structure.
  */
 define([
-  "module",
+  "module", "require",
   "dojo/_base/declare",
   "dijit/_Widget",
 
   "../util/widget",
   "dojo/_base/event",
+  "dojo/_base/window",
   "dojo/topic",
   "dojo/dom-construct",
   "dojo/dom-class",
-  "dojo/_base/array"
-], function(module, declare, _Widget,
-            widget, event, topic, construct, domClass, array) {
+  "dojo/_base/array",
+], function(module, require, declare, _Widget,
+            widget, event, window, topic, construct, domClass, array) {
 
 return declare(_Widget, { //--noindent--
 

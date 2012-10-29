@@ -25,9 +25,8 @@ var self = { //--noindent--
         // we want inherited properties
         for (var k in options) {
           if (obj[k] === undefined) {
-            console.error("mixOptions(): invalid option", k, "given to object", obj,
+            console.warn("mixOptions(): invalid option", k, "given to object", obj,
                           "(options object is:", options, ")");
-            throw new Error("Invalid option "+k+" given to object"+obj.toString());
           }
           obj[k] = options[k];
         }
