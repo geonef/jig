@@ -1,17 +1,3 @@
-define([
-  "dojo/_base/declare",
-  "dijit/_Widget",
-
-  "../util/widget",
-  "dojo/_base/event",
-  "dojo/topic",
-  "dojo/dom-construct",
-  "dojo/dom-class",
-  "dojo/_base/array"
-], function(declare, _Widget,
-            widget, event, topic, construct, domClass, array) {
-
-
 /**
  * Simple link, same kind as <a> but very flexible.
  *
@@ -21,8 +7,21 @@ define([
  * At some point, it should replace geonef.jig.button.Action as well,
  * providing a simpler implementation & DOM structure.
  */
-return declare(_Widget,
-{ //--indent after--
+define([
+  "module",
+  "dojo/_base/declare",
+  "dijit/_Widget",
+
+  "../util/widget",
+  "dojo/_base/event",
+  "dojo/topic",
+  "dojo/dom-construct",
+  "dojo/dom-class",
+  "dojo/_base/array"
+], function(module, declare, _Widget,
+            widget, event, topic, construct, domClass, array) {
+
+return declare(_Widget, { //--noindent--
 
   /**
    * Link label, HTML supported (innerHTML)
@@ -175,7 +174,9 @@ return declare(_Widget,
 
   _setEmphasizeAttr: function(state) {
     (state ? domClass.add : domClass.remove)(this.domNode, 'emphasize');
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

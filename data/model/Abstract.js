@@ -1,68 +1,66 @@
-define([
-         "dojo/_base/declare",
-         "dojo/_base/lang",
-         "dojo/Deferred",
-         "dojo/promise/all",
-         "dojo/topic",
-         "dojo/when",
-
-         "../model",
-         "../../util/value",
-         "../../util/string",
-         "../../util/array",
-         "../../util/object",
-         "../../util/promise",
-], function(declare, lang, Deferred, allPromises, topic, when,
-            model, value, string, array, object, async) {
-
-
-      var goThrough = function(value) { return value; };
-      var scalar = {
-        fromServer: goThrough,
-        toServer: goThrough,
-      };
-
-
 /**
  * Base class for all models
  *
  * This is the right class to inherit from when building now models.
  *
  * Everything is defined here:
- *      - event channel & publishing
- *      - discriminator property
- *      - the 'id' property which is common to all models
- *      - the supported property types
- *      - data fetching & hydration
  *
- * For a good example of implementing a model, see geonef.jig.data.model.User.
+ *   - event channel & publishing
+ *   - discriminator property
+ *   - the 'id' property which is common to all models
+ *   - the supported property types
+ *   - data fetching & hydration
  *
- * @module
- * @see geonef/jig/data/model
+ * For a good example of implementing a model, see geonef/jig/data/model/User.
+ *
  * @see geonef/jig/data/model/ModelStore
  */
-return declare('geonef.jig.data.model.Abstract', null,
-{
+define([
+  "module",
+  "dojo/_base/declare",
+  "dojo/_base/lang",
+  "dojo/Deferred",
+  "dojo/promise/all",
+  "dojo/topic",
+  "dojo/when",
+
+  "../model",
+  "../../util/value",
+  "../../util/string",
+  "../../util/array",
+  "../../util/object",
+  "../../util/promise",
+], function(module, declare, lang, Deferred, allPromises, topic, when,
+            model, value, string, array, object, async) {
+
+
+  var goThrough = function(value) { return value; };
+  var scalar = {
+    fromServer: goThrough,
+    toServer: goThrough,
+  };
+
+return declare(null, { //--noindent--
   /**
    * Store class to use for this model.
    *
    * If null, default ModelStore is used.
    *
-   * @type {Function} Store
+   * @type {Function}
    */
   Store: null,
 
   /**
    * Channel on which to publish notifications
    *
-   * @type {string} channel
+   * @type {string}
    */
   channel: 'model/default',
 
   /**
    * Database identifier
    *
-   * @type {string} id
+   * @type {string}
    */
   id: undefined,
 
@@ -71,7 +69,7 @@ return declare('geonef.jig.data.model.Abstract', null,
    *
    * See the 'discriminatorMap' property for explanations of this feature.
    *
-   * @type {string} discriminatorProperty
+   * @type {string}
    */
   discriminatorProperty: undefined,
 
@@ -91,7 +89,7 @@ return declare('geonef.jig.data.model.Abstract', null,
    * This is inspired after Doctrine's discriminatorMap feature.
    * See: http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/inheritance-mapping.html
    *
-   * @type {Object.<string,string>} discriminatorMap
+   * @type {Object.<string,string>}
    */
   discriminatorMap: {},
 
@@ -112,15 +110,15 @@ return declare('geonef.jig.data.model.Abstract', null,
    *                            (used to compute changed properties in 'toServerValue')
    *
    * In order to be compliant, the object must go through
-   * geonef.jig.data.model.normalizeProperties.
+   * geonef/jig/data/model.normalizeProperties.
    *
    * To inherit from a parent Model's properties, use the following syntax:
-   *    properties: geonef.jig.data.model.normalizeProperties(
-   *      dojo.delegate(geonef.jig.data.model.Abstract.prototype.properties, {
+   *    properties: geonef/jig/data/model.normalizeProperties(
+   *      dojo.delegate(geonef/jig/data/model/Abstract.prototype.properties, {
    *        myOwnProperty: { type: 'string' },
    *    }))
    *
-   * @type {Object.<string,Object>} properties
+   * @type {Object.<string,Object>}
    */
   properties: model.normalizeProperties({
     id: { type: 'string', readOnly: true },
@@ -140,7 +138,7 @@ return declare('geonef.jig.data.model.Abstract', null,
    *                            defaults to no conversion
    *                            CANNOT return a PROMISE.
    *
-   * @type {Object.<string,Object>} types
+   * @type {Object.<string,Object>}
    */
   types: {
     string: scalar,
@@ -236,8 +234,8 @@ return declare('geonef.jig.data.model.Abstract', null,
       toServer: function(ar, type) {
         if (!(ar instanceof Array)) { return undefined; }
         return ar.map(function(item) {
-                        return item.toServerValue({ allValues: true });
-                      });
+          return item.toServerValue({ allValues: true });
+        });
       }
     }
   },
@@ -245,14 +243,14 @@ return declare('geonef.jig.data.model.Abstract', null,
   /**
    * Store to which this obj belong to
    *
-   * @type {geonef.jig.data.model.ModelStore} store
+   * @type {geonef/jig/data/model/ModelStore} store
    */
   store: null,
 
   /**
    * Hash of original values
    *
-   * @type {Object} originalValues
+   * @type {Object}
    */
   originalValues: {},
 
@@ -272,7 +270,9 @@ return declare('geonef.jig.data.model.Abstract', null,
     }
   },
 
-  /** hook */
+  /**
+   * @protected
+   */
   init: function() {},
 
   /** hook */
@@ -287,13 +287,13 @@ return declare('geonef.jig.data.model.Abstract', null,
    *
    * For any "foo" property, the method "getFoo" is checked for existence.
    * That 'getFoo' method can return :
-   *    - a dojo.Deferred object, which is then returned as is by "get"
+   *    - a dojo/Deferred object, which is then returned as is by "get"
    *    - an immediate value, which is passed as param to next deferred's callback
    *    - undefined, which is the same as if "getFoo" were not defined:
    *                 a request is made through the store to fetch the missing property.
    *
    * @param {string} property   Name of property
-   * @return {dojo.Deferred}
+   * @return {dojo/Deferred}
    */
   get: function(property) {
     var set, value;
@@ -320,8 +320,8 @@ return declare('geonef.jig.data.model.Abstract', null,
       return async.newResolved(this[property]);
     }
     return this.store
-        .fetchProps(this, [property])
-        .then(function(obj) { return obj[property]; });
+      .fetchProps(this, [property])
+      .then(function(obj) { return obj[property]; });
   },
 
   /**
@@ -331,13 +331,13 @@ return declare('geonef.jig.data.model.Abstract', null,
    * have been fetched. The callback arg is 'this'.
    *
    * @param {Array.<string>} propArray array of property names
-   * @return {dojo.Deferred}
+   * @return {dojo/Deferred}
    */
   requestProps: function(propArray) {
     var self = this;
-    return async.whenAll(
-      propArray.map(function(prop) { return self.get(prop); }))
-    .then(function(props) { return self; });
+      return async.whenAll(
+        propArray.map(function(prop) { return self.get(prop); }))
+      .then(function(props) { return self; });
   },
 
   /**
@@ -436,7 +436,7 @@ return declare('geonef.jig.data.model.Abstract', null,
       typeN = this.properties[p];
       if (!typeN) {
         return null;
-        }
+      }
 
       var typeSpec = typeN;
       type = this.types[typeSpec.type];
@@ -595,7 +595,7 @@ return declare('geonef.jig.data.model.Abstract', null,
    *
    * @public
    * @param {string} propName name of embedMany property
-   * @param {geonef.jig.data.model.Abstract} subObject
+   * @param {geonef/jig/data/model/Abstract} subObject
    */
   deleteSub: function(propName, subObject) {
     var store = subObject.store;
@@ -604,13 +604,13 @@ return declare('geonef.jig.data.model.Abstract', null,
       { action: 'deleteSub', id: this.id,
         propName: propName, subId: subObject.id })
       .then(function(resp) {
-              var idx = _this[propName].indexOf(subObject);
-              if (idx !== -1) {
-                _this[propName].splice(idx, 1);
-              }
-              _this.publish(['afterPut']);
+        var idx = _this[propName].indexOf(subObject);
+        if (idx !== -1) {
+            _this[propName].splice(idx, 1);
+        }
+        _this.publish(['afterPut']);
 
-            });
+      });
 
     _this.publish(['put']);
 
@@ -653,6 +653,7 @@ return declare('geonef.jig.data.model.Abstract', null,
   afterDelete: function() {
   },
 
+  declaredClass: module.id
 
 });
 

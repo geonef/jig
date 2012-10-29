@@ -1,8 +1,3 @@
-define([
-         "./model/ModelStore",
-         "dojo/_base/lang"
-], function(ModelStore, lang) {
-
 /**
  * Global model manager (singleton)
  *
@@ -24,18 +19,23 @@ define([
  * (query, find, save, delete). See 'geonef.jig.data.model.ModelStore' for
  * documentation on this.
  *
- * @module
- * @see geonef.jig.data.model.ModelStore
- * @see geonef.jig.data.model.Abstract
+ * @see geonef/jig/data/model/ModelStore
+ * @see geonef/jig/data/model/Abstract
  */
-var self = {
+define([
+  "./model/ModelStore",
+  "dojo/_base/lang"
+], function(ModelStore, lang) {
+
+var self = { //--noindent--
+
   _stores: {},
 
   /**
    * Get store for corresponding model
    *
-   * @param {geonef.jig.data.model.Abstract} Model
-   * @return {geonef.jig.data.model.ModelStore}
+   * @param {geonef/jig/data/model/Abstract} Model
+   * @return {geonef/jig/data/model/ModelStore}
    */
   getStore: function(Model) {
     var stores = self._stores;
@@ -90,13 +90,13 @@ var self = {
   // }
 };
 
-// compat:
-if (!geonef.jig) { geonef.jig = {}; }
-if (!geonef.jig.data) { geonef.jig.data = {}; }
-if (!geonef.jig.data.model) { geonef.jig.data.model = {}; }
-lang.mixin(geonef.jig.data.model, self); // compat
+  // compat:
+  if (!geonef.jig) { geonef.jig = {}; }
+  if (!geonef.jig.data) { geonef.jig.data = {}; }
+  if (!geonef.jig.data.model) { geonef.jig.data.model = {}; }
+  lang.mixin(geonef.jig.data.model, self); // compat
 
-return self;
+  return self;
 
 });
 

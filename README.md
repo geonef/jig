@@ -16,7 +16,7 @@ It is divided into different parts:
 Requirements
 ------------
 
-This library requires the Dojo Toolkit Framework, version 1.7 or above.
+This library requires the Dojo Toolkit Framework, version 1.8 or above.
 
 
 License

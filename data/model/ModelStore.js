@@ -1,27 +1,14 @@
-define([
-         "dojo/_base/declare",
-         "../../api",
-         "dojo/_base/lang",
-         "dojo/topic",
-         "../../util/promise",
-         "../../util/value",
-], function(declare, api, lang, topic, async, value) {
-
 /**
- * @module
- * @class ModelStore
- * @summary Model store - equivalent for Doctrine repositories
+ * Model store - equivalent for Doctrine repositories
  *
- * @description
- *   It is a singleton, meant to be retrieved from geonef.jig.data.model
- *   Needs to be instanciated with the 'Model' property.
+ * It is a singleton, meant to be retrieved from geonef.jig.data.model
+ * Needs to be instanciated with the 'Model' property.
  *
  * @example
- *   var customStore = geonef.jig.data.model.getStore(geonef.jig.data.model.Custom);
+ *   var customStore = geonef/jig/data/model/getStore(CustomModel);
  *
- *   // customStore instanceof geonef.jig.data.mode.ModelStore (true)
- *   // if geonef.jig.data.model.Custom.prototype.Store is defined, it is used
- *   //  instead of geonef.jig.data.mode.ModelStore
+ *   // customStore instanceof ModelStore (true)
+ *   // if CustomModel.prototype.Store is defined, it is used instead of ModelStore
  *
  *   customStore
  *     .get("4e6ffdffa93ac81c5f000000")
@@ -41,20 +28,27 @@ define([
  *                 console.log("saved", obj);
  *             });
  *
- *   // For an example of a custom store, see geonef.jig.data.model.UserStore.
+ *   // For an example of a custom store, see geonef/jig/data/model/UserStore.
  *
- * @see module:geonef/jig/data/model
- * @see module:geonef/jig/data/model/Abstract
- * @see module:geonef/jig/data/model/UserStore
+ * @see geonef/jig/data/model/Abstract
+ * @see geonef/jig/data/model/UserStore
  */
-return declare('geonef.jig.data.model.ModelStore', null,
-/**
- * @lends ModelStore.prototype
- */
-{
+define([
+  "module",
+  "dojo/_base/declare",
+  "../../api",
+  "dojo/_base/lang",
+  "dojo/topic",
+  "../../util/promise",
+  "../../util/value",
+], function(module, declare, api, lang, topic, async, value) {
+
+return declare(null, { //--noindent--
 
   /**
-   * @type {geonef.jig.data.model.Abstract}
+   * Model of the store
+   *
+   * @type {geonef/jig/data/model/Abstract}
    */
   Model: null,
 
@@ -64,28 +58,28 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * Example: "geonefZig/data/file".
    * If not specified, will be taken from Model's prototype
    *
-   * @type {string} apiModule
+   * @type {string}
    */
   apiModule: null,
 
   /**
    * Local volatile cache
    *
-   * @type {Object} index
+   * @type {Object}
    */
   index: null,
 
   /**
    * Channel for notification publishing
    *
-   * @type {string} channel
+   * @type {string}
    */
   channel: null,
 
   /**
    * Additional parameters for server API requests
    *
-   * @type {Object} apiParams
+   * @type {Object}
    */
   apiParams: {},
 
@@ -136,7 +130,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * Available options:
    *    - fields:       array of properties to fetch
    *    - fieldGroup:   name of property group to fetch (exclusive of 'fields')
-   *    - api:          object of API transport options (see geonef.jig.api)
+   *    - api:          object of API transport options (see geonef/jig/api)
    *
    * @param {string} id Identifier
    * @param {!Object} options Hash of options
@@ -150,22 +144,22 @@ return declare('geonef.jig.data.model.ModelStore', null,
       var _this = this;
       return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
                              options ? options.api : {})
-          .then(function(resp) {
-                  if (resp.error) {
-                    throw new Error(resp.error);
-                    // return geonef.jig.util.newErrorDeferred(resp.error);
-                  }
-                  if (obj) {
-                    return async.bindArg(obj, obj.fromServerValue(resp.object));
-                  } else if (resp.object) {
-                    // index the object first before setting values
-                    // obj = _this.index[id] = _this.makeObject(resp.object);
-                    // obj.fromServerValue(resp.object);
-                    return _this.getLazyObject(resp.object);
-                  } else {
-                    return null;
-                  }
-                });
+        .then(function(resp) {
+          if (resp.error) {
+            throw new Error(resp.error);
+            // return geonef.jig.util.newErrorDeferred(resp.error);
+          }
+          if (obj) {
+            return async.bindArg(obj, obj.fromServerValue(resp.object));
+          } else if (resp.object) {
+            // index the object first before setting values
+            // obj = _this.index[id] = _this.makeObject(resp.object);
+            // obj.fromServerValue(resp.object);
+            return _this.getLazyObject(resp.object);
+          } else {
+            return null;
+          }
+        });
     }
   },
 
@@ -186,9 +180,9 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * This is used for "lazy" loading some properties.
    * The property value is automatically updated within the object.
    *
-   * @param {geonef.jig.data.model.Abstract} object the model object
+   * @param {geonef/jig/data/model/Abstract} object the model object
    * @param {Array.<string>} props Array of property names to fetch
-   * @return {dojo.Deferred} callback whose arg is the property value
+   * @return {dojo/Deferred} callback whose arg is the property value
    */
   fetchProps: function(object, props) {
     return this.apiRequest({
@@ -215,9 +209,9 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * A ("put") message is sent on the channel right after the
    * request has been made (but before it is executed).
    *
-   * @param {geonef.jig.data.model.Abstract} object the model object
-   * @param {Object} options API options (see geonef.jig.api)
-   * @return {dojo.Deferred} callback whose arg is the model object
+   * @param {geonef/jig/data/model/Abstract} object the model object
+   * @param {Object} options API options (see geonef/jig/api)
+   * @return {dojo/Deferred} callback whose arg is the model object
    */
   put: function(object, options) {
     var _this = this;
@@ -225,8 +219,8 @@ return declare('geonef.jig.data.model.ModelStore', null,
       .then(function(value) {
         return _this.apiRequest(lang.mixin({
           action: 'put',
-          object: value,
-        }, options), {}, object);
+            object: value,
+          }, options), {}, object);
       })
       .then(function(resp) {
         // console.log('in PUT then', arguments, object);
@@ -251,9 +245,9 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * request has been made (but before it is executed).
    * That message is preceded with ("put") caused by the inner 'put'.
    *
-   * @param {geonef.jig.data.model.Abstract} object the model object
-   * @param {Object} options API options (see geonef.jig.api)
-   * @return {dojo.Deferred} callback whose arg is the model object
+   * @param {geonef/jig/data/model/Abstract} object the model object
+   * @param {Object} options API options (see geonef/jig/api)
+   * @return {dojo/Deferred} callback whose arg is the model object
    */
   add: function(object, options) {
     // console.log('add', this, arguments);
@@ -275,9 +269,9 @@ return declare('geonef.jig.data.model.ModelStore', null,
   /**
    * Duplicate the given object (through server API)
    *
-   * @param {module:geonef/jig/data/model/Abstract} object the model object
-   * @param {Object} options API options (see geonef.jig.api)
-   * @return {dojo.Deferred} callback whose arg is the model object
+   * @param {geonef/jig/data/model/Abstract} object the model object
+   * @param {Object} options API options (see geonef/jig/api)
+   * @return {dojo/Deferred} callback whose arg is the model object
    */
   duplicate: function(object, options) {
     var _this = this;
@@ -317,8 +311,8 @@ return declare('geonef.jig.data.model.ModelStore', null,
    *    - page
    *
    * @param {Object.<string,Object>} filter Query filters
-   * @param {Array.<string>} options API options (see geonef.jig.api)
-   * @return {dojo.Deferred} callback whose arg is the model object
+   * @param {Array.<string>} options API options (see geonef/jig/api)
+   * @return {dojo/Deferred} callback whose arg is the model object
    */
   query: function(filter, options) {
     // console.log('filter', this, arguments);
@@ -345,33 +339,33 @@ return declare('geonef.jig.data.model.ModelStore', null,
     }
 
     return this.apiRequest(lang.mixin(
-        { action: 'query', filters: filter, /* options: options || {}*/ }, options))
+      { action: 'query', filters: filter, /* options: options || {}*/ }, options))
       .then(lang.hitch(this,
-        function(resp) {
-          if (!resp.results) {
-            console.error("model query ("+this.apiModule+"): no result array", resp);
-            return null;
-          }
-          return async.whenAll(resp.results.map(
-            function(data) {
-              return this.getLazyObject(lang.mixin({}, implied, data));
-            }, this));
-        }));
+                       function(resp) {
+                         if (!resp.results) {
+                           console.error("model query ("+this.apiModule+"): no result array", resp);
+                           return null;
+                         }
+                         return async.whenAll(resp.results.map(
+                           function(data) {
+                             return this.getLazyObject(lang.mixin({}, implied, data));
+                           }, this));
+                       }));
   },
 
   /**
    * Remove from DB (unpersist) an object
    *
-   * @param {geonef.jig.data.model.Abstract} object the model object
-   * @return {dojo.Deferred} callback with no arg
+   * @param {geonef/jig/data/model/Abstract} object the model object
+   * @return {dojo/Deferred} callback with no arg
    */
   remove: function(obj) {
     var deferred = this.apiRequest(
-        { action: 'delete',
-          id: obj.getId(),
-        }, null, obj).then(function(resp) {
-                  obj.afterDelete();
-                });
+      { action: 'delete',
+        id: obj.getId(),
+      }, null, obj).then(function(resp) {
+        obj.afterDelete();
+      });
     obj.publish(['delete']);
     return deferred;
   },
@@ -385,7 +379,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
    *
    * @param {Object} dataForDiscriminator data object whose discriminator
    *                     field (if any) is used to determine the class to instanciate
-   * @return {geonef.jig.data.model.Abstract} the new object
+   * @return {geonef/jig/data/model/Abstract} the new object
    */
   makeObject: function(dataForDiscriminator) {
     var Model = this.Model;
@@ -409,7 +403,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
    * Create a fresh new object (to be used from app code)
    *
    * @param {string} discriminatorValue dicriminator value to use (if needed for that model)
-   * @return {geonef.jig.data.model.Abstract}
+   * @return {geonef/jig/data/model/Abstract}
    */
   createObject: function(discriminatorValue) {
     var data = {};
@@ -462,7 +456,7 @@ return declare('geonef.jig.data.model.ModelStore', null,
     var module = object ? object.apiModule : this.apiModule;
     return api.request(
       lang.mixin({ module: module, scope: this },
-                   this.apiParams, params),
+                 this.apiParams, params),
       options);
   },
 
@@ -495,14 +489,14 @@ return declare('geonef.jig.data.model.ModelStore', null,
   idToRef: function(id) {
     return 'x' +
       btoa(String.fromCharCode.apply(
-             null,
-             id//.replace(/\r|\n/g, "")
-               .replace(/([\da-fA-F]{2}) ?/g, "0x$1 ")
-               .replace(/ +$/, "")
-               .split(" "))
+        null,
+        id//.replace(/\r|\n/g, "")
+          .replace(/([\da-fA-F]{2}) ?/g, "0x$1 ")
+          .replace(/ +$/, "")
+          .split(" "))
           ).replace(new RegExp("\/", 'g'), "_")
-           .replace(/\+/g, "-")
-           .replace(/A+$/, "");
+      .replace(/\+/g, "-")
+      .replace(/A+$/, "");
   },
 
   /**
@@ -526,7 +520,9 @@ return declare('geonef.jig.data.model.ModelStore', null,
       c += ((code.length === 1) ? '0' : '') + code;
     }
     return c;
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

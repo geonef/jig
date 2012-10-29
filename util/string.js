@@ -1,11 +1,10 @@
+/**
+ * Utility functions dealing with strings
+ */
 define([
          "dojo/_base/lang",
 ], function(lang) {
 
-
-/**
- * Utility functions dealing with strings
- */
 return { //--noindent--
 
   /**
@@ -80,5 +79,3 @@ return { //--noindent--
 };
 
 });
-
-

@@ -1,105 +1,113 @@
+/**
+ * Basic list, made from distinct row widgets
+ *
+ * To be declared by concrete class at runtime:
+ *
+ *   - listNode : node where placeRow() will insert row widgets
+ *   - emptyNode : if defined, will be visible/hidden depending on empty results or not
+ *
+ */
 define([
-         "dojo/_base/declare",
-         "../../_Widget",
-         "../pane/CreatorMixin",
+  "dojo/_base/declare",
+  "../../_Widget",
+  "../pane/CreatorMixin",
 
-         "dojo/_base/lang",
-         "dojo/dom-style",
-         "dojo/dom-class",
-         "dojo/string",
+  "dojo/_base/lang",
+  "dojo/dom-style",
+  "dojo/dom-class",
+  "dojo/string",
 
-         "../../Deferred",
-         "../model",
-         "./BasicRow",
-         "dojo",
+  "../../Deferred",
+  "../model",
+  "./BasicRow",
+  "dojo",
 
-         "../../util",
-         "../../button/Action",
-         "../../button/Link"
+  "../../util",
+  "../../button/Action",
+  "../../button/Link"
 ], function(declare, _Widget, CreatorMixin,
             lang, style, domClass, string,
             Deferred, model, BasicRow, dojo,
             util, Action, Link) {
 
-/**
- * Basic list, made from distinct row widgets
- *
- * To be declared by concrete class at runtime:
- *      - listNode : node where placeRow() will insert row widgets
- *      - emptyNode : if defined, will be visible/hidden depending on empty results or not
- *
- */
-return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
-{
+  return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
+{ //--noindent--
 
   /**
    * Object to get the data from (see 'objectProp'), or null for independant query
    *
-   * @type {!geonef.jig.data.model.Abstract} object
+   * @type {!geonef/jig/data/model/Abstract}
    */
   object: null,
 
   /**
    * Name of object property to get the data from, or null for independant query
    *
-   * @type {string} objectProp
+   * @type {string}
    */
   objectProperty: null,
 
   /**
    * Whether list is read-only
    *
-   * @type {boolean} readOnly
+   * @type {boolean}
    */
   readOnly: false,
 
   /**
-   * @type {Object} query
+   * @type {Object}
    */
   filter: {},
 
   /**
-   * @type {!string} fieldGroup
+   * @type {!string}
    */
   fieldGroup: null,
 
   /**
    * Sorting order, like { name: 'propertyName', desc: false }
    *
-   * @type {Object} sorting
+   * @type {Object}
    */
   sorting: null,
 
   /**
-   * @type {integer} max number of shown results
+   * Max number of shown results
+   *
+   * @type {integer}
    */
   limit: null,
 
   /**
-   * @type {string} msgMore
+   * @type {string}
    */
   msgMore: "+ ${count} objets",
 
   /**
-   * @type {geonef.jig.data.model.Abstract}
+   * @type {geonef/jig/data/model/Abstract}
    */
   Model: null,
 
   /**
-   * @type {dijit._Widget} Widget class to use for rows
+   * Widget class to use for rows
+   * @type {dijit/_Widget}
    */
   RowClass: BasicRow,
 
   /**
-   * @type {Object} Options given to row widgets
+   * Options given to row widgets
+   * @type {Object}
    */
   rowOptions: {},
 
   /**
-   * @type {geonef.jig.Deferred}
+   * @type {dojo/Deferred}
    */
   whenReady: null,
 
+  /**
+   * @override
+   */
   'class': _Widget.prototype['class'] + ' jigDataList',
 
 
@@ -136,14 +144,14 @@ return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
 
   refresh: function() {
     this.fetchResults()
-        .then(lang.hitch(this, this.populateList))
-;//        .then(util.busy(this.domNode));
+      .then(lang.hitch(this, this.populateList))
+    ;//        .then(util.busy(this.domNode));
   },
 
   /**
    * Make a query or fetch 'many' prop, depending on this.objectProperty
    *
-   * @return {dojo.Deferred}
+   * @return {dojo/Deferred}
    */
   fetchResults: function() {
     if (this.objectProperty) {
@@ -168,7 +176,7 @@ return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
   },
 
   /**
-   * @param {Array.<geonef.jig.data.model.Abstract>} results
+   * @param {Array.<geonef/jig/data/model/Abstract>} results
    */
   populateList: function(results) {
     // console.log('populateList', this, arguments);
@@ -188,25 +196,25 @@ return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
       results = results.slice(0, this.limit);
     }
     this.rows = results.map(this.makeRow, this)
-                       .map(this.placeRow, this);
+      .map(this.placeRow, this);
     if (over) {
       var moreLink = new Link(
-                       { label: string.substitute(this.msgMore, { count: over }),
-                         title: "Cliquer pour afficher",
-                         onExecute: lang.hitch(this, this.openList) });
+        { label: string.substitute(this.msgMore, { count: over }),
+          title: "Cliquer pour afficher",
+          onExecute: lang.hitch(this, this.openList) });
       domClass.add(moreLink.domNode, 'jigDataRow more');
       this.placeRow(moreLink, null);
       this.rows.push(moreLink);
     }
     var _this = this;
     util.whenAll(this.rows
-        .filter(function(row) { return !!row.whenDataReady; })
-        .map(function(row) { return row.whenDataReady; }))
+                 .filter(function(row) { return !!row.whenDataReady; })
+                 .map(function(row) { return row.whenDataReady; }))
       .then(function() {
-              if (_this._destroyed) { return; }
-              _this.domNode.scrollTop = scrollTop;
-              _this.afterPopulateList(scrollTop);
-            });
+        if (_this._destroyed) { return; }
+        _this.domNode.scrollTop = scrollTop;
+        _this.afterPopulateList(scrollTop);
+      });
   },
 
   /**
@@ -246,7 +254,7 @@ return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
   /**
    * Model channel subscribe handler
    *
-   * @param {geonef.jig.data.model.Abstract} obj model object
+   * @param {geonef/jig/data/model/Abstract} obj model object
    * @param {string} type                        type of event
    */
   onChannel: function(obj, type) {
@@ -258,7 +266,7 @@ return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
   /**
    * Channel subscribe handler for this.object
    *
-   * @param {geonef.jig.data.model.Abstract} obj model object
+   * @param {geonef/jig/data/model/Abstract} obj model object
    * @param {string} type                        type of event
    */
   onObjectChannel: function(obj, type) {

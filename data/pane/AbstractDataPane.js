@@ -1,15 +1,3 @@
-define([
-         "dojo/_base/declare",
-         "../../_Widget",
-         "../../util/promise",
-         "../../util/widget",
-         "../../button/Action",
-         "dojo/_base/lang",
-         "dojo/_base/window",
-         "dojo/dom-class",
-], function(declare, _Widget, promise, widget, Action, lang, window, domClass) {
-
-
 /**
  * Base class for all data panes
  *
@@ -23,8 +11,21 @@ define([
  *
  * This handles init/load/events around this.object.
  */
-return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
-{
+define([
+  "module",
+  "dojo/_base/declare",
+  "../../_Widget",
+  "../../util/promise",
+  "../../util/widget",
+  "../../button/Action",
+  "dojo/_base/lang",
+  "dojo/_base/window",
+  "dojo/dom-class",
+], function(module, declare, _Widget, promise, widget, Action, lang, window, domClass) {
+
+
+return declare(_Widget, { //--noindent--
+
   /**
    * @override
    */
@@ -33,19 +34,21 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
   /**
    * The model object - mandatory, must be given at construction
    *
-   * @type {geonef.jig.data.model.Abstract}
+   * @type {geonef/jig/data/model/Abstract}
    */
   object: null,
 
   /**
    * Properties to fetch
    *
-   * @type {Array.<string>} autoRequestProps
+   * @type {Array.<string>}
    */
   autoRequestProps: [],
 
   /**
    * Is data ready? Set to true once 'autoRequestProps' have been loaded.
+   *
+   * @type {boolean}
    */
   isDataReady: false,
 
@@ -74,12 +77,12 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
 
     var node = this.dom(
       [dijit.form.DropDownButton, {
-         _attach: 'optionsDD',
-         'class': 'nolabel gear',
-         dropDown: new dijit.TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
-         onMouseEnter: lang.hitch(null, domClass.add, this.domNode, 'overDD'),
-         onMouseLeave: lang.hitch(null, domClass.remove, this.domNode, 'overDD'),
-       }]);
+        _attach: 'optionsDD',
+        'class': 'nolabel gear',
+        dropDown: new dijit.TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
+        onMouseEnter: lang.hitch(null, domClass.add, this.domNode, 'overDD'),
+        onMouseLeave: lang.hitch(null, domClass.remove, this.domNode, 'overDD'),
+      }]);
 
     this.dom(
       ['div', { _insert: this.optionsDD.dropDown.containerNode },
@@ -92,10 +95,10 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
   makeOptions: function() {
     return [
       [Action, {
-         label: "Supprimer",
-         iconClass: 'remove',
-         onExecute: promise.deferHitch(this, this.deleteObject),
-       }],
+        label: "Supprimer",
+        iconClass: 'remove',
+        onExecute: promise.deferHitch(this, this.deleteObject),
+      }],
     ];
   },
 
@@ -127,7 +130,7 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
   /**
    * Model channel subscriber (registered in 'postCreate')
    *
-   * @param {geonef.jig.data.model.Abstract} object
+   * @param {geonef/jig/data/model/Abstract} object
    * @param {string} type
    */
   onModelChannel: function(object, type) {
@@ -171,6 +174,8 @@ return declare('geonef.jig.data.pane.AbstractDataPane', _Widget,
     this.object.store.remove(this.object)
       .then(widget.busy(this.domNode));
   },
+
+  declaredClass: module.id
 
 });
 

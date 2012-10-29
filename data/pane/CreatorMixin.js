@@ -1,13 +1,13 @@
 define([
-         "dojo/_base/declare",
-         "dojo/_base/lang",
-         "geonef/jig/util",
-         "dojo/Deferred",
-], function(declare, lang, util, Deferred) {
+  "module",
+  "dojo/_base/declare",
+  "dojo/_base/lang",
+  "geonef/jig/util",
+  "dojo/Deferred",
+], function(module, declare, lang, util, Deferred) {
 
 
-return declare('geonef.jig.data.pane.CreatorMixin', null,
-{
+return declare(null, { //--noindent--
 
   /**
    * Default options to pass to server at createNew(). (ie. 'factory')
@@ -24,7 +24,7 @@ return declare('geonef.jig.data.pane.CreatorMixin', null,
   defaultProperties: null,
 
   /**
-   * @type {geonef.jig.data.model.ModelStore} store
+   * @type {geonef.jig.data.model.ModelStore}
    */
   store: null,
 
@@ -44,16 +44,16 @@ return declare('geonef.jig.data.pane.CreatorMixin', null,
     var _this = this;
     options = lang.mixin({}, this.createOptions, options);
     return this.createNewObject(props, discriminatorKey)
-        .then(function(obj) {
-                if (!obj) { return false; }
-                return _this.store.add(obj, options)
-                    .then(function(obj) {
-                            if (obj && obj.getId()) {
-                              _this.afterCreateNew(obj);
-                            }
-                          });
-              })
-;//        .then(util.busy(this.domNode));
+      .then(function(obj) {
+        if (!obj) { return false; }
+        return _this.store.add(obj, options)
+          .then(function(obj) {
+            if (obj && obj.getId()) {
+              _this.afterCreateNew(obj);
+            }
+          });
+      })
+    ;//        .then(util.busy(this.domNode));
   },
 
   /**
@@ -69,7 +69,7 @@ return declare('geonef.jig.data.pane.CreatorMixin', null,
     var object = this.store.createObject(discriminatorKey);
     object.setProps(this.defaultProperties);
     object.setProps(props);
-    // var object = new (this.Model)(props);
+      // var object = new (this.Model)(props);
     deferred.resolve(object); // unset object by default
     return deferred;
   },
@@ -79,7 +79,9 @@ return declare('geonef.jig.data.pane.CreatorMixin', null,
    *
    * @param {geonef.jig.data.model.Abstract} object object which has been created
    */
-  afterCreateNew: function(object) {}
+  afterCreateNew: function(object) {},
+
+  declaredClass: module.id
 
 });
 

@@ -1,21 +1,22 @@
 define([
-         "dojo/_base/declare",
-         "../../_Widget",
-         "dojo/_base/lang",
-         "dojo/_base/event",
-         "dojo/dom-class",
-         "../../util/widget",
-         "../../util/promise",
-         "../../util/string"
+  "dojo/_base/declare",
+  "../../_Widget",
+  "dojo/_base/lang",
+  "dojo/_base/event",
+  "dojo/dom-class",
+  "../../util/widget",
+  "../../util/promise",
+  "../../util/string"
 ], function(declare, _Widget, lang, event, domClass, widget, promise, string) {
 
-return declare(_Widget,
-{
+return declare(_Widget, { //--noindent--
 
   enableClickEvent: true,
 
   /**
-   * @type {geonef.jig.data.model.Abstract} represented model object
+   * Represented model object
+   *
+   * @type {geonef.jig.data.model.Abstract}
    */
   object: null,
 
