@@ -4,12 +4,13 @@ define([
 
   "../util/widget",
   "dojo/_base/event",
+  "dojo/_base/array",
+  "dojo/_base/window",
   "dojo/topic",
   "dojo/dom-construct",
   "dojo/dom-class",
-  "dojo/_base/array"
 ], function(declare, _Widget,
-            widget, event, topic, construct, domClass, array) {
+            widget, event, array, window, topic, construct, domClass) {
 
 
 /**
