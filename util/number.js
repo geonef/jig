@@ -4,8 +4,7 @@
 define([
   "dojo/_base/lang",
   "dojo/number",
-  "../util",
-], function(lang, dojoNumber, util) {
+], function(lang, dojoNumber) {
 
 var self = { //--noindent--
 

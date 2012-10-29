@@ -17,18 +17,16 @@ define([
   "dojo/dom-class",
   "dojo/string",
 
-  "../../Deferred",
+  "dojo/Deferred", // was using geonef/jig/Deferred
   "../model",
   "./BasicRow",
-  "dojo",
 
-  "../../util",
+  "../../util/promise",
   "../../button/Action",
-  "../../button/Link"
 ], function(declare, _Widget, CreatorMixin,
             lang, style, domClass, string,
-            Deferred, model, BasicRow, dojo,
-            util, Action, Link) {
+            Deferred, model, BasicRow,
+            async, Action) {
 
   return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
 { //--noindent--
@@ -198,7 +196,7 @@ define([
     this.rows = results.map(this.makeRow, this)
       .map(this.placeRow, this);
     if (over) {
-      var moreLink = new Link(
+      var moreLink = new Action(
         { label: string.substitute(this.msgMore, { count: over }),
           title: "Cliquer pour afficher",
           onExecute: lang.hitch(this, this.openList) });
@@ -207,7 +205,7 @@ define([
       this.rows.push(moreLink);
     }
     var _this = this;
-    util.whenAll(this.rows
+    async.whenAll(this.rows
                  .filter(function(row) { return !!row.whenDataReady; })
                  .map(function(row) { return row.whenDataReady; }))
       .then(function() {

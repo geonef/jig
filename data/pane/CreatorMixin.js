@@ -2,9 +2,8 @@ define([
   "module",
   "dojo/_base/declare",
   "dojo/_base/lang",
-  "geonef/jig/util",
   "dojo/Deferred",
-], function(module, declare, lang, util, Deferred) {
+], function(module, declare, lang, Deferred) {
 
 
 return declare(null, { //--noindent--
@@ -52,8 +51,7 @@ return declare(null, { //--noindent--
               _this.afterCreateNew(obj);
             }
           });
-      })
-    ;//        .then(util.busy(this.domNode));
+      });
   },
 
   /**

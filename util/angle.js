@@ -3,9 +3,7 @@
  *
  * Utiliser les vecteurs à la place, pas ce machin qui embrouille...
  */
-define([
-         "../util",
-], function(util) {
+define([], function() {
 
 var self = {
 

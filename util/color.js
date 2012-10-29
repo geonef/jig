@@ -1,9 +1,7 @@
 /**
  * Utility functions dealing with colors
  */
-define([
-  "../util",
-], function(lang, util) {
+define([], function(lang) {
 
 var self = { //--noindent--
 
