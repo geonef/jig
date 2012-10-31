@@ -102,8 +102,8 @@ var self = { //--noindent--
       if (/^on/.test(event)) {
         event = event.substr(2);
       } else {
-        console.warn("widget.connectOnce: obj has an addEventListener method "
-                     + "but event does not start with 'on'", event, obj);
+        console.warn("widget.connectOnce: obj has an addEventListener method " +
+                     "but event does not start with 'on'", event, obj);
       }
       _h = on(obj, event, callback);
     } else {

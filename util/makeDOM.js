@@ -58,8 +58,10 @@
  */
 define([
   "dojo/_base/lang",
-  "dojo/dom-construct"
-], function(lang, construct) {
+  "dojo/dom-construct",
+  "dijit/_Widget",
+  "dijit/Tooltip",
+], function(lang, construct, _Widget, Tooltip) {
 
   function addChildTo(node, childNode) {
 
@@ -80,7 +82,7 @@ define([
     }
 
     return _do(childNode);
-  };
+  }
 
   function addChildren(children, node, obj) {
 
@@ -106,7 +108,7 @@ define([
           node.innerHTML = child;
         }
     }
-  };
+  }
 
   function self(args, obj) {
     // console.log('makeDOM args=', args);
@@ -130,7 +132,7 @@ define([
     if (args[0] instanceof Array || args[0].then) {
       return args.map(function(def) { return self(def, obj); });
     }
-    if (args[0] instanceof dijit._Widget) {
+    if (args[0] instanceof _Widget) {
       return args[0].domNode;
     }
     if (args[0] instanceof HTMLElement) {
@@ -218,7 +220,7 @@ define([
       magic._insert.appendChild(node);
     }
     if (magic._tooltip) {
-      var tooltip = dijit.Tooltip(
+      var tooltip = new Tooltip(
         lang.mixin({ label: magic._tooltip, connectId: [node],
                      showDelay: 200, position: ['below', 'above']
                    }, magic._tooltipOptions));
@@ -230,7 +232,7 @@ define([
     // console.log('makeDOM', args, 'returning', node);
 
     return node;
-  };
+  }
 
   return self;
 });

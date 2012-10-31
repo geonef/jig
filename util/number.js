@@ -56,26 +56,24 @@ var self = { //--noindent--
    * @nosideeffects
    */
   formatDims: function(dims, options) {
-    var o = lang.mixin(
-      {
-        units: [ '', 'K', 'M' ],
-        mult: 1000,
-        preci: 0.1,
-        joinSep: ' ; ',
-        decimalSep: ','
-      }, options);
-    var
-    max = Math.max.apply(null, dims)
-    , logNp = function(x, base) {
-      return Math.max(0, Math.floor(Math.log(x) / Math.log(base))); }
-    , exp = Math.min(logNp(max, o.mult), o.units.length - 1)
-    , getU = function(x) { return x < 0 ? x :
+    var o = lang.mixin({
+      units: [ '', 'K', 'M' ],
+      mult: 1000,
+      preci: 0.1,
+      joinSep: ' ; ',
+      decimalSep: ','
+    }, options);
+    var max = Math.max.apply(null, dims),
+      logNp = function(x, base) {
+        return Math.max(0, Math.floor(Math.log(x) / Math.log(base))); },
+      exp = Math.min(logNp(max, o.mult), o.units.length - 1),
+      getU = function(x) { return x < 0 ? x :
                            Math.round((x / Math.pow(o.mult, exp)) *
-                                      (1 / o.preci)) / (1 / o.preci); }
-    , commaR = function(s) { return (''+s).replace(/\./, o.decimalSep); }
-    , ndims = dims.map(function(n) { return commaR(getU(n)); })
-    , str = ndims.join(o.joinSep) + ' ' + o.units[exp]
-    ;
+                                      (1 / o.preci)) / (1 / o.preci); },
+      commaR = function(s) { return (''+s).replace(/\./, o.decimalSep); },
+      ndims = dims.map(function(n) { return commaR(getU(n)); }),
+      str = ndims.join(o.joinSep) + ' ' + o.units[exp];
+
     return str;
   },
 

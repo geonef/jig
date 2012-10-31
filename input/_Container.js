@@ -1,13 +1,13 @@
 define([
-         "dojo/_base/declare",
-         "dijit/form/_FormMixin",
-         "dojo/_base/lang",
-         "dojo/aspect",
-         "../util/widget",
+  "dojo/_base/declare",
+  "dijit/form/_FormMixin",
+  "dojo/_base/lang",
+  "dojo/aspect",
+  "../util/widget",
 ], function(declare, _FormMixin, lang, aspect, widget) {
 
 
-return declare('geonef.jig.input._Container', [_FormMixin], {
+return declare([_FormMixin], { //--noindent--
 
   /**
    * Name of this item: required if we are a child of another _Container
@@ -94,7 +94,7 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
           self._childrenCnts[widget.id] = _oldChildrenCnts[widget.id];
           delete _oldChildrenCnts[widget.id];
         } else {
-	  self._childrenCnts[widget.id] =
+          self._childrenCnts[widget.id] =
             aspect.after(widget, "onChange", lang.hitch(self, self.onChange, widget));
         }
       });
@@ -138,7 +138,7 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
       if (this.booleanUnion) {
         descendants.forEach(
           function(w) { w.set('value',
-                               value.indexOf(w.get('name')) !== -1); });
+                              value.indexOf(w.get('name')) !== -1); });
       } else if (this.arrayContainer) {
         for (i = 0; i < value.length && i < descendants.length; i++) {
           descendants[i].set('value', value[i]);
@@ -174,9 +174,9 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
     } else if (this.arrayContainer) {
       value = descendants.map(function(w) { return w.get('value'); });
       /*value = [];
-      for (var i = 0; i < descendants.length; i++) {
+        for (var i = 0; i < descendants.length; i++) {
         value.push(descendants[i].attr('value'));
-      }*/
+        }*/
     } else {
       var self = this;
       value = lang.mixin({}, this.internalValues);

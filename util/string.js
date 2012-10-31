@@ -15,8 +15,7 @@ return { //--noindent--
    * @nosideeffects
    */
   lcFirst: function(str) {
-    return str.substr(0, 1).toLowerCase()
-      + str.substr(1);
+    return str.substr(0, 1).toLowerCase() + str.substr(1);
   },
 
   /**
@@ -27,8 +26,7 @@ return { //--noindent--
    * @nosideeffects
    */
   ucFirst: function(str) {
-    return str.substr(0, 1).toUpperCase()
-      + str.substr(1);
+    return str.substr(0, 1).toUpperCase() + str.substr(1);
   },
 
   /**

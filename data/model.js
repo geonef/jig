@@ -90,12 +90,6 @@ var self = { //--noindent--
   // }
 };
 
-  // compat:
-  if (!geonef.jig) { geonef.jig = {}; }
-  if (!geonef.jig.data) { geonef.jig.data = {}; }
-  if (!geonef.jig.data.model) { geonef.jig.data.model = {}; }
-  lang.mixin(geonef.jig.data.model, self); // compat
-
   return self;
 
 });
