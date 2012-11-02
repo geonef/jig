@@ -21,7 +21,7 @@ define([
   "../model",
   "./BasicRow",
 
-  "../../util/promise",
+  "../../util/async",
   "../../button/Action",
 ], function(declare, _Widget, CreatorMixin,
             lang, style, domClass, string,

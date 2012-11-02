@@ -39,7 +39,7 @@ define([
   "../../api",
   "dojo/_base/lang",
   "dojo/topic",
-  "../../util/promise",
+  "../../util/async",
   "../../util/value",
 ], function(module, declare, api, lang, topic, async, value) {
 

@@ -6,8 +6,8 @@ define([
          "dojo/dom-style",
          "dojo/_base/fx",
          "dojo/fx/easing",
-         "../util/promise"
-], function(require, declare, _Widget, dojo, style, fx, easing, promise) {
+         "../util/async"
+], function(require, declare, _Widget, dojo, style, fx, easing, async) {
 
 
 /**
@@ -82,7 +82,7 @@ return declare(_Widget,
       this.placeAnim.stop(false);
       delete this.placeAnim;
     }
-    var destroy = promise.deferHitch(this, this.destroy);
+    var destroy = async.deferHitch(this, this.destroy);
     fx.animateProperty(
       {
         node: this.domNode, duration: this.fxDisappearDuration,

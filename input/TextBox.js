@@ -6,9 +6,9 @@ define([
          "dojo/query",
          "dojo/keys",
          "../util/widget",
-         "../util/promise"
+         "../util/async"
 ], function(declare, ValidationTextBox,
-            event, query, keys, widget, promise) {
+            event, query, keys, widget, async) {
 
 
 /**
@@ -46,7 +46,7 @@ return declare('geonef.jig.input.TextBox', ValidationTextBox,
         // the timeout is need to avoid bad key event being
         // sent, for example caught by the DD button controlling
         // a TooltipDialog containing this textbox.
-        promise.whenTimeout(10)
+        async.whenTimeout(10)
           .then(function() {
                   widget.bubbleSubmit(domNode, e);
                 });

@@ -5,9 +5,9 @@ define([
   "dojo/_base/event",
   "dojo/dom-class",
   "../../util/widget",
-  "../../util/promise",
+  "../../util/async",
   "../../util/string"
-], function(declare, _Widget, lang, event, domClass, widget, promise, string) {
+], function(declare, _Widget, lang, event, domClass, widget, async, string) {
 
 return declare(_Widget, { //--noindent--
 
@@ -28,7 +28,7 @@ return declare(_Widget, { //--noindent--
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
-      this.object.requestProps(this.autoRequestProps) : promise.newResolved();
+      this.object.requestProps(this.autoRequestProps) : async.newResolved();
   },
 
   buildRendering: function() {

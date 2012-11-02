@@ -29,7 +29,7 @@ define([
   "../../util/string",
   "../../util/array",
   "../../util/object",
-  "../../util/promise",
+  "../../util/async",
 ], function(module, declare, lang, Deferred, allPromises, topic, when,
             model, value, string, array, object, async) {
 

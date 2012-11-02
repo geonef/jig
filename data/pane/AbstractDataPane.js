@@ -15,13 +15,13 @@ define([
   "module",
   "dojo/_base/declare",
   "../../_Widget",
-  "../../util/promise",
+  "../../util/async",
   "../../util/widget",
   "../../button/Action",
   "dojo/_base/lang",
   "dojo/_base/window",
   "dojo/dom-class",
-], function(module, declare, _Widget, promise, widget, Action, lang, window, domClass) {
+], function(module, declare, _Widget, async, widget, Action, lang, window, domClass) {
 
 
 return declare(_Widget, { //--noindent--
@@ -61,7 +61,7 @@ return declare(_Widget, { //--noindent--
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
-      this.object.requestProps(this.autoRequestProps) : promise.newResolved();
+      this.object.requestProps(this.autoRequestProps) : async.newResolved();
   },
 
   /**
@@ -97,7 +97,7 @@ return declare(_Widget, { //--noindent--
       [Action, {
         label: "Supprimer",
         iconClass: 'remove',
-        onExecute: promise.deferHitch(this, this.deleteObject),
+        onExecute: async.deferHitch(this, this.deleteObject),
       }],
     ];
   },

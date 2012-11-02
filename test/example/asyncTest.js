@@ -5,7 +5,7 @@ define([
   "dojo/_base/declare",
   "../Asserts",
   "./syncTest",
-  "../../util/promise",
+  "../../util/async",
   "dojo/_base/lang"
 ], function(declare, Asserts, syncTest, async, lang) {
 

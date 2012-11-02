@@ -7,8 +7,8 @@ define([
          "dojo/dom-class",
          "dojo/aspect",
          "./util/makeDOM",
-         "./util/promise"
-], function(declare, _Widget, lang, fx, style, domClass, aspect, makeDOM, promise) {
+         "./util/async"
+], function(declare, _Widget, lang, fx, style, domClass, aspect, makeDOM, async) {
 
 /**
  * Base class widget class
@@ -166,7 +166,7 @@ return declare([_Widget], {
     this.destroyDom();
     var domNode = this.domNode;
     var _this = this;
-    return promise.whenAll(
+    return async.whenAll(
       this.dom(this.makeContentNodes(arg))).then(
       function(nodes) {
         // console.log('rebuildDom : got nodes', nodes);
