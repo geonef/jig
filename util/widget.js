@@ -42,25 +42,6 @@ var self = { //--noindent--
     return widgets;
   },
 
-  /**
-   * Create busy effect on node until returned function is called
-   *
-   * Example:
-   *     deferred.then(geonef.jig.util.busy(node))
-   *
-   * @param {DOMElement} node
-   * @return {function} must be called to stop the busy effect
-   */
-  busy: function(node) {
-    var Processing = require("geonef/jig/tool/Processing");
-    var control = new Processing({ processingNode: node });
-    control.startup();
-    return function(arg) {
-      control.end();
-      return arg;
-    };
-  },
-
   bubbleSubmit: function(node, event) {
     for (; node && node.parentNode; node = node.parentNode){
       var widget = registry.byNode(node);

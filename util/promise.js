@@ -2,13 +2,14 @@
  * Utilities about deferred, promises and asynchronicity in general
  */
 define([
-         "dojo/_base/Deferred",
-         "dojo/_base/lang",
-         "dojo/_base/window"
-], function(Deferred, lang, window) {
+  "require",
+  "dojo/_base/Deferred",
+  "dojo/_base/lang",
+  "dojo/_base/window"
+], function(require, Deferred, lang, window) {
 
 
-var self = {
+var self = { //--noindent--
 
   /**
    * Generate an already-resolved deferred
@@ -72,19 +73,19 @@ var self = {
           return;
         }
         d.then(function(arg) {
-                 // var idx = deferreds.indexOf(d);
-                 if (!count) {
-                   console.error("whenAll(): resolve when no more pending", count, d, idx);
-                 }
-                 // if (idx === -1) {
-                 //   console.error("deferred not found in array:", d, deferreds);
-                 // }
-                 values[idx] = arg;
-                 --count;
-                 if (!count) {
-                   all.resolve(values);
-                 }
-               });
+          // var idx = deferreds.indexOf(d);
+          if (!count) {
+            console.error("whenAll(): resolve when no more pending", count, d, idx);
+          }
+          // if (idx === -1) {
+          //   console.error("deferred not found in array:", d, deferreds);
+          // }
+          values[idx] = arg;
+          --count;
+          if (!count) {
+            all.resolve(values);
+          }
+        });
       });
 
     return all;
@@ -108,7 +109,7 @@ var self = {
     return function() {
       self.whenTimeout(0).then(_func);
     };
-  },
+    },
 
   /**
    * Test given func until it returns true
@@ -130,21 +131,39 @@ var self = {
         promise.resolve();
       } else {
         --count;
-        if (count > 0) {
-          window.global.setTimeout(checkFunc, delay || 50);
-        } else {
-          console.warn("whenSatisfied: timeout has passed: ", timeout, "Giving up.");
-        }
+          if (count > 0) {
+            window.global.setTimeout(checkFunc, delay || 50);
+          } else {
+            console.warn("whenSatisfied: timeout has passed: ", timeout, "Giving up.");
+          }
       }
     };
     checkFunc();
 
     return promise;
-  }
+  },
 
+  /**
+   * Create busy effect on node until returned function is called
+   *
+   * Example:
+   *     deferred.then(geonef.jig.util.busy(node))
+   *
+   * @param {DOMElement} node
+   * @return {function} must be called to stop the busy effect
+   */
+  busy: function(node) {
+    var Processing = require("geonef/jig/tool/Processing");
+    var control = new Processing({ processingNode: node });
+    control.startup();
+    return function(arg) {
+      control.end();
+      return arg;
+    };
+  },
 
 };
 
-return self;
+  return self;
 
 });
