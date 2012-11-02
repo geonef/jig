@@ -6,16 +6,18 @@
 define([
          "dojo/_base/declare",
          "dijit/form/DropDownButton",
+         "./DijitFix",
          "dijit/TooltipDialog",
          "dijit/popup",
          "dojo/_base/lang",
          "dojo/dom-construct",
          "dojo/dom-style",
          "dojo/Deferred"
-], function(declare, DropDownButton, TooltipDialog, popup, lang, construct, style, Deferred) {
+], function(declare, DropDownButton, DijitFix, TooltipDialog, popup, lang,
+            construct, style, Deferred) {
 
 
-return declare('geonef.jig.button.TooltipWidget', DropDownButton,
+return declare('geonef.jig.button.TooltipWidget', [DropDownButton, DijitFix],
 {
   /**
    * @override
@@ -27,7 +29,7 @@ return declare('geonef.jig.button.TooltipWidget', DropDownButton,
    *
    * @type {Function}
    */
-  ddClass: 'dijit.layout.ContentPane',
+  ddClass: null,
 
   /**
    * Options to give to 'ddClass' constructor
