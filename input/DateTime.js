@@ -1,3 +1,8 @@
+/**
+ * Input combining date and optional time
+ *
+ * TODO: get rid of template and use makeDOM instead
+ */
 define([
          "dojo/_base/declare",
          "dijit/_Widget",

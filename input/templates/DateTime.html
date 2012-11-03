@@ -1,22 +1,22 @@
 <table class="jigInputDateTime"><tbody><tr>
   <td>
-  <span dojoType="geonef.jig.input.DateTextBox"
+  <span dojoType="geonef/jig/input/DateTextBox"
         dojoAttachPoint="dateInput"
         dojoAttachEvent="onChange:onSubChange"
         tooltipPosition="above,below"
         promptMessage="Cette date sert à ordonner l'itinéraire"
         missingMessage="La date est obligatoire !"></span>
   </td><td class="noTimeOnly">
-  <span dojoType="geonef.jig.button.Link"
+  <span dojoType="geonef/jig/button/Action"
         dojoAttachEvent="onClick:enableTime">Heure...</span>
   </td><td class="timeOnly">
-  <span dojoType="dijit.form.TimeTextBox"
+  <span dojoType="dijit/form/TimeTextBox"
         dojoAttachPoint="timeInput"
         dojoAttachEvent="onChange:onSubChange"
         tooltipPosition="above,below"
         promptMessage="L'heure, pour distinguer les étapes d'une même journée"></span>
   </td><td class="timeOnly">
-  <span dojoType="geonef.jig.button.Link"
+  <span dojoType="geonef/jig/button/Action"
         dojoAttachEvent="onClick:disableTime">Retirer l'heure</span>
   </td>
 
