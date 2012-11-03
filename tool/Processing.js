@@ -1,22 +1,19 @@
-define([
-         "require",
-         "dojo/_base/declare",
-         "geonef/jig/_Widget",
-         "dojo/_base/kernel",
-         "dojo/dom-style",
-         "dojo/_base/fx",
-         "dojo/fx/easing",
-         "../util/async"
-], function(require, declare, _Widget, dojo, style, fx, easing, async) {
-
-
 /**
  * Widget quickly added to a widget while processing (API requested, etc)
  *
- * @class
  */
-return declare(_Widget,
-{
+define([
+  "require",
+  "dojo/_base/declare",
+  "geonef/jig/_Widget",
+  "dojo/_base/window",
+  "dojo/dom-style",
+  "dojo/_base/fx",
+  "dojo/fx/easing",
+  "../util/async"
+], function(require, declare, _Widget, window, style, fx, easing, async) {
+
+return declare(_Widget, { //--noindent--
 
   /**
    * @type {?HTMLElement}
@@ -35,9 +32,9 @@ return declare(_Widget,
     return [
       ["div", {"class": "bg"}, "&nbsp;"],
       ["div", {"class": "content"}, [
-         ["img", { src: this.iconUrl + "/spinner32.gif",
-                   alt: "Loading..." }]
-       ]],
+        ["img", { src: this.iconUrl + "/spinner32.gif",
+                  alt: "Loading..." }]
+      ]],
 
     ];
   },
@@ -91,7 +88,7 @@ return declare(_Widget,
         },
 	easing: easing.sinIn,
         onEnd: function() {
-          if (!dojo.global.__debug_keepProcessing) {
+          if (!window.global.__debug_keepProcessing) {
             destroy();
           }
         }

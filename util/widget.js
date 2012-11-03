@@ -15,7 +15,7 @@ var self = { //--noindent--
   //
   // getParent: function(w) {
   //   return w.getParent ? w.getParent() :
-  //      dijit._Contained.prototype.getParent.call(w);
+  //      dijit/_Contained/prototype/getParent/call(w);
   // },
 
   /**
@@ -25,7 +25,7 @@ var self = { //--noindent--
    * and include widgets outside this' domNode.
    *
    * @param {DOMElement} node
-   * @return {Array.<dijit._Widget>}
+   * @return {Array.<dijit/_Widget>}
    */
   getFirstNamedDescendants: function(node) {
     var widgets = [];
@@ -53,30 +53,30 @@ var self = { //--noindent--
   },
 
   /**
-   * Makes a single-time dojo.connect - OBSOLETE
+   * Makes a single-time dojo/connect - OBSOLETE
    *
    * OBSOLETE: since dojo 1.7, this function has been updated to
-   *           use dojo.aspect.after (upgrade of dojo.connect) or
-   *           dojo.on, if 'obj' has an 'addEventListener' method.
+   *           use dojo/aspect/after (upgrade of dojo/connect) or
+   *           dojo/on, if 'obj' has an 'addEventListener' method.
    *
-   * This works the same as with dojo.connect, but for once only:
+   * This works the same as with dojo/connect, but for once only:
    * the handler is automatically disconnected the first time
    * the method is called.
    *
    * However, the connection can be canceled before the call if needed,
-   * simply by calling dojo.disconnect.
+   * simply by calling dojo/disconnect.
    *
    * @param {!Object} obj  Source object for event function
    * @param {string} event Name of event function in obj
    * @param {Object} context Object to bind to the method as "this"
    * @param {function()|string} method Function or method name of context
-   * @return {Object} Handler for use with dojo.disconnect.
+   * @return {Object} Handler for use with dojo/disconnect.
    */
   connectOnce: function(obj, event, context, method) {
     var _h;
     var callback = lang.hitch(context, function() {
       _h.remove();
-      // dojo.disconnect(_h);
+      // dojo/disconnect(_h);
       method.apply(context, arguments);
     });
     if (obj.addEventListener) {
@@ -96,7 +96,7 @@ var self = { //--noindent--
   /**
    * Focus on the given widget
    *
-   * @param {dijit._Widget} widget
+   * @param {dijit/_Widget} widget
    * @return {object}
    */
   focus: function(widget) {

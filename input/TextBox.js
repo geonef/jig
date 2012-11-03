@@ -12,12 +12,12 @@ define([
 
 
 /**
- * Add some features to dijit.form.TextBox :
+ * Add some features to dijit/form/TextBox :
  *      - Pressing ENTER triggers onExecute
  *
  * @class
  */
-return declare('geonef.jig.input.TextBox', ValidationTextBox,
+return declare(ValidationTextBox,
 {
 
   trim: true,

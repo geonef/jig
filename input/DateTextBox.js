@@ -4,14 +4,14 @@ define([
 ], function(declare, DateTextBox) {
 
 /**
- * Extension of dijit.DataTextBox to deal with string date value
+ * Extension of dijit/DataTextBox to deal with string date value
  *
  * It is used in the same way, except that it will work when set with
  * a string date value.
  *
  * The value getter is unchanged and returns a Date object.
  */
-return declare('geonef.jig.input.DateTextBox', DateTextBox,
+return declare(DateTextBox,
 {
 
   timestamp: false,

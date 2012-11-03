@@ -114,7 +114,7 @@ return declare(null, { //--noindent--
    *
    * To inherit from a parent Model's properties, use the following syntax:
    *    properties: geonef/jig/data/model.normalizeProperties(
-   *      dojo.delegate(geonef/jig/data/model/Abstract.prototype.properties, {
+   *      dojo/delegate(geonef/jig/data/model/Abstract.prototype.properties, {
    *        myOwnProperty: { type: 'string' },
    *    }))
    *

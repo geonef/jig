@@ -81,7 +81,7 @@ var self = { //--noindent--
   _deferredRequests: {},
 
   /**
-   * @type {dojo.Deferred} Global XHR promise for pending XHR call
+   * @type {dojo/Deferred} Global XHR promise for pending XHR call
    */
   _deferred: null,
 
@@ -90,7 +90,7 @@ var self = { //--noindent--
    *
    * @param {Object} req Request object
    * @param {?Object} object for parameters to pass to dojo XHR.
-   * @return {dojo.Deferred} promise, ensured to be geoenf.jig.Deferred if request.callback is set
+   * @return {dojo/Deferred} promise, ensured to be geoenf.jig.Deferred if request.callback is set
    */
   request: function(req, options) {
     self.cancelPing();
@@ -135,7 +135,7 @@ var self = { //--noindent--
   /**
    * Execute XHR for all deferred requests
    *
-   * @return {dojo.Deferred} from XHR call
+   * @return {dojo/Deferred} from XHR call
    */
   _doRequest: function(req, options) {
 

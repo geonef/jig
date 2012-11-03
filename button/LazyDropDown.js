@@ -17,7 +17,7 @@ define([
             construct, style, Deferred) {
 
 
-return declare('geonef.jig.button.TooltipWidget', [DropDownButton, DijitFix],
+return declare([DropDownButton, DijitFix],
 {
   /**
    * @override

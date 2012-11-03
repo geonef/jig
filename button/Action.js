@@ -4,8 +4,13 @@
  * Any HTML node can be specified (or given as srcNode), the action
  * can be a real "href" or channel publishing, and/or widget instanciation.
  *
- * At some point, it should replace geonef.jig.button.Action as well,
+ * At some point, it should replace geonef/jig/button/Action as well,
  * providing a simpler implementation & DOM structure.
+ *
+ * IDEA: implement special 'target' values, for example:
+ *      - "_dialog" : open the HREF into a new dijit/Dialog
+ *      - "_workspace" : be handled though workspace's autoAnchorWidget()
+ *      - ...
  */
 define([
   "module", "require",

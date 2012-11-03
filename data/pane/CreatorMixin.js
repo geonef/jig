@@ -23,7 +23,7 @@ return declare(null, { //--noindent--
   defaultProperties: null,
 
   /**
-   * @type {geonef.jig.data.model.ModelStore}
+   * @type {geonef/jig/data/model/ModelStore}
    */
   store: null,
 
@@ -37,7 +37,7 @@ return declare(null, { //--noindent--
    * @param {!Object} props     Properties to init the model object with
    * @param {!Object} options   Options to the store's add() operation
    * @param {string} discriminatorKey The discriminator to use, if used on that Model
-   * @return {dojo.Deferred}
+   * @return {dojo/Deferred}
    */
   createNew: function(props, options, discriminatorKey) {
     var _this = this;
@@ -60,7 +60,7 @@ return declare(null, { //--noindent--
    * @protected
    * @param {!Object} props     Properties to init the model object with
    * @param {string} discriminatorKey The discriminator to use, if used on that Model
-   * @return {geonef.jig.Deferred}
+   * @return {geonef/jig/Deferred}
    */
   createNewObject: function(props, discriminatorKey) {
     var deferred = new Deferred();
@@ -75,7 +75,7 @@ return declare(null, { //--noindent--
   /**
    * hook - called after a new object has been saved
    *
-   * @param {geonef.jig.data.model.Abstract} object object which has been created
+   * @param {geonef/jig/data/model/Abstract} object object which has been created
    */
   afterCreateNew: function(object) {},
 

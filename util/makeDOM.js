@@ -20,7 +20,7 @@
  *            provided element
  *
  *   - '_tooltip' {string}
- *            Automatically create a dijit.Tooltip widget for the node,
+ *            Automatically create a dijit/Tooltip widget for the node,
  *            with the given string as its label
  *
  *   - '_tooltipOptions' {object}
@@ -33,7 +33,7 @@
  *            then add all children and pass it as the srcNode of
  *            the created widget at instanciation.
  *
- *   - '_if' {boolean|dojo.Deferred}
+ *   - '_if' {boolean|dojo/Deferred}
  *            If the given value is falsy, the node construction
  *            is skipped, which means makeDOM returns null.
  *            If a deferred is provided, makeDOM will return a deferred
@@ -41,7 +41,7 @@
  *                    - null if the '_if' deferred resolved to null
  *                    - the created node, in the other case
  *
- *   - '_ifNot' {boolean|dojo.Deferred}
+ *   - '_ifNot' {boolean|dojo/Deferred}
  *            Opposite from '_if', apply the value if true.
  *            Useful when using deferreds. Can't be used together with '_if'.
  *
@@ -54,7 +54,7 @@
  *
  * @param {Array}             args
  * @param {?Object}           obj
- * @return {?DOMElement|dojo.Deferred}
+ * @return {?DOMElement|dojo/Deferred}
  */
 define([
   "dojo/_base/lang",

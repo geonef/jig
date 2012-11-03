@@ -11,7 +11,7 @@ define([
 var self = { //--noindent--
 
   /**
-   * Comme dojo.mixin, avec validation - utilisé par les constructeurs
+   * Comme dojo/mixin, avec validation - utilisé par les constructeurs
    *
    * Valide que les options doivent exister dans la chaîne de prototypes
    * de l'objet.
@@ -166,7 +166,7 @@ var self = { //--noindent--
    */
   indexOf: function(haystack, needle) {
     if (haystack instanceof Array) {
-      return obj.indexOf(needle);
+      return haystack.indexOf(needle);
     }
     for (var i in haystack) {
       if (haystack.hasOwnProperty(i) && haystack[i] === needle) {

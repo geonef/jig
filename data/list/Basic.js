@@ -28,7 +28,7 @@ define([
             Deferred, model, BasicRow,
             async, Action) {
 
-  return declare('geonef.jig.data.list.Basic', [ _Widget, CreatorMixin ],
+  return declare([ _Widget, CreatorMixin ],
 { //--noindent--
 
   /**
@@ -229,7 +229,7 @@ define([
   },
 
   /**
-   * @type {dijit._Widget} row widget to place
+   * @type {dijit/_Widget} row widget to place
    */
   placeRow: function(row, key) {
     row.placeAt(this.listNode);

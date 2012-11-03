@@ -6,7 +6,7 @@
  * It is typically a display, which can embed some editing/action
  * functionnalities.
  *
- * For a pure editor (form), geonef.jig.data.editor.AbstractEditor
+ * For a pure editor (form), geonef/jig/data/editor/AbstractEditor
  * would better fit (form/validation/saving management).
  *
  * This handles init/load/events around this.object.
@@ -15,13 +15,19 @@ define([
   "module",
   "dojo/_base/declare",
   "../../_Widget",
+
   "../../util/async",
   "../../util/widget",
   "../../button/Action",
   "dojo/_base/lang",
   "dojo/_base/window",
   "dojo/dom-class",
-], function(module, declare, _Widget, async, widget, Action, lang, window, domClass) {
+
+  "dijit/form/DropDownButton",
+  "dijit/TooltipDialog",
+], function(module, declare, _Widget,
+            async, widget, Action, lang, window, domClass,
+            DropDownButton, TooltipDialog) {
 
 
 return declare(_Widget, { //--noindent--
@@ -76,10 +82,10 @@ return declare(_Widget, { //--noindent--
     var _this = this;
 
     var node = this.dom(
-      [dijit.form.DropDownButton, {
+      [DropDownButton, {
         _attach: 'optionsDD',
         'class': 'nolabel gear',
-        dropDown: new dijit.TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
+        dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
         onMouseEnter: lang.hitch(null, domClass.add, this.domNode, 'overDD'),
         onMouseLeave: lang.hitch(null, domClass.remove, this.domNode, 'overDD'),
       }]);

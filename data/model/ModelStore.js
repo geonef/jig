@@ -1,7 +1,7 @@
 /**
  * Model store - equivalent for Doctrine repositories
  *
- * It is a singleton, meant to be retrieved from geonef.jig.data.model
+ * It is a singleton, meant to be retrieved from geonef/jig/data/model
  * Needs to be instanciated with the 'Model' property.
  *
  * @example
@@ -147,7 +147,7 @@ return declare(null, { //--noindent--
         .then(function(resp) {
           if (resp.error) {
             throw new Error(resp.error);
-            // return geonef.jig.util.newErrorDeferred(resp.error);
+            // return geonef/jig/util/newErrorDeferred(resp.error);
           }
           if (obj) {
             return async.bindArg(obj, obj.fromServerValue(resp.object));

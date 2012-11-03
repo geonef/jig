@@ -19,7 +19,7 @@ var self = { //--noindent--
    * Useful for async-style function which return a sync value.
    * This can be seen as an "async wrapper" for sync values.
    *
-   * @return {dojo.Deferred}
+   * @return {dojo/Deferred}
    */
   newResolved: function(arg) {
     var deferred = new Deferred();
@@ -34,8 +34,8 @@ var self = { //--noindent--
    * If no promise is given, a new one is created, already resolved.
    *
    * @param {mixed} arg
-   * @param {dojo.Deferred} promise
-   * @return {dojo.Deferred}
+   * @param {dojo/Deferred} promise
+   * @return {dojo/Deferred}
    */
   bindArg: function(arg, promise) {
     if (!promise) {
@@ -53,7 +53,7 @@ var self = { //--noindent--
    * TODO: use directly dojo/promise/all
    *
    * @deprecated use dojo's dojo/promise/all instead
-   * @return {dojo.Deferred}
+   * @return {dojo/Deferred}
    */
   whenAll: function(deferreds) {
     var count = deferreds.length;
@@ -92,7 +92,7 @@ var self = { //--noindent--
   },
 
   /**
-   * @param {Number} delay in milliseconds (arg 2 to dojo.global.setTimeout)
+   * @param {Number} delay in milliseconds (arg 2 to dojo/global/setTimeout)
    */
   whenTimeout: function(delay) {
     var def = new Deferred();
@@ -119,7 +119,7 @@ var self = { //--noindent--
    * @param {Function} testFunc test function
    * @param {integer} delay     delay between each test (in milliseconds)
    * @param {integer} timeout   time before giving up (milliseconds)
-   * @return {dojo.Deferred}
+   * @return {dojo/Deferred}
    */
   whenSatisfied: function(testFunc, delay, timeout) {
     var promise = new Deferred();
@@ -147,7 +147,7 @@ var self = { //--noindent--
    * Create busy effect on node until returned function is called
    *
    * Example:
-   *     deferred.then(geonef.jig.util.busy(node))
+   *     deferred.then(geonef/jig/util/busy(node))
    *
    * @param {DOMElement} node
    * @return {function} must be called to stop the busy effect

@@ -14,7 +14,7 @@ define([
             template, DateTextBox, TimeTextBox) {
 
 
-return declare('geonef.jig.input.DateTime', [ _Widget, _TemplatedMixin, _WidgetsInTemplateMixin ],
+return declare([ _Widget, _TemplatedMixin, _WidgetsInTemplateMixin ],
 {
   name: 'date',
   required: false,

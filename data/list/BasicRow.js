@@ -16,7 +16,7 @@ return declare(_Widget, { //--noindent--
   /**
    * Represented model object
    *
-   * @type {geonef.jig.data.model.Abstract}
+   * @type {geonef/jig/data/model/Abstract}
    */
   object: null,
 

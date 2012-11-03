@@ -9,12 +9,12 @@ define([
 
 
 /**
- * Same as dijit.CheckBox, but deals with boolean value
+ * Same as dijit/CheckBox, but deals with boolean value
  *
- * dijit.form.CheckBox deals with the HTML way (string value),
+ * dijit/form/CheckBox deals with the HTML way (string value),
  * which is usually not what we want
  */
-return declare('geonef.jig.input.BooleanCheckBox', CheckBox,
+return declare(CheckBox,
 {
   value: false,
 

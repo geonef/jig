@@ -57,7 +57,7 @@ var Self = declare(null,
   /**
    * Clone this gradient
    *
-   * @return {geonef.jit.util.color.Gradient}
+   * @return {geonef/jit/util/color/Gradient}
    */
   clone: function() {
     var clone = new Self({

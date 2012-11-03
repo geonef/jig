@@ -11,7 +11,7 @@ var self = { //--noindent--
   /**
    * Format a number
    *
-   * Forwarded to dojo.number.format, but before, the number is
+   * Forwarded to dojo/number/format, but before, the number is
    * rounded depending on the "digits" option.
    *
    * @param {number} value

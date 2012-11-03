@@ -16,9 +16,9 @@ define([
  *
  * A value map can be specified, see property isMapped.
  *
- * @class geonef.jig.input.Label
+ * @class geonef/jig/input/Label
  */
-return declare('geonef.jig.input.Label', _Widget,
+return declare(_Widget,
 {
   /**
    * Input name
@@ -46,7 +46,7 @@ return declare('geonef.jig.input.Label', _Widget,
    *
    * Object keys are possible values, object values are labels.
    *
-   * If a string is provided, it is used through dojo.getObject to get
+   * If a string is provided, it is used through dojo/getObject to get
    * the mapping table. Useful for instanciating this widget from markup
    * with an attribute like map="some.widget.prototype.mapTable".
    *

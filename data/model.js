@@ -3,20 +3,20 @@
  *
  * Here are the explanations of how the client model works.
  *
- * A model is basically a class inheriting from 'geonef.jig.data.mode.Abstract'.
+ * A model is basically a class inheriting from 'geonef/jig/data/mode/Abstract'.
  * It contains all information, including: property names & types, the publish
  * channel and business methods.
  *
  * A model as a collection (a "store") is implemented in
- * 'geonef.jig.data.model.ModelStore'. That will read information about the model
- * from the model class (based on 'geonef.jig.data.mode.Abstract').
+ * 'geonef/jig/data/model/ModelStore'. That will read information about the model
+ * from the model class (based on 'geonef/jig/data/mode/Abstract').
  *
  * If need be, a model can have a custom store: it's has to inherit from
- * 'geonef.jig.data.model.ModelStore' and be specified in the model's 'Store'
+ * 'geonef/jig/data/model/ModelStore' and be specified in the model's 'Store'
  * property (as a class). A good example of this is the 'User' model.
  *
  * The store object is that start point to make any operation on the model
- * (query, find, save, delete). See 'geonef.jig.data.model.ModelStore' for
+ * (query, find, save, delete). See 'geonef/jig/data/model/ModelStore' for
  * documentation on this.
  *
  * @see geonef/jig/data/model/ModelStore
@@ -76,14 +76,14 @@ var self = { //--noindent--
   //  * @return {mixed}
   //  */
   // flatten: function(value) {
-  //   if (dojo.isArray(value)) {
+  //   if (dojo/isArray(value)) {
   //     return value.map(self.flatten);
-  //   } else if (dojo.isObject(value) && value) {
+  //   } else if (dojo/isObject(value) && value) {
   //     // if (value.exportProperties) {
   //     //   value = value.exportProperties();
   //     // }
-  //     return dojo.mixin({}, value);
-  //     // return geonef.jig.map(value, self.flatten); // infinite loop
+  //     return dojo/mixin({}, value);
+  //     // return geonef/jig/map(value, self.flatten); // infinite loop
   //   } else {
   //     return value;
   //   }

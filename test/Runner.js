@@ -16,7 +16,7 @@ define([
 
   "use strict";
 
-return declare('geonef/jig/test/Runner', null, { //--noindent--
+return declare(null, { //--noindent--
 
   clearConsole: true,
 
