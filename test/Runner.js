@@ -35,7 +35,7 @@ return declare('geonef/jig/test/Runner', null, { //--noindent--
    */
   run: function(func, options) {
     if (this.clearConsole) {
-      console.clear();
+      console.clear !== undefined && console.clear();
     }
     console.log('STARTING TEST PROCEDURE', this);
     this.currentGroup = null;
