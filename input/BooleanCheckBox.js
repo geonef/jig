@@ -27,6 +27,11 @@ return declare('geonef.jig.input.BooleanCheckBox', CheckBox,
   toggleInput: '',
 
 
+  postMixInProperties: function() {
+    this.inherited(arguments);
+    this.checked = this.value;
+  },
+
   startup: function() {
     this.inherited(arguments);
     this.updateToggleInput();
