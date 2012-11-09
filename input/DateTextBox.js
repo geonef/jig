@@ -15,6 +15,7 @@ return declare('geonef.jig.input.DateTextBox', DateTextBox,
 {
 
   timestamp: false,
+  autoSerialize: false,
 
   _setValueAttr: function(value) {
     if (typeof value == 'string') {
@@ -24,6 +25,14 @@ return declare('geonef.jig.input.DateTextBox', DateTextBox,
     } else {
       this.inherited(arguments);
     }
+  },
+
+  _getValueAttr: function() {
+    var value = this.inherited(arguments);
+    if (value && this.autoSerialize) {
+      value = this.serialize(value);
+    }
+    return value;
   }
 
 });
