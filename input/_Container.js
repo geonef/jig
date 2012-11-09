@@ -38,13 +38,23 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
 
   additionalRoots: [],
 
+  /**
+   * 'read-only' property, forwarded to child inputs
+   */
+  readOnly: null,
 
+  /**
+   * @override
+   */
   postMixInProperties: function() {
     this.internalValues = {};
     this.manageValueKeys = lang.clone(this.manageValueKeys);
     this.inherited(arguments);
   },
 
+  /**
+   * @override
+   */
   buildRendering: function() {
     this.inherited(arguments);
     if (!this.containerNode) {
@@ -193,6 +203,17 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
     // hook
   },
 
+  _setReadOnlyAttr: function(state) {
+    this.readOnly = state;
+    if (state === true || state === false) {
+      this.getDescendants().forEach(
+        function(input) { input.set('readOnly', state); });
+    }
+  },
+
+  /**
+   * @override
+   */
   startup: function() {
     this.inherited(arguments);
     this.connectChildren();
