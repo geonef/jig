@@ -4,10 +4,9 @@ define([
   "dojo/_base/lang",
   "dojo/_base/event",
   "dojo/dom-class",
-  "../../util/widget",
   "../../util/async",
   "../../util/string"
-], function(declare, _Widget, lang, event, domClass, widget, async, string) {
+], function(declare, _Widget, lang, event, domClass, async, string) {
 
 return declare(_Widget, { //--noindent--
 
@@ -33,7 +32,7 @@ return declare(_Widget, { //--noindent--
 
   buildRendering: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(widget.busy(this.domNode));
+    this.whenDataReady.then(async.busy(this.domNode));
   },
 
   buildRow: function() {

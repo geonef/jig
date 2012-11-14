@@ -75,7 +75,7 @@ return declare(_Widget, { //--noindent--
    */
   buildRendering: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(widget.busy(this.domNode));
+    this.whenDataReady.then(async.busy(this.domNode));
   },
 
   makeDropDownNode: function(title) {
@@ -178,7 +178,7 @@ return declare(_Widget, { //--noindent--
   deleteObject: function() {
     if (!window.global.confirm(this.removeConfirm)) { return; }
     this.object.store.remove(this.object)
-      .then(widget.busy(this.domNode));
+      .then(async.busy(this.domNode));
   },
 
   declaredClass: module.id

@@ -34,14 +34,14 @@
  * @see geonef/jig/data/model/UserStore
  */
 define([
-  "module",
+  "module", "require",
   "dojo/_base/declare",
   "../../api",
   "dojo/_base/lang",
   "dojo/topic",
   "../../util/async",
   "../../util/value",
-], function(module, declare, api, lang, topic, async, value) {
+], function(module, require, declare, api, lang, topic, async, value) {
 
 return declare(null, { //--noindent--
 
@@ -319,7 +319,7 @@ return declare(null, { //--noindent--
     var implied = {};
     var prop, tmpFilter;
 
-    var Abstract = require('geonef/jig/data/model/Abstract');
+    var Abstract = require('./Abstract');
     // fix filter and make up implied value from it
     if (filter) {
       for (prop in filter) if (filter.hasOwnProperty(prop)) {

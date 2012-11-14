@@ -162,6 +162,7 @@ return declare(null, { //--noindent--
       }
     },
     location: {
+      // TODO: put into external model prop type
       fromServer: function(obj) {
         return new OpenLayers.LonLat(obj.longitude, obj.latitude);
       },

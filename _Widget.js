@@ -169,7 +169,7 @@ return declare([_Widget], {
     return async.whenAll(
       this.dom(this.makeContentNodes(arg))).then(
       function(nodes) {
-        // console.log('rebuildDom : got nodes', nodes);
+        console.log('rebuildDom : got nodes', nodes);
         nodes.forEach(function(node) { domNode.appendChild(node); });
         _this.afterRebuildDom();
         return nodes;

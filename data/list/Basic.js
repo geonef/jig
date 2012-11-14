@@ -108,11 +108,17 @@ define([
    */
   'class': _Widget.prototype['class'] + ' jigDataList',
 
+  /**
+   * @override
+   */
+  delayedContent: true,
+
 
   postMixInProperties: function() {
     this.inherited(arguments);
     this.rowOptions = lang.mixin({}, this.rowOptions);
-    this.whenReady = new Deferred();
+    // this.whenReady = new Deferred();
+    this.whenReady = async.newResolved();
     this.store = model.getStore(this.Model);
   },
 
@@ -132,7 +138,7 @@ define([
 
   startup: function() {
     this.inherited(arguments);
-    this.whenReady.callback();
+    this.whenReady.then(lang.hitch(this, this.rebuildDom));
   },
 
   destroy: function() {

@@ -62,9 +62,12 @@ var self = { //--noindent--
    * @return {dojo/Deferred}
    */
   getModule: function(name, contextRequire) {
+    if (name.load) {
+      return name.load();
+    }
     var deferred = new Deferred();
     if (typeof name === "string") {
-      (require || contextRequire)([name], function(module) {
+      (contextRequire || require)([name], function(module) {
         deferred.resolve(module);
       });
     } else {

@@ -11,13 +11,13 @@
  * 'geonef/jig/data/model/ModelStore'. That will read information about the model
  * from the model class (based on 'geonef/jig/data/mode/Abstract').
  *
- * If need be, a model can have a custom store: it's has to inherit from
+ * If need be, a model can have a custom store: it has to inherit from
  * 'geonef/jig/data/model/ModelStore' and be specified in the model's 'Store'
- * property (as a class). A good example of this is the 'User' model.
+ * property (as a class).
  *
- * The store object is that start point to make any operation on the model
+ * The store object is the start point to make any operation on the model
  * (query, find, save, delete). See 'geonef/jig/data/model/ModelStore' for
- * documentation on this.
+ * documentation.
  *
  * @see geonef/jig/data/model/ModelStore
  * @see geonef/jig/data/model/Abstract
@@ -51,6 +51,7 @@ var self = { //--noindent--
   /**
    * Transform given properties definition into canonical form (used for Model's property declaration)
    *
+   * @deprecated Should not be needed (is for backward compat)
    * @param {Object.<string,Object>} props
    * @return {Object}
    */

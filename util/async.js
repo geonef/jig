@@ -109,7 +109,7 @@ var self = { //--noindent--
     return function() {
       self.whenTimeout(0).then(_func);
     };
-    },
+  },
 
   /**
    * Test given func until it returns true
@@ -159,6 +159,19 @@ var self = { //--noindent--
     return function(arg) {
       control.end();
       return arg;
+    };
+  },
+
+  /**
+   * Return a function which will set its arg to the given obj
+   *
+   * @param {Object} obj
+   * @param {string} name
+   * @return {Function}
+   */
+  setProp: function(obj, propName) {
+    return function(arg) {
+      obj[propName] = arg;
     };
   },
 
