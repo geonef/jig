@@ -136,6 +136,17 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
     child.set('value', value);
   },
 
+  getSubValue: function(name) {
+    var child = this.getDescendants()
+      .filter(function(ch) { return ch.name === name; })[0];
+    if (!child) {
+      console.warn('setSubValue: child not defined: ', name, this.getDescendants(), this);
+      return null;
+    }
+    return child.get('value');
+  },
+
+
 
   _setValueAttr: function(value, priorityChange) {
     if (!value) {
