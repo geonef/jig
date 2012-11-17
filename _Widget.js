@@ -180,6 +180,13 @@ return declare([_Widget], {
    * Hook
    */
   afterRebuildDom: function() {
+    this.onResize();
+  },
+
+  /**
+   * Hook
+   */
+  onResize: function() {
   },
 
   /**

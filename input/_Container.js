@@ -38,13 +38,23 @@ return declare([_FormMixin], { //--noindent--
 
   additionalRoots: [],
 
+  /**
+   * 'read-only' property, forwarded to child inputs
+   */
+  readOnly: null,
 
+  /**
+   * @override
+   */
   postMixInProperties: function() {
     this.internalValues = {};
     this.manageValueKeys = lang.clone(this.manageValueKeys);
     this.inherited(arguments);
   },
 
+  /**
+   * @override
+   */
   buildRendering: function() {
     this.inherited(arguments);
     if (!this.containerNode) {
@@ -126,6 +136,17 @@ return declare([_FormMixin], { //--noindent--
     child.set('value', value);
   },
 
+  getSubValue: function(name) {
+    var child = this.getDescendants()
+      .filter(function(ch) { return ch.name === name; })[0];
+    if (!child) {
+      console.warn('setSubValue: child not defined: ', name, this.getDescendants(), this);
+      return null;
+    }
+    return child.get('value');
+  },
+
+
 
   _setValueAttr: function(value, priorityChange) {
     if (!value) {
@@ -193,6 +214,17 @@ return declare([_FormMixin], { //--noindent--
     // hook
   },
 
+  _setReadOnlyAttr: function(state) {
+    this.readOnly = state;
+    if (state === true || state === false) {
+      this.getDescendants().forEach(
+        function(input) { input.set('readOnly', state); });
+    }
+  },
+
+  /**
+   * @override
+   */
   startup: function() {
     this.inherited(arguments);
     this.connectChildren();
