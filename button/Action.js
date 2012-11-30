@@ -13,14 +13,16 @@ define([
   "dijit/_Widget",
 
   "../util/widget",
+  "../util/promise",
   "dojo/_base/event",
   "dojo/_base/window",
   "dojo/topic",
   "dojo/dom-construct",
   "dojo/dom-class",
   "dojo/_base/array",
+  "dojo/_base/lang",
 ], function(module, require, declare, _Widget,
-            widget, event, window, topic, construct, domClass, array) {
+            widget, async, event, window, topic, construct, domClass, array, lang) {
 
 return declare(_Widget, { //--noindent--
 
@@ -94,6 +96,10 @@ return declare(_Widget, { //--noindent--
    */
   autoInstanciateOptions: null,
 
+  /**
+   * If true, onExecute() is called on a deferred loop
+   */
+  deferExecute: false,
 
   buildRendering: function() {
     //console.log('buildRendering', this, arguments);
@@ -148,9 +154,14 @@ return declare(_Widget, { //--noindent--
   onClick: function(evt) {
     event.stop(evt);
     if (this.disabled) { return; }
+    var execute = lang.hitch(this, this.execute, evt);
     if (!this.confirm ||
         window.global.confirm(this.confirm)) {
-      this.execute(evt);
+      if (this.deferExecute) {
+        async.whenTimeout(0).then(execute);
+      } else {
+        execute();
+      }
     }
   },
 

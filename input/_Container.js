@@ -75,6 +75,9 @@ return declare('geonef.jig.input._Container', [_FormMixin], {
     return list;
   },
 
+  /**
+   * Return the node list where descendants should be searched
+   */
   getInputRootNodes: function() {
     return [ this.domNode ].concat(this.additionalRoots);
   },
