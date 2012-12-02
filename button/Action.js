@@ -18,7 +18,8 @@ define([
   "dijit/_Widget",
 
   "../util/widget",
-  "../util/promise",
+  "../util/async",
+
   "dojo/_base/event",
   "dojo/_base/window",
   "dojo/topic",
@@ -27,7 +28,8 @@ define([
   "dojo/_base/array",
   "dojo/_base/lang",
 ], function(module, require, declare, _Widget,
-            widget, async, event, window, topic, construct, domClass, array, lang) {
+            widget, async,
+            event, window, topic, construct, domClass, array, lang) {
 
 return declare(_Widget, { //--noindent--
 
