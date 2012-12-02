@@ -20,13 +20,13 @@
  *                              });
  *           });
  *
- *   var newCustom = customStore.makeObject({ name: "hehe" });
- *   customStore
- *       .add(newCustom)
- *       .then(function(obj) {
- *                 // obj === newCustom
- *                 console.log("saved", obj);
- *             });
+ *   customStore.makeObject({ name: "hehe" })
+ *      .then(function(newCustom) {
+ *         return customStore.save(newCustom);
+ *      })
+ *      .then(function(newCustom) {
+ *         console.log("saved", obj);
+ *      });
  *
  *   // For an example of a custom store, see geonef/jig/data/model/UserStore.
  *
@@ -39,9 +39,10 @@ define([
   "../../api",
   "dojo/_base/lang",
   "dojo/topic",
+  "dojo/when",
   "../../util/async",
   "../../util/value",
-], function(module, require, declare, api, lang, topic, async, value) {
+], function(module, require, declare, api, lang, topic, when, async, value) {
 
 return declare(null, { //--noindent--
 
@@ -219,8 +220,8 @@ return declare(null, { //--noindent--
       .then(function(value) {
         return _this.apiRequest(lang.mixin({
           action: 'put',
-            object: value,
-          }, options), {}, object);
+          object: value,
+        }, options), {}, object);
       })
       .then(function(resp) {
         // console.log('in PUT then', arguments, object);
@@ -275,12 +276,16 @@ return declare(null, { //--noindent--
    */
   duplicate: function(object, options) {
     var _this = this;
-    var obj;
+    var obj, resp;
     return this.apiRequest(lang.mixin({
       action: 'duplicate', id: object.id,
     }, options), null, object)
-      .then(function(resp) {
-        obj = _this.makeObject(resp.object);
+      .then(function(_resp) {
+        resp = _resp;
+        return _this.makeObject(_resp.object);
+      })
+      .then(function(_obj) {
+        obj = _obj;
         _this.index[resp.object.id] = obj;
         return async.bindArg(obj, obj.fromServerValue(resp.object));
       })
@@ -338,19 +343,20 @@ return declare(null, { //--noindent--
       }
     }
 
-    return this.apiRequest(lang.mixin(
-      { action: 'query', filters: filter, /* options: options || {}*/ }, options))
-      .then(lang.hitch(this,
-                       function(resp) {
-                         if (!resp.results) {
-                           console.error("model query ("+this.apiModule+"): no result array", resp);
-                           return null;
-                         }
-                         return async.whenAll(resp.results.map(
-                           function(data) {
-                             return this.getLazyObject(lang.mixin({}, implied, data));
-                           }, this));
-                       }));
+    return this.apiRequest(lang.mixin({
+      action: 'query',
+      filters: filter, /* options: options || {}*/
+    }, options))
+      .then(lang.hitch(this, function(resp) {
+        if (!resp.results) {
+          console.error("model query ("+this.apiModule+"): no result array", resp);
+          return null;
+        }
+        return async.whenAll(resp.results.map(
+          function(data) {
+            return this.getLazyObject(lang.mixin({}, implied, data));
+          }, this));
+      }));
   },
 
   /**
@@ -379,45 +385,51 @@ return declare(null, { //--noindent--
    *
    * @param {Object} dataForDiscriminator data object whose discriminator
    *                     field (if any) is used to determine the class to instanciate
-   * @return {geonef/jig/data/model/Abstract} the new object
+   * @return {dojo/Deferred} promise with created object
    */
   makeObject: function(dataForDiscriminator) {
     var Model = this.Model;
-    var field = Model.prototype.discriminatorProperty;
-    if (field) {
-      var discr = dataForDiscriminator[field];
-      var _class = Model.prototype.discriminatorMap[discr];
-      if (!discr || !_class) {
-        console.error("happing on store", this, ", model ", this.Model.prototype);
-        throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
+    var discrProp = Model.prototype.discriminatorProperty;
+    if (discrProp) {
+      var discrValue = dataForDiscriminator[discrProp];
+      var _class = Model.prototype.discriminatorMap[discrValue];
+      if (!discrValue || !_class) {
+        console.error("happening on store", this, ", model ", this.Model.prototype);
+        throw new Error("makeObject(): invalid discriminator '"+
+                        discrProp+"': "+discrValue);
       }
-      throw new Error("ModelStore::makeObject[discr="+discr+"]: "+
-                      "needs a fix for async loading of discr class module");
-      //Model = value.getClass(_class);
+      Model = value.getModule(_class);
+      // throw new Error("ModelStore::makeObject[discr="+discrValue+"]: "+
+      //                 "needs a fix for async loading of discr class module");
     }
-    var object = new Model({ store: this });
-    return object;
+    var _this = this;
+
+    return when(Model).then(function(Model) {
+      return new Model({ store: _this });
+    });
   },
 
   /**
    * Create a fresh new object (to be used from app code)
    *
    * @param {string} discriminatorValue dicriminator value to use (if needed for that model)
-   * @return {geonef/jig/data/model/Abstract}
+   * @return {dojo/Deferred} promise with created object
    */
   createObject: function(discriminatorValue) {
     var data = {};
-    var field = this.Model.prototype.discriminatorProperty;
-    if (field) {
+    var discrProp = this.Model.prototype.discriminatorProperty;
+    if (discrProp) {
       if (!discriminatorValue) {
         throw new Error("createObject(): discriminator is required");
       }
-      data[field] = discriminatorValue;
+      data[discrProp] = discriminatorValue;
     }
-    var object = this.makeObject(data);
-    lang.mixin(object, data);
-    object.initNew();
-    return object;
+
+    return this.makeObject(data).then(function(object) {
+      lang.mixin(object, data);
+      object.initNew();
+      return object;
+    });
   },
 
   /**
@@ -431,10 +443,16 @@ return declare(null, { //--noindent--
    */
   getLazyObject: function(data) {
     var obj = this.index[data.id];
+    var _this = this;
     if (!obj) {
-      obj = this.index[data.id] = this.makeObject(data);
+      obj = this.makeObject(data).then(function(obj) {
+        _this.index[data.id] = obj;
+        return obj;
+      });
     }
-    return async.bindArg(obj, obj.fromServerValue(data));
+    return when(obj).then(function(obj) {
+      return async.bindArg(obj, obj.fromServerValue(data));
+    });
   },
 
   /**

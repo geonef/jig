@@ -6,9 +6,12 @@ define([
          "dojo/dom-style",
          "dojo/dom-class",
          "dojo/aspect",
+         "dojo/promise/all",
+
          "./util/makeDOM",
          "./util/async"
-], function(declare, _Widget, lang, fx, style, domClass, aspect, makeDOM, async) {
+], function(declare, _Widget, lang, fx, style, domClass, aspect, allPromises,
+            makeDOM, async) {
 
 /**
  * Base class widget class
@@ -162,18 +165,21 @@ return declare([_Widget], {
    * @param arg Custom arg passed to makeContentNodes()
    */
   rebuildDom: function(arg) {
+    console.log("rebuildDom", this, arguments);
     if (this._destroyed) { return null; }
     this.destroyDom();
     var domNode = this.domNode;
     var _this = this;
-    return async.whenAll(
-      this.dom(this.makeContentNodes(arg))).then(
-      function(nodes) {
-        console.log('rebuildDom : got nodes', nodes);
-        nodes.forEach(function(node) { domNode.appendChild(node); });
-        _this.afterRebuildDom();
-        return nodes;
-      });
+    var nodes1 = this.makeContentNodes(arg);
+    console.log("nodes1", nodes1);
+    var nodes2 = this.dom(nodes1);
+    console.log("nodes2", nodes2);
+    return allPromises(nodes2).then(function(nodes) {
+      console.log("nodes", nodes);
+      nodes.forEach(function(node) { domNode.appendChild(node); });
+      _this.afterRebuildDom();
+      return nodes;
+    });
   },
 
   /**

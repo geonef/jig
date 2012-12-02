@@ -5,8 +5,10 @@ define([
   "require",
   "dojo/_base/Deferred",
   "dojo/_base/lang",
-  "dojo/_base/window"
-], function(require, Deferred, lang, window) {
+  "dojo/_base/window",
+  "dojo/_base/kernel",
+  "dojo/promise/all",
+], function(require, Deferred, lang, window, kernel, allPromises) {
 
 
 var self = { //--noindent--
@@ -56,39 +58,10 @@ var self = { //--noindent--
    * @return {dojo/Deferred}
    */
   whenAll: function(deferreds) {
-    var count = deferreds.length;
-    if (!count) {
-      return self.newResolved([]);
-    }
-    var all = new Deferred();
-    var values = deferreds.map(function() { return null; });
-    deferreds.forEach(
-      function(d, idx) {
-        if (!d.then) {
-          values[idx] = d;
-          --count;
-          if (!count) {
-            all.resolve(values);
-          }
-          return;
-        }
-        d.then(function(arg) {
-          // var idx = deferreds.indexOf(d);
-          if (!count) {
-            console.error("whenAll(): resolve when no more pending", count, d, idx);
-          }
-          // if (idx === -1) {
-          //   console.error("deferred not found in array:", d, deferreds);
-          // }
-          values[idx] = arg;
-          --count;
-          if (!count) {
-            all.resolve(values);
-          }
-        });
-      });
+    kernel.deprecated("geonef/jig/util/async.whenAll()",
+                      "use dojo/promise/all instead");
 
-    return all;
+    return allPromises(deferreds);
   },
 
   /**

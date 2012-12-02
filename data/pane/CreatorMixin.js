@@ -63,13 +63,12 @@ return declare(null, { //--noindent--
    * @return {geonef/jig/Deferred}
    */
   createNewObject: function(props, discriminatorKey) {
-    var deferred = new Deferred();
-    var object = this.store.createObject(discriminatorKey);
-    object.setProps(this.defaultProperties);
-    object.setProps(props);
-      // var object = new (this.Model)(props);
-    deferred.resolve(object); // unset object by default
-    return deferred;
+    return this.store.createObject(discriminatorKey)
+      .then(function(object) {
+        object.setProps(this.defaultProperties);
+        object.setProps(props);
+        return object;
+      });
   },
 
   /**
