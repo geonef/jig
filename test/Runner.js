@@ -30,17 +30,18 @@ return declare(null, { //--noindent--
   /**
    * Run the tests
    *
-   * @param {Function} func     Test function to execute
+   * @param {Function} func     Test function (or class) to execute
+   * @param {!Object} options   If 'func' is a class, options to give to constructor
    */
-  run: function(func) {
+  run: function(func, options) {
     if (this.clearConsole) {
-      console.clear();
+      console.clear !== undefined && console.clear();
     }
     console.log('STARTING TEST PROCEDURE', this);
     this.currentGroup = null;
     var ret;
     if (func.prototype && func.prototype.execute) {
-      ret = this.classGroup(func);
+      ret = this.classGroup(func, options);
     } else {
       ret = this.group(func, "[root]");
     }
