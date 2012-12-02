@@ -19,7 +19,7 @@ var self = { //--noindent--
    */
   getClass: function(name, requireIt) {
     kernel.deprecated("geonef/jig/util/value.getClass()",
-                      "Use AMD's require() instead. -- "+name);
+                      "Use getModule() instead. -- "+name);
     // console.warn(new Error("geonef/jig/util/value.getClass() is obsolete! "+
     //                        "Use AMD's require() instead."));
     if (typeof name == 'function') {

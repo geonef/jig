@@ -89,7 +89,6 @@ return declare(_FormMixin, { //--noindent--
     return this.getDescendants();
   },
 
-
   /**
    * Make the list of DOMNodes to search child inputs into - protected
    *

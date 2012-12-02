@@ -20,13 +20,13 @@
  *                              });
  *           });
  *
- *   var newCustom = customStore.makeObject({ name: "hehe" });
- *   customStore
- *       .add(newCustom)
- *       .then(function(obj) {
- *                 // obj === newCustom
- *                 console.log("saved", obj);
- *             });
+ *   customStore.makeObject({ name: "hehe" })
+ *      .then(function(newCustom) {
+ *         return customStore.save(newCustom);
+ *      })
+ *      .then(function(newCustom) {
+ *         console.log("saved", obj);
+ *      });
  *
  *   // For an example of a custom store, see geonef/jig/data/model/UserStore.
  *
@@ -276,12 +276,16 @@ return declare(null, { //--noindent--
    */
   duplicate: function(object, options) {
     var _this = this;
-    var obj;
+    var obj, resp;
     return this.apiRequest(lang.mixin({
       action: 'duplicate', id: object.id,
     }, options), null, object)
-      .then(function(resp) {
-        obj = _this.makeObject(resp.object);
+      .then(function(_resp) {
+        resp = _resp;
+        return _this.makeObject(_resp.object);
+      })
+      .then(function(_obj) {
+        obj = _obj;
         _this.index[resp.object.id] = obj;
         return async.bindArg(obj, obj.fromServerValue(resp.object));
       })
@@ -339,19 +343,20 @@ return declare(null, { //--noindent--
       }
     }
 
-    return this.apiRequest(lang.mixin(
-      { action: 'query', filters: filter, /* options: options || {}*/ }, options))
-      .then(lang.hitch(this,
-                       function(resp) {
-                         if (!resp.results) {
-                           console.error("model query ("+this.apiModule+"): no result array", resp);
-                           return null;
-                         }
-                         return async.whenAll(resp.results.map(
-                           function(data) {
-                             return this.getLazyObject(lang.mixin({}, implied, data));
-                           }, this));
-                       }));
+    return this.apiRequest(lang.mixin({
+      action: 'query',
+      filters: filter, /* options: options || {}*/
+    }, options))
+      .then(lang.hitch(this, function(resp) {
+        if (!resp.results) {
+          console.error("model query ("+this.apiModule+"): no result array", resp);
+          return null;
+        }
+        return async.whenAll(resp.results.map(
+          function(data) {
+            return this.getLazyObject(lang.mixin({}, implied, data));
+          }, this));
+      }));
   },
 
   /**
@@ -380,21 +385,19 @@ return declare(null, { //--noindent--
    *
    * @param {Object} dataForDiscriminator data object whose discriminator
    *                     field (if any) is used to determine the class to instanciate
-   * @return {geonef/jig/data/model/Abstract} the new object
+   * @return {dojo/Deferred} promise with created object
    */
   makeObject: function(dataForDiscriminator) {
     var Model = this.Model;
-    var field = Model.prototype.discriminatorProperty;
-    if (field) {
-      var discr = dataForDiscriminator[field];
-      var _class = Model.prototype.discriminatorMap[discr];
-      if (!discr || !_class) {
+    var discrProp = Model.prototype.discriminatorProperty;
+    if (discrProp) {
+      var discrValue = dataForDiscriminator[discrProp];
+      var _class = Model.prototype.discriminatorMap[discrValue];
+      if (!discrValue || !_class) {
         console.error("happening on store", this, ", model ", this.Model.prototype);
-        throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
+        throw new Error("makeObject(): invalid discriminator '"+
+                        discrProp+"': "+discrValue);
       }
-      // throw new Error("ModelStore::makeObject[discr="+discr+"]: "+
-      //                 "needs a fix for async loading of discr class module");
-      //Model = value.getClass(_class);
       Model = value.getModule(_class);
     }
     var _this = this;
@@ -408,16 +411,16 @@ return declare(null, { //--noindent--
    * Create a fresh new object (to be used from app code)
    *
    * @param {string} discriminatorValue dicriminator value to use (if needed for that model)
-   * @return {geonef/jig/data/model/Abstract}
+   * @return {dojo/Deferred} promise with created object
    */
   createObject: function(discriminatorValue) {
     var data = {};
-    var field = this.Model.prototype.discriminatorProperty;
-    if (field) {
+    var discrProp = this.Model.prototype.discriminatorProperty;
+    if (discrProp) {
       if (!discriminatorValue) {
         throw new Error("createObject(): discriminator is required");
       }
-      data[field] = discriminatorValue;
+      data[discrProp] = discriminatorValue;
     }
 
     return this.makeObject(data).then(function(object) {
@@ -441,7 +444,8 @@ return declare(null, { //--noindent--
     var obj = index[data.id];
     if (!obj) {
        obj = this.makeObject(data).then(function(_obj) {
-         return index[data.id] = _obj;
+         index[data.id] = _obj;
+         return _obj;
        });
     }
 

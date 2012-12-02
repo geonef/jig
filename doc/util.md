@@ -10,7 +10,7 @@ These modules are:
 * [geonef/jig/util/number](../util/number.js) : number utilities
 * [geonef/jig/util/string](../util/string.js) : string utilities
 * [geonef/jig/util/object](../util/object.js) : object utilities
-* [geonef/jig/util/promise](../util/promise.js) : deferred/promise utilities
+* [geonef/jig/util/async](../util/async.js) : deferred/promise utilities
 * [geonef/jig/util/widget](../util/widget.js) : widget utilities
 
 These files are commented. For a documentation, read the source code!

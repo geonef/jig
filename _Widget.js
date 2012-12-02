@@ -6,9 +6,12 @@ define([
   "dojo/dom-style",
   "dojo/dom-class",
   "dojo/aspect",
+  "dojo/promise/all",
+
   "./util/makeDOM",
   "./util/async"
-], function(declare, _Widget, lang, fx, style, domClass, aspect, makeDOM, async) {
+], function(declare, _Widget, lang, fx, style, domClass, aspect, allPromises,
+            makeDOM, async) {
 
   /**
    * Base class widget class
@@ -103,7 +106,7 @@ return declare([_Widget], { //--noindent--
     if (source && dest){
       while (source.hasChildNodes()){
         dest.appendChild(source.firstChild);
-        }
+      }
     }
   },
 
@@ -162,11 +165,12 @@ return declare([_Widget], { //--noindent--
    * @param arg Custom arg passed to makeContentNodes()
    */
   rebuildDom: function(arg) {
+    console.log("rebuildDom", this, arguments);
     if (this._destroyed) { return null; }
     this.destroyDom();
     var domNode = this.domNode;
     var _this = this;
-    return async.whenAll(this.dom(this.makeContentNodes(arg)))
+    return allPromises(this.dom(this.makeContentNodes(arg)))
       .then(function(nodes) {
         // console.log('rebuildDom : got nodes', nodes);
         if (_this._destroyed) {
@@ -233,8 +237,8 @@ return declare([_Widget], { //--noindent--
   /**
    * Destroy a subwidget added with enablSubWidget
    *
-     * @return {boolean} Whether the widget was not already closed
-     */
+   * @return {boolean} Whether the widget was not already closed
+   */
   destroySubWidget: function() {
     var widget = this.subWidget;
     if (widget) {
