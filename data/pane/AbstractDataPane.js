@@ -75,7 +75,7 @@ return declare(_Widget, { //--noindent--
    */
   buildRendering: function() {
     this.inherited(arguments);
-    this.whenDataReady.then(async.busy(this.domNode));
+    // this.whenDataReady.then(async.busy(this.domNode));
   },
 
   makeDropDownNode: function(title) {
@@ -120,8 +120,12 @@ return declare(_Widget, { //--noindent--
    *  @override
    */
   startup: function() {
+    if (this._started) { return; }
     this.inherited(arguments);
-    this.whenDataReady.then(lang.hitch(this, this.onDataReady));
+    // this.whenDataReady.then(lang.hitch(this, this.onDataReady));
+    this.whenDataReady.then(lang.hitch(this, function() {
+      this.onDataReady();
+    }));
   },
 
   /**

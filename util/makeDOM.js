@@ -127,17 +127,22 @@ define([
     }
     if (!(args instanceof Array)) {
       console.error("args is: ", args);
-      throw new Error("makeDOM: args is not an array not promise or DOM element");
+      throw new Error("makeDOM: args is not an array not promise or a DOM element");
     }
-    if (args[0] instanceof Array || args[0].then) {
+    if (args[0] && ['string', 'function'].indexOf(typeof args[0]) === -1) {
+      // if args[0] is neither of string, function or falsy: assume node-array mode
+      // todo: manage async
       return args.map(function(def) { return self(def, obj); });
     }
-    if (args[0] instanceof _Widget) {
-      return args[0].domNode;
-    }
-    if (args[0] instanceof HTMLElement) {
-        return args[0];
-    }
+    // if (args[0] instanceof Array || args[0].then) {
+    //   return args.map(function(def) { return self(def, obj); });
+    // }
+    // if (args[0] instanceof _Widget) {
+    //   return args[0].domNode;
+    // }
+    // if (args[0] instanceof HTMLElement) {
+    //     return args[0];
+    // }
     var attrs = lang.mixin({}, args[1]);
     var magic = {};
     ['_attach', '_insert', '_tooltip', '_tooltipOptions',

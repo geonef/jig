@@ -39,9 +39,10 @@ define([
   "../../api",
   "dojo/_base/lang",
   "dojo/topic",
+  "dojo/when",
   "../../util/async",
   "../../util/value",
-], function(module, require, declare, api, lang, topic, async, value) {
+], function(module, require, declare, api, lang, topic, when, async, value) {
 
 return declare(null, { //--noindent--
 
@@ -219,8 +220,8 @@ return declare(null, { //--noindent--
       .then(function(value) {
         return _this.apiRequest(lang.mixin({
           action: 'put',
-            object: value,
-          }, options), {}, object);
+          object: value,
+        }, options), {}, object);
       })
       .then(function(resp) {
         // console.log('in PUT then', arguments, object);
@@ -388,15 +389,19 @@ return declare(null, { //--noindent--
       var discr = dataForDiscriminator[field];
       var _class = Model.prototype.discriminatorMap[discr];
       if (!discr || !_class) {
-        console.error("happing on store", this, ", model ", this.Model.prototype);
+        console.error("happening on store", this, ", model ", this.Model.prototype);
         throw new Error("makeObject(): invalid discriminator '"+field+"': "+discr);
       }
-      throw new Error("ModelStore::makeObject[discr="+discr+"]: "+
-                      "needs a fix for async loading of discr class module");
+      // throw new Error("ModelStore::makeObject[discr="+discr+"]: "+
+      //                 "needs a fix for async loading of discr class module");
       //Model = value.getClass(_class);
+      Model = value.getModule(_class);
     }
-    var object = new Model({ store: this });
-    return object;
+    var _this = this;
+
+    return when(Model).then(function(Model) {
+      return new Model({ store: _this });
+    });
   },
 
   /**
@@ -414,10 +419,12 @@ return declare(null, { //--noindent--
       }
       data[field] = discriminatorValue;
     }
-    var object = this.makeObject(data);
-    lang.mixin(object, data);
-    object.initNew();
-    return object;
+
+    return this.makeObject(data).then(function(object) {
+      lang.mixin(object, data);
+      object.initNew();
+      return object;
+    });
   },
 
   /**
@@ -430,11 +437,17 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred}
    */
   getLazyObject: function(data) {
-    var obj = this.index[data.id];
+    var index = this.index;
+    var obj = index[data.id];
     if (!obj) {
-      obj = this.index[data.id] = this.makeObject(data);
+       obj = this.makeObject(data).then(function(_obj) {
+         return index[data.id] = _obj;
+       });
     }
-    return async.bindArg(obj, obj.fromServerValue(data));
+
+    return when(obj).then(function(obj) {
+      return async.bindArg(obj, obj.fromServerValue(data));
+    });
   },
 
   /**
@@ -527,4 +540,3 @@ return declare(null, { //--noindent--
 });
 
 });
-

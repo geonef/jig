@@ -335,10 +335,9 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred}
    */
   requestProps: function(propArray) {
-    var self = this;
-      return async.whenAll(
-        propArray.map(function(prop) { return self.get(prop); }))
-      .then(function(props) { return self; });
+    var _this = this;
+    return async.bindArg(this, allPromises(
+      propArray.map(function(prop) { return _this.get(prop); })));
   },
 
   /**
@@ -607,7 +606,7 @@ return declare(null, { //--noindent--
       .then(function(resp) {
         var idx = _this[propName].indexOf(subObject);
         if (idx !== -1) {
-            _this[propName].splice(idx, 1);
+          _this[propName].splice(idx, 1);
         }
         _this.publish(['afterPut']);
 
@@ -632,7 +631,7 @@ return declare(null, { //--noindent--
   },
 
   /**
-   * Unsubscribe event registered with self subscribe()
+   * Unsubscribe event registered with selfg subscribe()
    */
   unsubscribe: function(_h) {
     var idx = this._subscr.indexOf(_h);

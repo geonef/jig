@@ -1,22 +1,22 @@
 define([
-         "dojo/_base/declare",
-         "dijit/_Widget",
-         "dojo/_base/lang",
-         "dojo/_base/fx",
-         "dojo/dom-style",
-         "dojo/dom-class",
-         "dojo/aspect",
-         "./util/makeDOM",
-         "./util/async"
+  "dojo/_base/declare",
+  "dijit/_Widget",
+  "dojo/_base/lang",
+  "dojo/_base/fx",
+  "dojo/dom-style",
+  "dojo/dom-class",
+  "dojo/aspect",
+  "./util/makeDOM",
+  "./util/async"
 ], function(declare, _Widget, lang, fx, style, domClass, aspect, makeDOM, async) {
 
-/**
- * Base class widget class
- *
- * Child classes should define 'makeContentNodes' as a function
- * returning an array of node definitions (first arg to geonef/jig/util/makeDOM)
- */
-return declare([_Widget], {
+  /**
+   * Base class widget class
+   *
+   * Child classes should define 'makeContentNodes' as a function
+   * returning an array of node definitions (first arg to geonef/jig/util/makeDOM)
+   */
+return declare([_Widget], { //--noindent--
 
   /**
    * CSS classes to be set on domNode
@@ -103,7 +103,7 @@ return declare([_Widget], {
     if (source && dest){
       while (source.hasChildNodes()){
         dest.appendChild(source.firstChild);
-      }
+        }
     }
   },
 
@@ -166,10 +166,13 @@ return declare([_Widget], {
     this.destroyDom();
     var domNode = this.domNode;
     var _this = this;
-    return async.whenAll(
-      this.dom(this.makeContentNodes(arg))).then(
-      function(nodes) {
-        console.log('rebuildDom : got nodes', nodes);
+    return async.whenAll(this.dom(this.makeContentNodes(arg)))
+      .then(function(nodes) {
+        // console.log('rebuildDom : got nodes', nodes);
+        if (_this._destroyed) {
+          throw new Error("rebuildDom(): widget was destroyed in the middle :(");
+        }
+
         nodes.forEach(function(node) { domNode.appendChild(node); });
         _this.afterRebuildDom();
         return nodes;
@@ -204,27 +207,25 @@ return declare([_Widget], {
    * @return {dijit/_WidgetBase} the given widget
    */
   enableSubWidget: function(widget, onDestroy) {
-    console.log('enableSubWidget', this, arguments);
     this.destroySubWidget();
     this.subHides.forEach(
-        function(name) {
-          var node = this[name];
-          if (node) {
-            style.set(node.domNode || node, 'display', 'none');
-          }
-        }, this);
+      function(name) {
+        var node = this[name];
+        if (node) {
+          style.set(node.domNode || node, 'display', 'none');
+        }
+      }, this);
     widget.placeAt(this.opNode).startup();
     this.subWidget = widget;
     domClass.add(this.domNode, 'hasSub');
     var _this = this;
-    aspect.before(widget, 'destroy',
-      function() {
-        console.log('in', this, arguments);
-        _this.destroySubWidget();
-        if (onDestroy) {
-          lang.hitch(_this, onDestroy)();
-        }
-      });
+    aspect.before(widget, 'uninitialize',// 'destroy',
+                  function() {
+                    _this.destroySubWidget();
+                    if (onDestroy) {
+                      lang.hitch(_this, onDestroy)();
+                    }
+                  });
 
     return widget;
   },
@@ -232,23 +233,22 @@ return declare([_Widget], {
   /**
    * Destroy a subwidget added with enablSubWidget
    *
-   * @return {boolean} Whether the widget was not already closed
-   */
+     * @return {boolean} Whether the widget was not already closed
+     */
   destroySubWidget: function() {
     var widget = this.subWidget;
     if (widget) {
-      console.log('destroySubWidget', this, arguments);
       delete this.subWidget;
       if (!widget._beingDestroyed) {
         widget.destroy();
       }
       this.subHides.forEach(
-          function(name) {
+        function(name) {
           var node = this[name];
-            if (node) {
-              style.set(node.domNode || node, 'display', '');
-            }
-          }, this);
+          if (node) {
+            style.set(node.domNode || node, 'display', '');
+          }
+        }, this);
       if (this.domNode) {
         domClass.remove(this.domNode, 'hasSub');
       }

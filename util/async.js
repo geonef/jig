@@ -172,6 +172,7 @@ var self = { //--noindent--
   setProp: function(obj, propName) {
     return function(arg) {
       obj[propName] = arg;
+      return arg;
     };
   },
 

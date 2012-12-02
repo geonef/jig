@@ -1,33 +1,70 @@
 /**
  * Input combining date and optional time
  *
- * TODO: get rid of template and use makeDOM instead
  */
 define([
-         "dojo/_base/declare",
-         "dijit/_Widget",
-         "dijit/_TemplatedMixin",
-         "dijit/_WidgetsInTemplateMixin",
+  "module",
+  "dojo/_base/declare",
+  "geonef/jig/_Widget",
+  "dojo/_base/lang",
+  "dojo/dom-class",
 
-         "dojo/dom-class",
+  "./DateTextBox",
+  "dijit/form/TimeTextBox",
+  "../button/Action",
+], function(module, declare, _Widget, lang, domClass,
+            DateTextBox, TimeTextBox, Action) {
 
-         "dojo/text!./templates/DateTime.html",
-         "./DateTextBox",
-         "dijit/form/TimeTextBox"
-], function(declare, _Widget, _TemplatedMixin, _WidgetsInTemplateMixin,
-            domClass,
-            template, DateTextBox, TimeTextBox) {
+  var h = lang.hitch;
 
-
-return declare([ _Widget, _TemplatedMixin, _WidgetsInTemplateMixin ],
-{
+return declare(_Widget, { //--noindent--
   name: 'date',
   required: false,
-  timeEnabled: null,
-  templateString: template,
+  timeEnabled: false,
+  nodeName: "table",
+  "class": "jigInputDateTime",
 
-  buildRendering: function() {
-    this.inherited(arguments);
+  datePromptMessage: null,
+  dateMissingMessage: null,
+  timePromptMessage: null,
+
+  /**
+   * @override
+   */
+  makeContentNodes: function() {
+    return [
+      ["tbody", {}, ["tr", {}, [
+        ["td", {}, [
+          [DateTextBox, {
+            _attach: "dateInput",
+            onChange: h(this, this.onSubChange),
+            tooltipPosition: ["above", "below"],
+            promptMessage: this.datePromptMessage,
+            missingMessage: this.dateMissingMessage,
+          }]
+        ]],
+        ["td", {"class": "noTimeOnly"}, [
+          [Action, {
+            label: "Heure...",
+            onExecute: h(this, this._setTimeEnabledAttr, true, true)
+          }]
+        ]],
+        ["td", {"class": "timeOnly"}, [
+          [TimeTextBox, {
+            _attach: "timeInput",
+            onChange: h(this, this.onSubChange),
+            tooltipPosition: ["above", "below"],
+            promptMessage: this.timePromptMessage,
+          }]
+        ]],
+        ["td", {"class": "timeOnly"}, [
+          [Action, {
+            label: "Retirer l'heure",
+            onExecute: h(this, this._setTimeEnabledAttr, false, true)
+          }]
+        ]]
+      ]]]
+    ];
   },
 
   _setRequiredAttr: function(state) {
@@ -51,37 +88,40 @@ return declare([ _Widget, _TemplatedMixin, _WidgetsInTemplateMixin ],
   _setValueAttr: function(date) {
     this.date = date;
     this.dateInput.attr('value', date);
-    if (!(date instanceof Date) ||
-        (0 === date.getHours() &&
-         0 === date.getMinutes() &&
-         0 === date.getSeconds())) {
-      this.timeInput.attr('value', null);
-      this.disableTime();
+    // console.log("value", date, date instanceof Date);
+    if (date instanceof Date &&
+        (date.getHours() > 0 ||
+         date.getMinutes() > 0 ||
+         date.getSeconds() > 0)) {
+      this.timeInput.attr('value', date);
+      this.set("timeEnabled", true);
     } else {
-      var time = date;
-      this.timeInput.attr('value', time);
-      this.enableTime();
+      this.timeInput.attr('value', null);
+      this.set("timeEnabled", false);
     }
   },
 
-  enableTime: function() {
-    this.timeEnabled = true;
-    domClass.add(this.domNode, 'time');
+  _setTimeEnabledAttr: function(enabled, showHideDD) {
+    console.log("_setTimeEnabledAttr", this, arguments);
+    this.timeEnabled = enabled;
+    (enabled ? domClass.add : domClass.remove)(this.domNode, 'time');
     this.onSubChange();
-  },
-
-  disableTime: function() {
-    this.timeEnabled = false;
-    domClass.remove(this.domNode, 'time');
-    this.onSubChange();
-
+    if (showHideDD) {
+      if (enabled) {
+        this.timeInput.openDropDown();
+      } else {
+        this.timeInput.closeDropDown();
+      }
+    }
   },
 
   isValid: function() {
+    // console.log("isValid", this, arguments);
     return this.dateInput.isValid() && this.timeInput.isValid();
   },
 
   validate: function() {
+    // console.log("Validate", this.dateInput.isValid());
     return this.dateInput.validate() && this.timeInput.validate();
   },
 
@@ -99,6 +139,8 @@ return declare([ _Widget, _TemplatedMixin, _WidgetsInTemplateMixin ],
 
   // hook
   onChange: function() {},
+
+  declaredClass: module.id
 
 });
 

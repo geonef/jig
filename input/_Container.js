@@ -1,3 +1,12 @@
+/**
+ * Mixin class providing group-input functionality
+ *
+ * This class helps manage multiple input (form) widgets as a group,
+ * somewhat like dijit/form/Form does.
+ *
+ * This class is just a mixin. If you need a real widget, use the input/Group
+ * class instead.
+ */
 define([
   "dojo/_base/declare",
   "dijit/form/_FormMixin",
@@ -6,8 +15,7 @@ define([
   "../util/widget",
 ], function(declare, _FormMixin, lang, aspect, widget) {
 
-
-return declare([_FormMixin], { //--noindent--
+return declare(_FormMixin, { //--noindent--
 
   /**
    * Name of this item: required if we are a child of another _Container
@@ -67,6 +75,8 @@ return declare([_FormMixin], { //--noindent--
    *
    * When a widget is met, if it has a "name" property, the search does not go deeper.
    * If it does not, its sub-widgets are scanned recursively.
+   *
+   * @return {Array.<dijit/_WidgetBase>}
    */
   getDescendants: function() {
     var list = [];
@@ -75,6 +85,16 @@ return declare([_FormMixin], { //--noindent--
     return list;
   },
 
+  _getDescendantFormWidgets: function() {
+    return this.getDescendants();
+  },
+
+
+  /**
+   * Make the list of DOMNodes to search child inputs into - protected
+   *
+   * @return {Array.<HTMLElement>}
+   */
   getInputRootNodes: function() {
     return [ this.domNode ].concat(this.additionalRoots);
   },
@@ -116,38 +136,60 @@ return declare([_FormMixin], { //--noindent--
     }
   },
 
+  /**
+   * hook - called upon value change (at any sub-input's value change)
+   */
+  onChange: function() {},
 
-  onChange: function() {
-    // hook
-  },
-
+  /**
+   * Focus on first sub-input
+   */
   focus: function() {
     var widgets = this.getDescendants();
     return widgets[0].focus();
   },
 
-  setSubValue: function(name, value) {
+  /**
+   * Get child input by name
+   *
+   * @param {string} name
+   * @return {dijit/_Widget}
+   */
+  getSubWidget: function(name) {
     var child = this.getDescendants()
       .filter(function(ch) { return ch.name === name; })[0];
     if (!child) {
-      console.warn('setSubValue: child not defined: ', name, this.getDescendants(), this);
-      return;
-    }
-    child.set('value', value);
-  },
-
-  getSubValue: function(name) {
-    var child = this.getDescendants()
-      .filter(function(ch) { return ch.name === name; })[0];
-    if (!child) {
-      console.warn('setSubValue: child not defined: ', name, this.getDescendants(), this);
+      console.warn('getSubWidget: child not defined: ', name, this.getDescendants(), this);
       return null;
     }
-    return child.get('value');
+    return child;
   },
 
+  /**
+   * Set value of sub-input
+   *
+   * @deprecated Use instead: getSubWidget(name).set("value", value)
+   * @param {string} name
+   * @param {mixed} value
+   */
+  setSubValue: function(name, value) {
+    this.getSubWidget(name).set('value', value);
+  },
 
+  /**
+   * Get value of sub-input
+   *
+   * @deprecated Use instead: getSubWidget(name).get("value")
+   * @param {string} name
+   * @return {mixed}
+   */
+  getSubValue: function(name) {
+    return this.getSubWidget(name).get('value');
+  },
 
+  /**
+   * @override
+   */
   _setValueAttr: function(value, priorityChange) {
     if (!value) {
       this.internalValues = {};
@@ -186,6 +228,9 @@ return declare([_FormMixin], { //--noindent--
     }
   },
 
+  /**
+   * @override
+   */
   _getValueAttr: function() {
     var descendants = this.getDescendants();
     var value;
@@ -210,10 +255,20 @@ return declare([_FormMixin], { //--noindent--
     return value;
   },
 
+  /**
+   * Hook: called before _getValueAttr() returns.
+   *
+   * The value can be modified here
+   */
   getValueHook: function(value) {
     // hook
   },
 
+  /**
+   * Recursively set child inputs as read-only
+   *
+   * @param {boolean} state
+   */
   _setReadOnlyAttr: function(state) {
     this.readOnly = state;
     if (state === true || state === false) {
