@@ -4,21 +4,22 @@
  * It must be given a 'ddClass', unless 'ddCreateFunc' is given.
  */
 define([
-         "dojo/_base/declare",
-         "dijit/form/DropDownButton",
-         "./DijitFix",
-         "dijit/TooltipDialog",
-         "dijit/popup",
-         "dojo/_base/lang",
-         "dojo/dom-construct",
-         "dojo/dom-style",
-         "dojo/Deferred"
+  "dojo/_base/declare",
+  "dijit/form/DropDownButton",
+  "./DijitFix",
+  "dijit/TooltipDialog",
+  "dijit/popup",
+  "dojo/_base/lang",
+  "dojo/dom-construct",
+  "dojo/dom-style",
+  "dojo/Deferred",
+  "../util/value"
 ], function(declare, DropDownButton, DijitFix, TooltipDialog, popup, lang,
-            construct, style, Deferred) {
+            construct, style, Deferred, value) {
 
 
-return declare([DropDownButton, DijitFix],
-{
+return declare([DropDownButton, DijitFix], { //--noindent--
+
   /**
    * @override
    */
@@ -27,7 +28,7 @@ return declare([DropDownButton, DijitFix],
   /**
    * Widget class to instanciate for dropdown
    *
-   * @type {Function}
+   * @type {Function|string}
    */
   ddClass: null,
 
@@ -77,14 +78,9 @@ return declare([DropDownButton, DijitFix],
     //this.dropDown = null;
   },
 
-  widgetCreateFunc: function() {
-    var Class = this.ddClass;
-    var widget = new Class(lang.mixin({}, this.ddOptions));
-    widget._floatAnchor = true;
-    style.set(widget.domNode, this.ddStyle);
-    return widget;
-  },
-
+  /**
+   * @override
+   */
   openDropDown: function() {
     this.inherited(arguments);
     if (this.subWidget && this.subWidget.onShow) {
@@ -94,28 +90,56 @@ return declare([DropDownButton, DijitFix],
 
   /**
    * Loads the data for the dropdown, and at some point, calls the given callback
+   *
+   * @override
    */
-  loadDropDown: function(loadCallback){
-    this.dropDown = this.createDropDownTooltip();
-    if (this.subWidget) {
-      loadCallback();
-      this.subWidget.startup();
-      this.whenDDLoaded.resolve(this.subWidget);
-    }
+  loadDropDown: function(loadCallback) {
+    var _this = this;
+    this.createDropDownTooltip().then(function(dropDown) {
+      _this.dropDown = dropDown;
+      if (_this.subWidget) {
+        loadCallback();
+        _this.subWidget.startup();
+        _this.whenDDLoaded.resolve(_this.subWidget);
+      }
+    });
   },
 
+  /**
+   * Create the tooltip, including the dropdown (async)
+   *
+   * @return {dojo/Deferred}
+   */
   createDropDownTooltip: function() {
     var dd = new TooltipDialog({
       removeChild: lang.hitch(this, 'removeSubWidget')
     });
-    this.subWidget = this.widgetCreateFunc();
-    this._isJigLoaded = !!this.subWidget;
-    if (this.subWidget) {
-      this.subWidget._floatAnchor = true;
-      construct.place(this.subWidget.domNode, dd.containerNode); // no addChild!
-      this.connect(this.subWidget, 'onResize', 'onDropDownResize');
-    }
-    return dd;
+    var _this = this;
+    return this.widgetCreateFunc().then(function(subWidget) {
+      _this.subWidget = subWidget;
+      _this._isJigLoaded = !!_this.subWidget;
+      if (_this.subWidget) {
+        _this.subWidget._floatAnchor = true;
+        construct.place(_this.subWidget.domNode, dd.containerNode); // no addChild!
+        _this.connect(_this.subWidget, 'onResize', 'onDropDownResize');
+      }
+      return dd;
+    });
+  },
+
+  /**
+   * Create the dropdown widget (async)
+   *
+   * @return {dojo/Deferred}
+   */
+  widgetCreateFunc: function() {
+    var _this = this;
+    return value.getModule(this.ddClass).then(function(_Class) {
+      var widget = new _Class(lang.mixin({}, _this.ddOptions));
+      widget._floatAnchor = true;
+      style.set(widget.domNode, _this.ddStyle);
+      return widget;
+    });
   },
 
   removeSubWidget: function() {

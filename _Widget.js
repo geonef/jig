@@ -165,14 +165,12 @@ return declare([_Widget], { //--noindent--
    * @param arg Custom arg passed to makeContentNodes()
    */
   rebuildDom: function(arg) {
-    console.log("rebuildDom", this, arguments);
     if (this._destroyed) { return null; }
     this.destroyDom();
     var domNode = this.domNode;
     var _this = this;
     return allPromises(this.dom(this.makeContentNodes(arg)))
       .then(function(nodes) {
-        // console.log('rebuildDom : got nodes', nodes);
         if (_this._destroyed) {
           throw new Error("rebuildDom(): widget was destroyed in the middle :(");
         }
