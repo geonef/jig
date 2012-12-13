@@ -125,9 +125,9 @@ return declare(_Widget, { //--noindent--
       this.domNode.innerHTML = this.label;
     }
     domClass.add(this.domNode, this["class"]+" "+this.cssClasses);
-    if (this.domNode.nodeName !== 'A') {
+    // if (this.domNode.nodeName !== 'A') {
       this.connect(this.domNode, 'onclick', 'onClick');
-    }
+    // }
   },
 
   _setLabelAttr: function(label) {
@@ -159,6 +159,12 @@ return declare(_Widget, { //--noindent--
 
 
   onClick: function(evt) {
+    if (this.domNode.nodeName === 'A') {
+      if (this.disabled) {
+        event.stop(evt);
+      }
+      return;
+    }
     event.stop(evt);
     if (this.disabled) { return; }
     var execute = lang.hitch(this, this.execute, evt);
