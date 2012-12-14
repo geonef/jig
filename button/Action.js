@@ -108,6 +108,17 @@ return declare(_Widget, { //--noindent--
    */
   deferExecute: false,
 
+  /**
+   * If true, do not bubble up the execute() event
+   *
+   * It's a kind of "submit", for example it would automatically close
+   * a dialog or tooltip dialog.
+   *
+   * @type {boolean}
+   */
+  noSubmit: false,
+
+
   buildRendering: function() {
     //console.log('buildRendering', this, arguments);
     if (this.srcNodeRef) {
