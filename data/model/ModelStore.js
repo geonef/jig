@@ -366,12 +366,14 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback with no arg
    */
   remove: function(obj) {
-    var deferred = this.apiRequest(
-      { action: 'delete',
-        id: obj.getId(),
-      }, null, obj).then(function(resp) {
+    var deferred = this.apiRequest({
+      action: 'delete',
+      id: obj.getId(),
+    }, null, obj)
+      .then(function(resp) {
         obj.afterDelete();
       });
+
     obj.publish(['delete']);
     return deferred;
   },
