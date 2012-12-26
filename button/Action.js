@@ -62,7 +62,7 @@ return declare(_Widget, { //--noindent--
   "class": "button",
 
   /**
-   * Additional CSS classes to set
+   * Additional CSS classes to set (obsolete - use 'extraClass' instead)
    *
    * @type {string}
    */
@@ -124,7 +124,7 @@ return declare(_Widget, { //--noindent--
     if (this.label) {
       this.domNode.innerHTML = this.label;
     }
-    domClass.add(this.domNode, this["class"]+" "+this.cssClasses);
+    domClass.add(this.domNode, this["class"]+" "+this.extraClass + " " + this.cssClasses);
     if (this.domNode.nodeName !== 'A') {
       this.connect(this.domNode, 'onclick', 'onClick');
     }

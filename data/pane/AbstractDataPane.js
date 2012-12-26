@@ -67,7 +67,7 @@ return declare(_Widget, { //--noindent--
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
-      this.object.requestProps(this.autoRequestProps) : async.newResolved();
+      this.object.requestProps(this.autoRequestProps) : async.bindArg();
   },
 
   /**

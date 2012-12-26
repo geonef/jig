@@ -1,68 +1,67 @@
 define([
-         "dojo/_base/declare",
-         "dijit/form/CheckBox",
+  "module",
+  "dojo/_base/declare",
+  "dijit/form/CheckBox",
 
-         "dojo/_base/lang",
-         "dijit/registry",
-], function(declare, CheckBox,
+  "dojo/_base/lang",
+  "dijit/registry",
+], function(module, declare, CheckBox,
             lang, registry) {
 
 
-/**
- * Same as dijit/CheckBox, but deals with boolean value
- *
- * dijit/form/CheckBox deals with the HTML way (string value),
- * which is usually not what we want
- */
-return declare(CheckBox,
-{
-  value: false,
-
   /**
-   * id of input widget to disable according to checkbox state
+   * Same as dijit/CheckBox, but deals with boolean value
    *
-   * If provided, the corresponding widget is disabled when this checkbox
-   * is set to false. (disabled in the sense of .set('disable', true))
+   * dijit/form/CheckBox deals with the HTML way (string value),
+   * which is usually not what we want
    */
-  toggleInput: '',
+  return declare(CheckBox, {
+    value: false,
+
+    /**
+     * id of input widget to disable according to checkbox state
+     *
+     * If provided, the corresponding widget is disabled when this checkbox
+     * is set to false. (disabled in the sense of .set('disable', true))
+     */
+    toggleInput: '',
 
 
-  postMixInProperties: function() {
-    this.inherited(arguments);
-    this.checked = this.value;
-  },
+    postMixInProperties: function() {
+      this.inherited(arguments);
+      this.checked = this.value;
+    },
 
-  startup: function() {
-    this.inherited(arguments);
-    this.updateToggleInput();
-  },
-
-  _getValueAttr: function() {
-    return !!this.checked;
-  },
-
-  _setToggleInputAttr: function(id) {
-    this.toggleInput = id;
-    if (this._started) {
+    startup: function() {
+      this.inherited(arguments);
       this.updateToggleInput();
-    }
-  },
+    },
 
-  updateToggleInput: function() {
-    if (this._toggleInputCnt) {
-      this._toggleInputCnt.forEach(function(c) { this.disconnect(c); });
-      this._toggleInputCnt = undefined;
-    }
-    if (this.toggleInput) {
-      var w = registry.byId(this.toggleInput);
-      if (!w) {
-        console.warn("widget ID not found: ", this.toggleInput);
-        return;
+    _getValueAttr: function() {
+      return !!this.checked;
+    },
+
+    _setToggleInputAttr: function(id) {
+      this.toggleInput = id;
+      if (this._started) {
+        this.updateToggleInput();
       }
-      var savedValue; // static to all calls to the closure below
-      var notNull = function(v) { return v !== null && v !== undefined && v !== ''; };
-      var updateFromValue = lang.hitch(this,
-        function() {
+    },
+
+    updateToggleInput: function() {
+      if (this._toggleInputCnt) {
+        this._toggleInputCnt.forEach(function(c) { this.disconnect(c); });
+        this._toggleInputCnt = undefined;
+      }
+      if (this.toggleInput) {
+        var w = registry.byId(this.toggleInput);
+        if (!w) {
+          console.warn("widget ID not found: ", this.toggleInput);
+          return;
+        }
+        var savedValue; // static to all calls to the closure below
+        var notNull = function(v) { return v !== null && v !== undefined && v !== ''; };
+        var updateFromValue = lang.hitch(this, function() {
           var value = w.attr('value');
           if (notNull(value)) {
             savedValue = value;
@@ -71,27 +70,28 @@ return declare(CheckBox,
             this.attr('checked', !!value);
           }
         });
-      this._toggleInputCnt = [
-        this.connect(this, 'onChange',
-                     function() {
-                       if (!this.checked && !w.attr('disabled')) {
-                         var value = w.attr('value');
-                         if (notNull(value)) {
-                           savedValue = value;
-                         }
-                         w.attr('value', null);
-                       }
-                       if (this.checked && w.attr('disabled') && notNull(savedValue)) {
-                         w.attr('value', savedValue);
-                       }
-                       w.attr('disabled', !this.checked);
-                     }),
-        this.connect(w, 'onChange', updateFromValue)
-      ];
-      updateFromValue();
-    }
-  }
+        this._toggleInputCnt = [
+          this.connect(this, 'onChange', function() {
+            if (!this.checked && !w.attr('disabled')) {
+              var value = w.attr('value');
+              if (notNull(value)) {
+                savedValue = value;
+              }
+              w.attr('value', null);
+            }
+            if (this.checked && w.attr('disabled') && notNull(savedValue)) {
+              w.attr('value', savedValue);
+            }
+            w.attr('disabled', !this.checked);
+          }),
+          this.connect(w, 'onChange', updateFromValue)
+        ];
+        updateFromValue();
+      }
+    },
 
-});
+    declaredClass: module.id
+
+  });
 
 });

@@ -3,7 +3,7 @@
  *
  */
 define([
-  "require",
+  "module", "require",
   "dojo/_base/declare",
   "geonef/jig/_Widget",
   "dojo/_base/window",
@@ -11,7 +11,7 @@ define([
   "dojo/_base/fx",
   "dojo/fx/easing",
   "../util/async"
-], function(require, declare, _Widget, window, style, fx, easing, async) {
+], function(module, require, declare, _Widget, window, style, fx, easing, async) {
 
 return declare(_Widget, { //--noindent--
 
@@ -93,7 +93,9 @@ return declare(_Widget, { //--noindent--
           }
         }
       }).play();
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

@@ -115,7 +115,7 @@ define([
     var node;
 
     if (!args) { return null; }
-    if (args instanceof HTMLElement) {
+    if (args instanceof HTMLElement || args.domNode) {
       return args;
     }
     if (args.then) {

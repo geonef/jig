@@ -11,12 +11,10 @@ define([
 
 var self = { //--noindent--
 
-  //  Unused
-  //
-  // getParent: function(w) {
-  //   return w.getParent ? w.getParent() :
-  //      dijit/_Contained/prototype/getParent/call(w);
-  // },
+  getParent: function(w) {
+    return w.getParent ? w.getParent() :
+      _Contained.prototype.getParent.call(w);
+  },
 
   /**
    * Return an array of widgets below 'node' which have a 'name' property

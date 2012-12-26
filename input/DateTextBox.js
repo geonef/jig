@@ -1,8 +1,9 @@
 define([
+  "module",
   "dojo/_base/declare",
   "dijit/form/DateTextBox",
   "dojo/date/stamp",
-], function(declare, DateTextBox, stamp) {
+], function(module, declare, DateTextBox, stamp) {
 
 /**
  * Extension of dijit/DataTextBox to deal with string date value
@@ -37,7 +38,9 @@ return declare(DateTextBox,
       value = this.serialize(value);
     }
     return value;
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

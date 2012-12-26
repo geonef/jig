@@ -140,7 +140,7 @@ return declare(null, { //--noindent--
   get: function(id, options) {
     var obj = this.index[id];
     if (obj && (!options || (!options.fields && !options.fieldGroup))) {
-      return async.newResolved(obj);
+      return async.bindArg(obj);
     } else {
       var _this = this;
       return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),

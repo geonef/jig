@@ -4,6 +4,7 @@
  * It must be given a 'ddClass', unless 'ddCreateFunc' is given.
  */
 define([
+  "module",
   "dojo/_base/declare",
   "dijit/form/DropDownButton",
   "./DijitFix",
@@ -14,7 +15,7 @@ define([
   "dojo/dom-style",
   "dojo/Deferred",
   "../util/value"
-], function(declare, DropDownButton, DijitFix, TooltipDialog, popup, lang,
+], function(module, declare, DropDownButton, DijitFix, TooltipDialog, popup, lang,
             construct, style, Deferred, value) {
 
 
@@ -192,7 +193,9 @@ return declare([DropDownButton, DijitFix], { //--noindent--
     } else {
       this.ddOptions[name] = value;
     }
-  }
+  },
+
+  declaredClass: module.id
 
 });
 
