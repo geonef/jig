@@ -25,8 +25,7 @@ return declare(DateTextBox,
       var displayValue = value;
       // var date = new Date(displayValue);
       var date = stamp.fromISOString(displayValue);
-      console.log("pajzodi jazoijd", date, displayValue);
-      this.attr('value', date);
+      this.set('value', date);
     } else {
       this.inherited(arguments);
     }

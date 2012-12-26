@@ -108,6 +108,17 @@ return declare(_Widget, { //--noindent--
    */
   deferExecute: false,
 
+  /**
+   * If true, do not bubble up the execute() event
+   *
+   * It's a kind of "submit", for example it would automatically close
+   * a dialog or tooltip dialog.
+   *
+   * @type {boolean}
+   */
+  noSubmit: false,
+
+
   buildRendering: function() {
     //console.log('buildRendering', this, arguments);
     if (this.srcNodeRef) {
@@ -125,9 +136,9 @@ return declare(_Widget, { //--noindent--
       this.domNode.innerHTML = this.label;
     }
     domClass.add(this.domNode, this["class"]+" "+this.extraClass + " " + this.cssClasses);
-    if (this.domNode.nodeName !== 'A') {
-      this.connect(this.domNode, 'onclick', 'onClick');
-    }
+    // if (this.domNode.nodeName !== 'A') {
+    this.connect(this.domNode, 'onclick', 'onClick');
+    // }
   },
 
   _setLabelAttr: function(label) {
@@ -159,6 +170,12 @@ return declare(_Widget, { //--noindent--
 
 
   onClick: function(evt) {
+    if (this.domNode.nodeName === 'A') {
+      if (this.disabled) {
+        event.stop(evt);
+      }
+      return;
+    }
     event.stop(evt);
     if (this.disabled) { return; }
     var execute = lang.hitch(this, this.execute, evt);
