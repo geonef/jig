@@ -22,8 +22,15 @@ return declare(_Widget, { //--noindent--
 
   autoRequestProps: [],
 
+  /**
+   * @override
+   */
   'class': _Widget.prototype['class'] + ' jigDataRow',
 
+  /**
+   * @override
+   */
+  delayedContent: true,
 
   postMixInProperties: function() {
     this.inherited(arguments);
@@ -36,13 +43,15 @@ return declare(_Widget, { //--noindent--
     this.whenDataReady.then(async.busy(this.domNode));
   },
 
-  buildRow: function() {
+  makeContentNodes: function() {
+    var nodes = [];
     if (this.object) {
-      this.domNode.innerHTML = string.escapeHtml(this.object.getSummary());
+      nodes.push(["span", {}, string.escapeHtml(this.object.getSummary())]);
       if (this.enableClickEvent) {
         domClass.add(this.domNode, 'link');
       }
     }
+    return nodes;
   },
 
   postCreate: function() {
@@ -58,7 +67,7 @@ return declare(_Widget, { //--noindent--
   },
 
   onDataReady: function() {
-    this.buildRow();
+    this.rebuildDom();
   },
 
   onItemClick: function(evt) {

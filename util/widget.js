@@ -3,11 +3,12 @@
  */
 define([
   "dojo/_base/lang",
+  "dojo/_base/kernel",
   "dojo/aspect",
   "dojo/on",
   "dijit/_Contained",
   "dijit/registry"
-], function(lang, aspect, on, _Contained, registry) {
+], function(lang, kernel, aspect, on, _Contained, registry) {
 
 var self = { //--noindent--
 
@@ -71,6 +72,8 @@ var self = { //--noindent--
    * @return {Object} Handler for use with dojo/disconnect.
    */
   connectOnce: function(obj, event, context, method) {
+    kernel.deprecated("geonef/jig/util/widget.connectOnce()",
+                      "use aspect.after() directly");
     var _h;
     var callback = lang.hitch(context, function() {
       _h.remove();

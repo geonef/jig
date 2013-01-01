@@ -149,7 +149,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   refresh: function() {
     this.fetchResults()
       .then(lang.hitch(this, this.populateList))
-    ;//        .then(util.busy(this.domNode));
+      .then(async.busy(this.domNode));
   },
 
   /**

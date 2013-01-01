@@ -161,15 +161,15 @@ return declare(null, { //--noindent--
         return value instanceof Array ? value : [];
       }
     },
-    location: {
-      // TODO: put into external model prop type
-      fromServer: function(obj) {
-        return new OpenLayers.LonLat(obj.longitude, obj.latitude);
-      },
-      toServer: function(lonLat) {
-        return { longitude: lonLat.lon, latitude: lonLat.lat };
-      }
-    },
+    // location: {
+    //   // TODO: put into external model prop type
+    //   fromServer: function(obj) {
+    //     return new OpenLayers.LonLat(obj.longitude, obj.latitude);
+    //   },
+    //   toServer: function(lonLat) {
+    //     return { longitude: lonLat.lon, latitude: lonLat.lat };
+    //   }
+    // },
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }

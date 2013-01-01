@@ -1,9 +1,7 @@
 /**
  * Custom DOM node builders
  *
- * DEV: not yet finished or even used
- *
- * The output if these functions is meant to be process through geonef/jig/util/makeDOM
+ * The output if these functions is meant to be processed through geonef/jig/util/makeDOM
  */
 define([
   "module",
@@ -34,7 +32,7 @@ define([
      */
     tableList: function(attrs, rows) {
       return ["table", {"class": "list"}, [
-        ["tbody", {},
+        ["tbody", attrs && attrs._tbodyAttrs,
          rows.map(function(row) {
            return ["tr", {}, row[1] ?
                    [
