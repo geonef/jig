@@ -8,12 +8,13 @@
  * class instead.
  */
 define([
+  "module",
   "dojo/_base/declare",
   "dijit/form/_FormMixin",
   "dojo/_base/lang",
   "dojo/aspect",
   "../util/widget",
-], function(declare, _FormMixin, lang, aspect, widget) {
+], function(module, declare, _FormMixin, lang, aspect, widget) {
 
 return declare(_FormMixin, { //--noindent--
 
@@ -282,7 +283,9 @@ return declare(_FormMixin, { //--noindent--
   startup: function() {
     this.inherited(arguments);
     this.connectChildren();
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

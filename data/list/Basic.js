@@ -8,6 +8,7 @@
  *
  */
 define([
+  "module",
   "dojo/_base/declare",
   "../../_Widget",
   "../pane/CreatorMixin",
@@ -23,13 +24,12 @@ define([
 
   "../../util/async",
   "../../button/Action",
-], function(declare, _Widget, CreatorMixin,
+], function(module, declare, _Widget, CreatorMixin,
             lang, style, domClass, string,
             Deferred, model, BasicRow,
             async, Action) {
 
-  return declare([ _Widget, CreatorMixin ],
-{ //--noindent--
+return declare([ _Widget, CreatorMixin ], { //--noindent--
 
   /**
    * Object to get the data from (see 'objectProp'), or null for independant query
@@ -118,7 +118,7 @@ define([
     this.inherited(arguments);
     this.rowOptions = lang.mixin({}, this.rowOptions);
     // this.whenReady = new Deferred();
-    this.whenReady = async.newResolved();
+    this.whenReady = async.bindArg();
     this.store = model.getStore(this.Model);
   },
 
@@ -212,8 +212,8 @@ define([
     }
     var _this = this;
     async.whenAll(this.rows
-                 .filter(function(row) { return !!row.whenDataReady; })
-                 .map(function(row) { return row.whenDataReady; }))
+                  .filter(function(row) { return !!row.whenDataReady; })
+                  .map(function(row) { return row.whenDataReady; }))
       .then(function() {
         if (_this._destroyed) { return; }
         _this.domNode.scrollTop = scrollTop;
@@ -274,7 +274,9 @@ define([
    * @param {string} type                        type of event
    */
   onObjectChannel: function(obj, type) {
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

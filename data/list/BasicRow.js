@@ -1,4 +1,5 @@
 define([
+  "module",
   "dojo/_base/declare",
   "../../_Widget",
   "dojo/_base/lang",
@@ -6,7 +7,7 @@ define([
   "dojo/dom-class",
   "../../util/async",
   "../../util/string"
-], function(declare, _Widget, lang, event, domClass, async, string) {
+], function(module, declare, _Widget, lang, event, domClass, async, string) {
 
 return declare(_Widget, { //--noindent--
 
@@ -27,7 +28,7 @@ return declare(_Widget, { //--noindent--
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
-      this.object.requestProps(this.autoRequestProps) : async.newResolved();
+      this.object.requestProps(this.autoRequestProps) : async.bindArg();
   },
 
   buildRendering: function() {
@@ -71,7 +72,9 @@ return declare(_Widget, { //--noindent--
     if (this.object.openPane) {
       this.object.openPane();
     }
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

@@ -140,7 +140,7 @@ return declare(null, { //--noindent--
   get: function(id, options) {
     var obj = this.index[id];
     if (obj && (!options || (!options.fields && !options.fieldGroup))) {
-      return async.newResolved(obj);
+      return async.bindArg(obj);
     } else {
       var _this = this;
       return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
@@ -366,12 +366,14 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback with no arg
    */
   remove: function(obj) {
-    var deferred = this.apiRequest(
-      { action: 'delete',
-        id: obj.getId(),
-      }, null, obj).then(function(resp) {
+    var deferred = this.apiRequest({
+      action: 'delete',
+      id: obj.getId(),
+    }, null, obj)
+      .then(function(resp) {
         obj.afterDelete();
       });
+
     obj.publish(['delete']);
     return deferred;
   },

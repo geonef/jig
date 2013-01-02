@@ -1,4 +1,5 @@
 define([
+  "module",
   "dojo/_base/declare",
   "dijit/_Widget",
   "dojo/_base/lang",
@@ -10,7 +11,7 @@ define([
 
   "./util/makeDOM",
   "./util/async"
-], function(declare, _Widget, lang, fx, style, domClass, aspect, allPromises,
+], function(module, declare, _Widget, lang, fx, style, domClass, aspect, allPromises,
             makeDOM, async) {
 
   /**
@@ -270,7 +271,9 @@ return declare([_Widget], { //--noindent--
     fx.fadeOut(lang.mixin({
       node: this.domNode
     }, options || {})).play();
-  }
+  },
+
+  declaredClass: module.id
 
 });
 

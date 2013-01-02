@@ -312,13 +312,13 @@ return declare(null, { //--noindent--
       if (value instanceof Deferred) {
         return value;
       }
-      return async.newResolved(value);
+      return async.bindArg(value);
     }
     if (this[property] !== undefined || !this.id) {
       // if (!this.id) {
       //   console.log('in case', this, arguments);
       // }
-      return async.newResolved(this[property]);
+      return async.bindArg(this[property]);
     }
     return this.store
       .fetchProps(this, [property])
@@ -529,7 +529,7 @@ return declare(null, { //--noindent--
       struct[discrProp] = this[discrProp];
     }
 
-    return async.newResolved(struct);
+    return async.bindArg(struct);
   },
 
   setOriginalValue: function(name, _value) {
