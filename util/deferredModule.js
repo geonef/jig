@@ -31,6 +31,11 @@ define([
     };
   }
 
+
+  /*******************************************************************
+   ** AMD plugin
+   **/
+
   deferredModule.normalize = function(mid, toAbsMid) {
     return (/^\./.test(mid)) ? toAbsMid(mid) : mid;
   };

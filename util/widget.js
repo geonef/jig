@@ -102,7 +102,7 @@ var self = { //--noindent--
    */
   focus: function(widget) {
     var parent = registry.getEnclosingWidget(widget.domNode.parentNode);
-    if (parent.selectChild) {
+    if (parent && parent.selectChild) {
       parent.selectChild(widget);
     }
     return widget;
