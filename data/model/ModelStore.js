@@ -320,32 +320,32 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback whose arg is the model object
    */
   query: function(filter, options) {
-    // console.log('filter', this, arguments);
     var implied = {};
+    var newFilter = {};;
     var prop, tmpFilter;
 
     var Abstract = require('./Abstract');
     // fix filter and make up implied value from it
     if (filter) {
       for (prop in filter) if (filter.hasOwnProperty(prop)) {
-        tmpFilter = filter[prop];
+
+        tmpFilter = newFilter[prop] = filter[prop];
         if (tmpFilter instanceof Abstract) {
-          tmpFilter = filter[prop] = { op: 'ref', value: tmpFilter };
+          tmpFilter = newFilter[prop] = { op: 'ref', value: tmpFilter.id };
         } else if (typeof tmpFilter == 'string' || !isNaN(tmpFilter)) {
-          tmpFilter = filter[prop] = { op: 'equals', value: tmpFilter };
+          tmpFilter = newFilter[prop] = { op: 'equals', value: tmpFilter };
         }
-        if (['equals', 'ref'].indexOf(tmpFilter.op) !== -1) {
+        if (tmpFilter.op === "equals") {
           implied[prop] = tmpFilter.value;
-        }
-        if (tmpFilter.value instanceof Abstract) {
-          tmpFilter.value = tmpFilter.value.getId();
+        } else if (tmpFilter.op === "ref") {
+          implied[prop] = { id: tmpFilter.value };
         }
       }
     }
 
     return this.apiRequest(lang.mixin({
       action: 'query',
-      filters: filter, /* options: options || {}*/
+      filters: newFilter, /* options: options || {}*/
     }, options))
       .then(lang.hitch(this, function(resp) {
         if (!resp.results) {
@@ -396,7 +396,8 @@ return declare(null, { //--noindent--
       var discrValue = dataForDiscriminator[discrProp];
       var _class = Model.prototype.discriminatorMap[discrValue];
       if (!discrValue || !_class) {
-        console.error("happening on store", this, ", model ", this.Model.prototype);
+        console.error("happening on store", this, ", model ", this.Model.prototype,
+                      "makeObject(): invalid discriminator '"+discrProp+"': "+discrValue);
         throw new Error("makeObject(): invalid discriminator '"+
                         discrProp+"': "+discrValue);
       }

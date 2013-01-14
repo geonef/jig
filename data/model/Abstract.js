@@ -161,15 +161,7 @@ return declare(null, { //--noindent--
         return value instanceof Array ? value : [];
       }
     },
-    // location: {
-    //   // TODO: put into external model prop type
-    //   fromServer: function(obj) {
-    //     return new OpenLayers.LonLat(obj.longitude, obj.latitude);
-    //   },
-    //   toServer: function(lonLat) {
-    //     return { longitude: lonLat.lon, latitude: lonLat.lat };
-    //   }
-    // },
+    hash: scalar,
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }
@@ -430,16 +422,15 @@ return declare(null, { //--noindent--
       setOriginal: true,
     }, options);
 
-    var p, typeN, type, value, serverValue, _this = this;
+    var _this = this;
 
     return allPromises(object.map(props, function(prop, p) {
-      typeN = this.properties[p];
-      if (!typeN) {
+      var typeSpec = this.properties[p];
+      if (!typeSpec) {
         return null;
       }
 
-      var typeSpec = typeN;
-      type = this.types[typeSpec.type];
+      var type = this.types[typeSpec.type];
 
       return when(type.fromServer.call(this, prop, typeSpec))
         .then(function(value) {
@@ -450,22 +441,6 @@ return declare(null, { //--noindent--
           return value;
         });
     }, this));
-
-    // for (p in props) if (props.hasOwnProperty(p)) {
-    //   typeN = this.properties[p];
-    //   if (typeN) {
-    //     var typeSpec = typeN;
-    //     type = this.types[typeSpec.type];
-
-    //     deferreds.push(when(
-    //       type.fromServer.call(this, props[p], typeSpec)).then(function(value) {
-    //         _this[p] = value;
-    //         _this.setOriginalValue(p, props[p]);
-    //         return value;
-    //       }));
-    //   }
-    // }
-    // return allPromises(deferreds);
   },
 
   /**

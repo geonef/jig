@@ -150,7 +150,7 @@ return declare([_Widget], { //--noindent--
   destroyDom: function() {
     this.destroySubWidget();
     if (this.domWidgets) {
-      this.domWidgets.forEach(function(w) { w.destroy(); });
+      this.domWidgets/*.slice(0)*/.forEach(function(w) { w.destroy(); });
       this.domWidgets = [];
     }
     if (this.domNode) {
