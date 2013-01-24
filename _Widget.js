@@ -8,10 +8,11 @@ define([
   "dojo/dom-class",
   "dojo/aspect",
   "dojo/promise/all",
+  "dojo/Deferred",
 
   "./util/makeDOM",
   "./util/async"
-], function(module, declare, _Widget, lang, fx, style, domClass, aspect, allPromises,
+], function(module, declare, _Widget, lang, fx, style, domClass, aspect, allPromises, Deferred,
             makeDOM, async) {
 
   /**
@@ -65,6 +66,13 @@ return declare([_Widget], { //--noindent--
   delayedContent: false,
 
   /**
+   * Promise, resolved when widget DOM content is built and ready
+   *
+   * @type {dojo/Deferred}
+   */
+  whenDomReady: null,
+
+  /**
    * Names of node properties to hide when a sub-widget is open
    *
    * @type {Array.<string>} subHides
@@ -77,6 +85,7 @@ return declare([_Widget], { //--noindent--
    */
   postMixInProperties: function() {
     this.domWidgets = [];
+    this.whenDomReady = new Deferred();
     this.inherited(arguments);
   },
 
@@ -130,6 +139,9 @@ return declare([_Widget], { //--noindent--
   startup: function() {
     this.inherited(arguments);
     this.domWidgets.forEach(function(w) { if (!w._started) { w.startup(); }});
+    if (!this.delayedContent) {
+      this.whenDomReady.resolve();
+    }
   },
 
   /**
@@ -186,6 +198,9 @@ return declare([_Widget], { //--noindent--
    * Hook
    */
   afterRebuildDom: function() {
+    if (!(this.whenDomReady.fired >= 0)) {
+      this.whenDomReady.resolve();
+    }
     this.onResize();
   },
 

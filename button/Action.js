@@ -118,6 +118,7 @@ return declare(_Widget, { //--noindent--
    */
   noSubmit: false,
 
+  connectA: true,
 
   buildRendering: function() {
     //console.log('buildRendering', this, arguments);
@@ -136,9 +137,9 @@ return declare(_Widget, { //--noindent--
       this.domNode.innerHTML = this.label;
     }
     domClass.add(this.domNode, this["class"]+" "+this.extraClass + " " + this.cssClasses);
-    // if (this.domNode.nodeName !== 'A') {
-    this.connect(this.domNode, 'onclick', 'onClick');
-    // }
+    if (this.domNode.nodeName !== 'A' || this.connectA) {
+      this.connect(this.domNode, 'onclick', 'onClick');
+    }
   },
 
   _setLabelAttr: function(label) {

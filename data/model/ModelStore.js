@@ -470,7 +470,7 @@ return declare(null, { //--noindent--
 
 
   /**
-   * Specialisation of geoenf.jig.api.request, for this class
+   * Specialisation of geonef/jig/api.request, for this class
    */
   apiRequest: function(params, options, object) {
     var module = object ? object.apiModule : this.apiModule;
