@@ -132,6 +132,12 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     domClass.add(this.domNode, this.readOnly ? 'ro' : 'rw');
   },
 
+  makeContentNodes: function() {
+    return [
+      ['div', {_attach: 'listNode', 'class': 'results' }]
+    ];
+  },
+
   /**
    * @override
    */
