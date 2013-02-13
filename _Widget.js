@@ -276,18 +276,6 @@ return declare([_Widget], { //--noindent--
     return false;
   },
 
-  fadeIn:function(options){
-    fx.fadeIn(lang.mixin({
-      node: this.domNode
-    }, options || {})).play();
-  },
-
-  fadeOut:function(options){
-    fx.fadeOut(lang.mixin({
-      node: this.domNode
-    }, options || {})).play();
-  },
-
   declaredClass: module.id
 
 });
