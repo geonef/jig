@@ -17,6 +17,7 @@ define([
   "dojo/dom-style",
   "dojo/dom-class",
   "dojo/string",
+  "dojo/promise/all",
 
   "dojo/Deferred", // was using geonef/jig/Deferred
   "../model",
@@ -25,7 +26,7 @@ define([
   "../../util/async",
   "../../button/Action",
 ], function(module, declare, _Widget, CreatorMixin,
-            lang, style, domClass, string,
+            lang, style, domClass, string, allPromises,
             Deferred, model, BasicRow,
             async, Action) {
 
@@ -113,20 +114,33 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   delayedContent: true,
 
-
+  /**
+   * @override
+   */
   postMixInProperties: function() {
     this.inherited(arguments);
     this.rowOptions = lang.mixin({}, this.rowOptions);
-    // this.whenReady = new Deferred();
     this.whenReady = async.bindArg();
     this.store = model.getStore(this.Model);
   },
 
+  /**
+   * @override
+   */
   buildRendering: function() {
     this.inherited(arguments);
     domClass.add(this.domNode, this.readOnly ? 'ro' : 'rw');
   },
 
+  makeContentNodes: function() {
+    return [
+      ['div', {_attach: 'listNode', 'class': 'results' }]
+    ];
+  },
+
+  /**
+   * @override
+   */
   postCreate: function() {
     this.inherited(arguments);
     this.refresh();
@@ -136,20 +150,31 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     }
   },
 
+  /**
+   * @override
+   */
   startup: function() {
+    if (this._started) { return; }
     this.inherited(arguments);
     this.whenReady.then(lang.hitch(this, this.rebuildDom));
   },
 
+  /**
+   * @override
+   */
   destroy: function() {
     this.clear();
     this.inherited(arguments);
   },
 
+  /**
+   * Refresh the list
+   */
   refresh: function() {
     this.fetchResults()
+      .then(async.deferWhen(this.whenDomReady))
       .then(lang.hitch(this, this.populateList))
-    ;//        .then(util.busy(this.domNode));
+      .then(async.busy(this.domNode));
   },
 
   /**
@@ -183,7 +208,6 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @param {Array.<geonef/jig/data/model/Abstract>} results
    */
   populateList: function(results) {
-    // console.log('populateList', this, arguments);
     if (this._destroyed) { return; }
     var scrollTop = this.domNode.scrollTop;
     this.clear();
@@ -211,9 +235,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       this.rows.push(moreLink);
     }
     var _this = this;
-    async.whenAll(this.rows
-                  .filter(function(row) { return !!row.whenDataReady; })
-                  .map(function(row) { return row.whenDataReady; }))
+    allPromises(this.rows
+                .filter(function(row) { return !!row.whenDataReady; })
+                .map(function(row) { return row.whenDataReady; }))
       .then(function() {
         if (_this._destroyed) { return; }
         _this.domNode.scrollTop = scrollTop;
@@ -243,6 +267,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     return row;
   },
 
+  /**
+   * Clear the list
+   */
   clear: function() {
     if (this.rows) {
       this.rows.forEach(

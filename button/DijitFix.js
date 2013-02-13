@@ -10,14 +10,18 @@ define([
 
   return declare(null, { //--noindent--
 
+    fixDijitButton: true,
+
     /**
      * @override
      */
     buildRendering: function() {
       this.inherited(arguments);
-      query(".dijitButtonNode", this.domNode)
-        .removeClass("dijitButtonNode")
-        .addClass("button");
+      if (this.fixDijitButton) {
+        query(".dijitButtonNode", this.domNode)
+          .removeClass("dijitButtonNode")
+          .addClass("button");
+      }
     },
 
     /**

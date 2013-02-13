@@ -48,6 +48,11 @@ var self = { //--noindent--
     return promise.then(function() { return arg; });
   },
 
+  newRejected: function(error) {
+    var promise = new Deferred();
+    promise.reject(error);
+    return promise;
+  },
 
   /**
    * Multiplex multiple deferreds
@@ -72,16 +77,6 @@ var self = { //--noindent--
     window.global.setTimeout(function() { def.resolve(); }, delay);
 
     return def;
-  },
-
-  /**
-   * Wrap call into timeout function
-   */
-  deferHitch: function(scope, func) {
-    var _func = lang.hitch.apply(null, arguments);
-    return function() {
-      self.whenTimeout(0).then(_func);
-    };
   },
 
   /**
@@ -156,6 +151,30 @@ var self = { //--noindent--
       return arg;
     };
   },
+
+  /**
+   * Wrap call into timeout function
+   */
+  deferHitch: function(scope, func) {
+    var _func = lang.hitch.apply(null, arguments);
+    return function() {
+      self.whenTimeout(0).then(_func);
+    };
+  },
+
+  /**
+   * Return a function that will return a promise resolved when
+   * the given promise is resolved.
+   *
+   * The promise will be resolved with the argument provided
+   * to the function.
+   */
+  deferWhen: function(promise) {
+    return function(arg) {
+      return self.bindArg(arg, promise);
+    };
+  },
+
 
 };
 

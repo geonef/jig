@@ -100,7 +100,7 @@ return declare([DropDownButton, DijitFix], { //--noindent--
       _this.dropDown = dropDown;
       if (_this.subWidget) {
         loadCallback();
-        _this.subWidget.startup();
+        // _this.subWidget.startup();
         _this.whenDDLoaded.resolve(_this.subWidget);
       }
     });

@@ -23,6 +23,7 @@ define([
   "dojo/promise/all",
   "dojo/topic",
   "dojo/when",
+  "dojo/promise/all",
 
   "../model",
   "../../util/value",
@@ -30,7 +31,7 @@ define([
   "../../util/array",
   "../../util/object",
   "../../util/async",
-], function(module, declare, lang, Deferred, allPromises, topic, when,
+], function(module, declare, lang, Deferred, allPromises, topic, when, whenAll,
             model, value, string, array, object, async) {
 
 
@@ -82,11 +83,11 @@ return declare(null, { //--noindent--
    *
    * For example, if 'discriminatorProperty' is set to 'type' and
    * 'discriminatorMap' is set to:
-   *   { test: 'data.model.MyTest', other: 'data.model.MyOther' }
+   *   { test: 'data/model/MyTest', other: 'data/model/MyOther' }
    * Then, the first class is used for objects whose 'type' property is set
    * to "test", the second if the value is "other".
    *
-   * This is inspired after Doctrine's discriminatorMap feature.
+   * This is inspired after PHP Doctrine's discriminatorMap feature.
    * See: http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/inheritance-mapping.html
    *
    * @type {Object.<string,string>}
@@ -120,9 +121,9 @@ return declare(null, { //--noindent--
    *
    * @type {Object.<string,Object>}
    */
-  properties: model.normalizeProperties({
+  properties: {
     id: { type: 'string', readOnly: true },
-  }),
+  },
 
   /**
    * Implemented property types
@@ -145,6 +146,7 @@ return declare(null, { //--noindent--
     integer: scalar,
     'float': scalar,
     'boolean': scalar,
+    'enum': scalar,
     date: {
       fromServer: function(dateStr) {
         return dateStr ? new Date(dateStr) : null;
@@ -161,15 +163,7 @@ return declare(null, { //--noindent--
         return value instanceof Array ? value : [];
       }
     },
-    location: {
-      // TODO: put into external model prop type
-      fromServer: function(obj) {
-        return new OpenLayers.LonLat(obj.longitude, obj.latitude);
-      },
-      toServer: function(lonLat) {
-        return { longitude: lonLat.lon, latitude: lonLat.lat };
-      }
-    },
+    hash: scalar,
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }
@@ -234,9 +228,9 @@ return declare(null, { //--noindent--
       },
       toServer: function(ar, type) {
         if (!(ar instanceof Array)) { return undefined; }
-        return ar.map(function(item) {
+        return whenAll(ar.map(function(item) {
           return item.toServerValue({ allValues: true });
-        });
+        }));
       }
     }
   },
@@ -315,9 +309,6 @@ return declare(null, { //--noindent--
       return async.bindArg(value);
     }
     if (this[property] !== undefined || !this.id) {
-      // if (!this.id) {
-      //   console.log('in case', this, arguments);
-      // }
       return async.bindArg(this[property]);
     }
     return this.store
@@ -430,16 +421,15 @@ return declare(null, { //--noindent--
       setOriginal: true,
     }, options);
 
-    var p, typeN, type, value, serverValue, _this = this;
+    var _this = this;
 
     return allPromises(object.map(props, function(prop, p) {
-      typeN = this.properties[p];
-      if (!typeN) {
+      var typeSpec = this.properties[p];
+      if (!typeSpec) {
         return null;
       }
 
-      var typeSpec = typeN;
-      type = this.types[typeSpec.type];
+      var type = this.types[typeSpec.type];
 
       return when(type.fromServer.call(this, prop, typeSpec))
         .then(function(value) {
@@ -450,22 +440,6 @@ return declare(null, { //--noindent--
           return value;
         });
     }, this));
-
-    // for (p in props) if (props.hasOwnProperty(p)) {
-    //   typeN = this.properties[p];
-    //   if (typeN) {
-    //     var typeSpec = typeN;
-    //     type = this.types[typeSpec.type];
-
-    //     deferreds.push(when(
-    //       type.fromServer.call(this, props[p], typeSpec)).then(function(value) {
-    //         _this[p] = value;
-    //         _this.setOriginalValue(p, props[p]);
-    //         return value;
-    //       }));
-    //   }
-    // }
-    // return allPromises(deferreds);
   },
 
   /**
@@ -491,9 +465,11 @@ return declare(null, { //--noindent--
       allValues: false
     }, options);
 
-    var p, type, _value;
+    var p, type, _value, _this = this;;
     var props = this.properties;
     var struct = {};
+    var originalValues = this.originalValues;
+    var deferreds = [];
 
     if (this.id) {
       struct.id = this.id;
@@ -509,27 +485,33 @@ return declare(null, { //--noindent--
         }
 
         _value = type.toServer.call(this, _value, typeSpec);
-        if (_value !== undefined) {
-          var original = this.originalValues[p];
 
-          if (options.allValues ||
-              !value.isSame(_value, this.originalValues[p])) {
-            struct[p] = _value;
+        deferreds.push(
+          when(_value).then(function(_value) {
+            if (_value !== undefined) {
+              var original = originalValues[p];
 
-            if (options.setOriginal) {
-              this.setOriginalValue(_value);
+              if (options.allValues ||
+                  !value.isSame(_value, originalValues[p])) {
+                struct[p] = _value;
+
+                if (options.setOriginal) {
+                  _this.setOriginalValue(_value);
+                }
+              }
             }
-          }
-        }
+          }));
       }
     }
 
-    var discrProp = this.discriminatorProperty;
-    if (options.allValues && discrProp && this[discrProp]) {
-      struct[discrProp] = this[discrProp];
-    }
+    return whenAll(deferreds).then(function() {
+      var discrProp = _this.discriminatorProperty;
+      if (options.allValues && discrProp && _this[discrProp]) {
+        struct[discrProp] = _this[discrProp];
+      }
 
-    return async.bindArg(struct);
+      return struct;
+    });
   },
 
   setOriginalValue: function(name, _value) {
@@ -544,13 +526,13 @@ return declare(null, { //--noindent--
    * @param {dojo/Deferred} subObject
    */
   createSub: function(propName, data) {
-    var property = this.properties[propName];
+      var property = this.properties[propName];
     var _this = this;
     return value.getModule(property.targetModel)
       .then(function(TargetModel) { return model.getStore(TargetModel); })
       .then(function(store) {
-        return this.store.apiRequest({
-          action: 'createSub', id: this.id,
+        return _this.store.apiRequest({
+          action: 'createSub', id: _this.id,
           propName: propName, data: data
         }).then(function(resp) {
           return store.getLazyObject(resp.subObject)
@@ -621,7 +603,6 @@ return declare(null, { //--noindent--
    * Helper for dojo/topic.subscribe(), handling unsubscribe at destroy()
    */
   subscribe: function(channel, callback) {
-    // console.log('model.Abstract::subscribe', this, arguments);
     if (!this._subscr) {
       this._subscr = [];
     }
@@ -640,7 +621,6 @@ return declare(null, { //--noindent--
   },
 
   publish: function(argsArray) {
-    // console.log('publish', this.channel, argsArray);
     argsArray = argsArray.slice(0);
     argsArray.unshift(this);
     argsArray.unshift(this.channel);
