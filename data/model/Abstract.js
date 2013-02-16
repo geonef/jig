@@ -92,7 +92,7 @@ return declare(null, { //--noindent--
    *
    * @type {Object.<string,string>}
    */
-  discriminatorMap: {},
+  discriminatorMap: null,
 
   /**
    * List of properties

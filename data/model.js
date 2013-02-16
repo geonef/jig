@@ -41,8 +41,18 @@ var self = { //--noindent--
     var stores = self._stores;
     var classId = Model.prototype.declaredClass;
     if (!stores[classId]) {
-      var _Class = Model.prototype.Store || ModelStore;
-      stores[classId] = new _Class({ Model: Model });
+      var options = { Model: Model };
+      var proto = Model.prototype;
+      if (proto.discriminatorMap && !proto.hasOwnProperty("discriminatorMap")) {
+        // dig into parent class and find the one wich define the discriminatorMap
+        while (!proto.hasOwnProperty("discriminatorMap")) {
+          proto = proto.constructor.superclass;
+        }
+        options.rootStore = self.getStore(proto.constructor);
+      }
+
+      var Store = Model.prototype.Store || ModelStore;
+      stores[classId] = new Store(options);
     }
 
     return stores[classId];

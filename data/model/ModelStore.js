@@ -89,8 +89,12 @@ return declare(null, { //--noindent--
    * constructor
    */
   constructor: function(options) {
-    this.index = {};
     lang.mixin(this, options);
+    if (this.rootStore) {
+      this.index = this.rootStore.index;
+    } else {
+      this.index = {};
+    }
     this.apiParams = lang.mixin({}, this.apiParams);
     this.postMixInProperties();
     if (!this.apiModule) {
