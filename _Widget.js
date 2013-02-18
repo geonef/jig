@@ -233,8 +233,9 @@ return declare([_Widget], { //--noindent--
           style.set(node.domNode || node, 'display', 'none');
         }
       }, this);
-    widget.placeAt(this.opNode).startup();
+    widget.placeAt(this.opNode || this.domNode).startup();
     this.subWidget = widget;
+    domClass.add(widget.domNode, 'sub');
     domClass.add(this.domNode, 'hasSub');
     var _this = this;
     aspect.before(widget, 'uninitialize',// 'destroy',
