@@ -121,11 +121,19 @@ var self = { //--noindent--
    * @return {function} must be called to stop the busy effect
    */
   busy: function(node) {
-    var Processing = require("geonef/jig/tool/Processing");
-    var control = new Processing({ processingNode: node });
-    control.startup();
+    var control;
+    require(["../tool/Processing"], function(Processing) {
+      if (control !== null) { // if terminate callback was called before we are
+        control = new Processing({ processingNode: node });
+        control.startup();
+      }
+    });
     return function(arg) {
-      control.end();
+      if (control) {
+        control.end();
+      } else {
+        control = null;
+      }
       return arg;
     };
   },

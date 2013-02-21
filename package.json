@@ -1,7 +1,7 @@
 {
 	"name": "geonef/jig",
 	"description": "geonef/jig is a Javascript library which provides various fonctionalities",
-	"version":"0.5",
+	"version":"0.6",
 	"keywords": ["javascript", "js", "util", "geonef", "jig"],
         "maintainers": [{ "name": "JF Gigand", "email": "jf@geonef.fr" }],
         "contributors": [{ "name": "JF Gigand", "email": "jf@geonef.fr" }],
@@ -14,7 +14,8 @@
 	],
 	"homepage": "https://github.com/geonef/jig",
 	"dependencies": {
-		"dojo": "1.7"
+		"dojo": "~1.8.0",
+		"dijit": "~1.8.0"
 	},
 	"directories": {
 		"lib": "."
