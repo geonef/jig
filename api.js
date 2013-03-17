@@ -66,8 +66,10 @@ define([
      * Delay in milliseconds of extra-time to wait before sending the XHR
      *
      * (used for debugging)
+     *
+     * Set to null to disable the grouping of API requests
      */
-    debugDelay: 0,
+    timeout: 0,
 
     /**
      * @type {Object} Parallel requests deferred to later execution
@@ -92,42 +94,50 @@ define([
       req.promise = new Deferred();
       topic.publish(this.noticeTopic, { request: req, options: options });
       var ret = req.promise;
+      var scope = req.scope;
+      delete req.scope;
       if (options) {
         req.__options = options;
       }
       self._deferredRequests[generateRandomUuid()] = req;
+      var executeRequests = function() {
+        // execute all deferred requests
+        self._timeout = null;
+        var reqs = lang.mixin({}, self._deferredRequests);
+        self._deferredRequests = {};
+        var _deferred = self._deferred;
+        self._doRequest(reqs, options).then(
+          function() {
+            _deferred.resolve();
+          });
+      };
       if (!self._timeout) {
         self._deferred = new Deferred();
-        self._timeout = window.global.setTimeout(
-          function() {
-            // execute all deferred requests
-            self._timeout = null;
-            var reqs = lang.mixin({}, self._deferredRequests);
-            self._deferredRequests = {};
-            self._doRequest(reqs, options).then(
-              function() {
-                self._deferred.resolve();
-              });
-          }, self.debugDelay);
+        if (self.timeout === null) {
+          executeRequests();
+        } else {
+          self._timeout = window.global.setTimeout(executeRequests, self.timeout);
+        }
       }
       if (req.callback) {
+        console.warn("geonef/jig/api: 'callback' property is deprecated. "+
+                     "Use the promise instead.");
         // backward compat for req.callback ; api.request({}).then() preferred
         ret = new Deferred();
         req.promise
-          .then(lang.hitch(req.scope || window, req.callback))
+          .then(lang.hitch(scope, req.callback))
           .then(function() { ret.resolve(); });
       }
-      delete req.scope;
       delete req.callback;
 
       return ret;
     },
 
     /**
-       * Execute XHR for all deferred requests
-       *
-       * @return {dojo/Deferred} from XHR call
-       */
+     * Execute XHR for all deferred requests
+     *
+     * @return {dojo/Deferred} from XHR call
+     */
     _doRequest: function(req, options) {
 
       /**
@@ -150,7 +160,7 @@ define([
             self.processException(req, response);
             req.promise.reject(new ApiError({name: "unknown:exception"}));
             return;
-	    }
+	  }
           // try {
           req.promise.resolve(response);
           // } catch (error) {
@@ -199,11 +209,11 @@ define([
        */
       var _processError = function(error, xhr) {
         console.error('JiG API transport Error: ', error, xhr);
-          for (var i in req) {
-            if (req.hasOwnProperty(i)) {
-              req[i].promise.reject(new ApiError({name: "transport:failed"}));
-            }
+        for (var i in req) {
+          if (req.hasOwnProperty(i)) {
+            req[i].promise.reject(new ApiError({name: "transport:failed"}));
           }
+        }
       };
 
       /**
