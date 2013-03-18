@@ -1,6 +1,10 @@
 /**
  * AMD plugin to load a store for the given model class
  *
+ * Use it like this:
+ * define(["geonef/jig/data/store!geonef/jig/data/model/User"],
+ *        function(userStore) { ... })
+ *
  * @see geonef/jig/data/model
  */
 define([

@@ -80,7 +80,12 @@ var self = { //--noindent--
   formatBytes: function(size) {
     return self.formatDims([size],
                            { units: ['o', 'ko', 'Mo', 'Go', 'To'], mult: 1024 });
-  }
+  },
+
+  pluralString: function(count, dic) {
+    return dic[Math.min(2, count)];
+  },
+
 
 };
 
