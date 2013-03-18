@@ -147,6 +147,12 @@ define([
         function(req, response) {
           var options = req.__options || {};
           if (response.error) {
+            if (response.exception) {
+              console.info("API exception:", response.exception.message);
+              if (response.exception.previous) {
+                console.info("API previous exception:", response.exception.previous.message);
+              }
+            }
             req.promise.reject(new ApiError(response.error));
             return;
           }
