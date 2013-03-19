@@ -533,11 +533,14 @@ return declare(null, { //--noindent--
 
     var i;
     var str = ref.substr(1);
+    // make up base64 string
     for (i = 0; i < 16 - str.length; i++) {
       str = str + 'A';
     }
     str = str.replace(/-/g, '+').replace(/_/g, "/");
+    // decode to binary
     str = atob(str);
+    // recode in hexa
     var c = '';
     for (i = 0; i < 12; i++) {
       var code = i < str.length ? str.charCodeAt(i).toString(16) : '0';
