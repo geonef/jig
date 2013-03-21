@@ -73,8 +73,17 @@ var self = { //--noindent--
    * @param {Number} delay in milliseconds (arg 2 to dojo/global/setTimeout)
    */
   whenTimeout: function(delay) {
-    var def = new Deferred();
-    window.global.setTimeout(function() { def.resolve(); }, delay);
+    var id;
+    var def = new Deferred(function(reason) {
+      if (id) {
+        window.global.clearTimeout(id);
+        id = null;
+      }
+    });
+    id = window.global.setTimeout(function() {
+      def.resolve();
+      id = null;
+    }, delay);
 
     return def;
   },
