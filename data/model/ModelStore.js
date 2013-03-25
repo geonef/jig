@@ -190,13 +190,42 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback whose arg is the property value
    */
   fetchProps: function(object, props) {
-    return this.apiRequest({
-      action: 'get', id: object.getId(),
-      fields: props
-    }, null, object)
-      .then(function(resp) {
+    // combine subsequent fetchProps call for same object into the same
+    // API request, as long as it hasn't been sent (whenSealed)
+    // var promise = object._fetchPropsP;
+    var req = object._fetchPropsReq;
+    if (req) {
+      // if (!promise._request) {
+      // console.log("!promise._request", object.id, object._fetchPropsP);
+      // }
+      var fields = /*promise._request*/ req.fields;
+      Array.prototype.push.apply(fields, props.filter(
+        function(prop) { return fields.indexOf(prop) === -1; }));
+
+      return req._promise;
+
+    } else {
+      var rawPromise;
+      var promise = /*object._fetchPropsP =*/ (
+        rawPromise = this.apiRequest({
+          action: 'get', id: object.getId(),
+          fields: props
+        }, null, object)
+      ).then(function(resp) {
         return async.bindArg(object, object.fromServerValue(resp.object));
       });
+      object._fetchPropsReq = rawPromise._request;
+      object._fetchPropsReq._promise = promise;
+      // promise._request = rawPromise._request;
+      // console.log("promise", object.id, promise, rawPromise);
+      rawPromise.whenSealed.then(function() {
+        // console.log(object.id, "sealed");
+        delete object._fetchPropsReq;
+      });
+      // console.log("22");
+
+      return promise;
+    }
   },
 
   /**
@@ -450,10 +479,10 @@ return declare(null, { //--noindent--
     var index = this.index;
     var obj = index[data.id];
     if (!obj) {
-       obj = this.makeObject(data).then(function(_obj) {
-         index[data.id] = _obj;
-         return _obj;
-       });
+      obj = this.makeObject(data).then(function(_obj) {
+        index[data.id] = _obj;
+        return _obj;
+      });
     }
 
     return when(obj).then(function(obj) {
@@ -479,9 +508,7 @@ return declare(null, { //--noindent--
   apiRequest: function(params, options, object) {
     var module = object ? object.apiModule : this.apiModule;
     return api.request(
-      lang.mixin({ module: module, scope: this },
-                 this.apiParams, params),
-      options);
+      lang.mixin({ module: module }, this.apiParams, params), options);
   },
 
   /**
@@ -531,7 +558,7 @@ return declare(null, { //--noindent--
   refToId: function(ref) {
     if (ref[0] !== 'x') { return ref; }
 
-    var i;
+      var i;
     var str = ref.substr(1);
     // make up base64 string
     for (i = 0; i < 16 - str.length; i++) {

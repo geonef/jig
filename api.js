@@ -4,13 +4,14 @@ define([
   "dojo/_base/lang",
   "dojo/_base/window",
   "dojo/_base/xhr",
+  "dojo/has",
   "dojo/json",
   "dojo/topic",
   "./util/value",
 
   "dojox/uuid/generateRandomUuid",
   "dojo/Deferred",
-], function(require, declare, lang, window, request, json, topic, value,
+], function(require, declare, lang, window, request, has, json, topic, value,
             generateRandomUuid, Deferred) {
 
   var ApiError = declare(Error, {
@@ -91,11 +92,10 @@ define([
     request: function(req, options) {
       self.cancelPing();
       options = options || {};
-      req.promise = new Deferred();
+      var ret = req.promise = new Deferred();
+      ret._request = req;
+      ret.whenSealed = new Deferred();
       topic.publish(this.noticeTopic, { request: req, options: options });
-      var ret = req.promise;
-      var scope = req.scope;
-      delete req.scope;
       if (options) {
         req.__options = options;
       }
@@ -106,10 +106,7 @@ define([
         var reqs = lang.mixin({}, self._deferredRequests);
         self._deferredRequests = {};
         var _deferred = self._deferred;
-        self._doRequest(reqs, options).then(
-          function() {
-            _deferred.resolve();
-          });
+        self._doRequest(reqs, options).then(function() { _deferred.resolve(); });
       };
       if (!self._timeout) {
         self._deferred = new Deferred();
@@ -119,16 +116,6 @@ define([
           self._timeout = window.global.setTimeout(executeRequests, self.timeout);
         }
       }
-      if (req.callback) {
-        console.warn("geonef/jig/api: 'callback' property is deprecated. "+
-                     "Use the promise instead.");
-        // backward compat for req.callback ; api.request({}).then() preferred
-        ret = new Deferred();
-        req.promise
-          .then(lang.hitch(scope, req.callback))
-          .then(function() { ret.resolve(); });
-      }
-      delete req.callback;
 
       return ret;
     },
@@ -229,6 +216,7 @@ define([
        * @return {Object} the structure ready to be serialized
        */
       var _prepareRequest = function(origRequest) {
+        origRequest.promise.whenSealed.resolve(origRequest);
         var ret = lang.mixin({}, origRequest, self.requestCommonParams);
         delete ret.promise;
         delete ret.__options;
@@ -246,17 +234,27 @@ define([
           }
         }
       }
+      if (has("geonef-debug")) {
+        try {
+          var jsonText = json.stringify(requestToSend);
+        } catch (error) {
+          console.error("error when stringifying object:", requestToSend);
+          throw error;
+        }
+      } else {
+        var jsonText = json.stringify(requestToSend);
+      }
 
       return request.post(lang.mixin({
         url: options.url || self.url,
         handleAs: 'text',
-        postData: json.stringify(requestToSend),
+        postData: jsonText,
       }, options), true)
         .then(_processResponse, _processError);
     },
 
     processException: function(req, response) {
-      if (self.showExceptions) {
+      if (has("geonef-exception-show")) {
         value.getModule('geonef/jig/tool/dev/ExceptionDump').then(
           function(_Class) {
             var dump = new _Class(
