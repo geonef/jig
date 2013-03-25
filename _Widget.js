@@ -218,6 +218,18 @@ return declare([_Widget], { //--noindent--
   },
 
   /**
+   * Build DOM tree, returning clearing function
+   */
+  tempDom: function(struct) {
+    var obj = { domWidgets: [] };
+    makeDOM(struct, obj);
+
+    return function() {
+      obj.domWidgets.forEach(function(w) { w.destroy(); });
+    };
+  },
+
+  /**
    * Add a widget within this.domNode and manage it's lifecycle
    *
    * @type {dijit/_WidgetBase} widget
