@@ -11,6 +11,7 @@ define([
   return declare(null, { //--noindent--
 
     fixDijitButton: true,
+    buttonClass: "button",
 
     /**
      * @override
@@ -20,7 +21,7 @@ define([
       if (this.fixDijitButton) {
         query(".dijitButtonNode", this.domNode)
           .removeClass("dijitButtonNode")
-          .addClass("button");
+          .addClass(this.buttonClass);
       }
     },
 
