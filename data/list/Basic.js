@@ -19,7 +19,7 @@ define([
   "dojo/string",
   "dojo/promise/all",
 
-  "dojo/Deferred", // was using geonef/jig/Deferred
+  "dojo/Deferred",
   "../model",
   "./BasicRow",
 
@@ -105,6 +105,11 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   whenReady: null,
 
   /**
+   * @type {dojo/Deferred}
+   */
+  whenListReady: null,
+
+  /**
    * @override
    */
   'class': _Widget.prototype['class'] + ' jigDataList',
@@ -121,6 +126,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     this.inherited(arguments);
     this.rowOptions = lang.mixin({}, this.rowOptions);
     this.whenReady = async.bindArg();
+    this.whenListReady = new Deferred();
     this.store = model.getStore(this.Model);
   },
 
@@ -211,6 +217,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     if (this._destroyed) { return; }
     var scrollTop = this.domNode.scrollTop;
     this.clear();
+    // this.results = results;
     if (this.emptyNode) {
       style.set(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
     }
@@ -242,6 +249,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         if (_this._destroyed) { return; }
         _this.domNode.scrollTop = scrollTop;
         _this.afterPopulateList(scrollTop);
+        _this.whenListReady.resolve();
       });
   },
 
@@ -276,6 +284,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         function(row) { if (!row._destroyed) { row.destroy(); } });
     }
     delete this.rows;
+    // delete this.results;
   },
 
   openList: function() {
