@@ -77,7 +77,6 @@ return declare(_Widget, { //--noindent--
     if (date instanceof Date && this.timeEnabled) {
       var time = this.timeInput.attr('value');
       if (time instanceof Date) {
-        // date = new Date(date.getTime() + time.getTime());
         date.setHours(time.getHours());
         date.setMinutes(time.getMinutes());
       }
@@ -88,7 +87,6 @@ return declare(_Widget, { //--noindent--
   _setValueAttr: function(date) {
     this.date = date;
     this.dateInput.attr('value', date);
-    // console.log("value", date, date instanceof Date);
     if (date instanceof Date &&
         (date.getHours() > 0 ||
          date.getMinutes() > 0 ||
@@ -102,7 +100,6 @@ return declare(_Widget, { //--noindent--
   },
 
   _setTimeEnabledAttr: function(enabled, showHideDD) {
-    console.log("_setTimeEnabledAttr", this, arguments);
     this.timeEnabled = enabled;
     (enabled ? domClass.add : domClass.remove)(this.domNode, 'time');
     this.onSubChange();
@@ -116,12 +113,10 @@ return declare(_Widget, { //--noindent--
   },
 
   isValid: function() {
-    // console.log("isValid", this, arguments);
     return this.dateInput.isValid() && this.timeInput.isValid();
   },
 
   validate: function() {
-    // console.log("Validate", this.dateInput.isValid());
     return this.dateInput.validate() && this.timeInput.validate();
   },
 
