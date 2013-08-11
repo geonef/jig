@@ -86,6 +86,22 @@ var self = { //--noindent--
     return dic[Math.min(2, count)];
   },
 
+  formatDuration: function(duration) {
+    var n = duration % 60;
+    duration = Math.floor(duration / 60);
+    var str = n < 10 ? ("0"+n) : n;
+
+    n = duration % 60;
+    duration = Math.floor(duration / 60);
+    str = (n < 10 && duration > 0 ? ("0"+n) : n) + ":" + str;
+
+    if (duration > 0) {
+      str = duration + ":" + str;
+    }
+
+    return str;
+  },
+
 
 };
 

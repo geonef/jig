@@ -45,6 +45,9 @@
  *            Opposite from '_if', apply the value if true.
  *            Useful when using deferreds. Can't be used together with '_if'.
  *
+ *   - '_style' {object}
+ *            Assemble a string "style" property from given _style object (helper)
+ *
  * Special features:
  *
  *   - if a widget is provided instead of tagName, its domNode is used
@@ -146,7 +149,7 @@ define([
     var attrs = lang.mixin({}, args[1]);
     var magic = {};
     ['_attach', '_insert', '_tooltip', '_tooltipOptions',
-     '_srcNodeName', '_if', '_ifNot'].forEach(
+     '_srcNodeName', '_if', '_ifNot', '_style'].forEach(
        function(attr) {
          if (attrs[attr] !== undefined) {
            magic[attr] = attrs[attr];
@@ -182,6 +185,10 @@ define([
           });
       }
       return null;
+    }
+    if (magic._style) {
+      attrs.style = Object.keys(magic._style)
+        .map(function(key) { return key+":"+magic._style[key]; }).join(";");
     }
     if (typeof args[0] == 'function') { // assume widget class
       var _Class = args[0];
