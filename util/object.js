@@ -16,8 +16,8 @@ var self = { //--noindent--
    * Valide que les options doivent exister dans la chaîne de prototypes
    * de l'objet.
    *
-   * @type {Object} obj         input options object (won't be modified)
-   * @type {!Object} options    default options
+   * @type {Object} obj         default options
+   * @type {!Object} options    input options object (won't be modified)
    */
   mixOptions: function(obj, options) {
     if (has("geonef-debug-args")) { // todo: set statically
