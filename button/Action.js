@@ -118,6 +118,14 @@ return declare(_Widget, { //--noindent--
    */
   noSubmit: false,
 
+  /**
+   * If true, the submit is made after the call to onExecute(),
+   * unless the return value is false
+   *
+   * @type {boolean}
+   */
+  lateSubmit: false,
+
   connectA: true,
 
   buildRendering: function() {
@@ -191,9 +199,15 @@ return declare(_Widget, { //--noindent--
   },
 
   execute: function(evt) {
-    var ret = this.onExecute();
+    var ret;
+    if (this.lateSubmit) {
+      ret = this.onExecute();
+    }
     if (ret !== false && !this.noSubmit) {
       widget.bubbleSubmit(this.domNode, evt);
+    }
+    if (!this.lateSubmit) {
+      this.onExecute();
     }
     if (this.publish) {
       topic.publish(this.publish);
