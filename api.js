@@ -136,7 +136,9 @@ define([
           lastObj[currentKey] = reqs[currentKey];
           return blocks;
         }, []);
-        console.log("API: got", Object.keys(reqs).length, "calls, devided into", blocks.length, "XHR");
+        if (blocks.length > 1) {
+          console.info("API: got", Object.keys(reqs).length, "calls, devided into", blocks.length, "XHR");
+        }
 
         // Call self._doRequest() for actual XHR
         whenAll(blocks.map(function(block, idx) {
