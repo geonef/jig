@@ -8,11 +8,13 @@ define([
   "dojo/json",
   "dojo/topic",
   "./util/value",
+  "./util/async",
 
   "dojox/uuid/generateRandomUuid",
   "dojo/Deferred",
-], function(require, declare, lang, window, request, has, json, topic, value,
-            generateRandomUuid, Deferred) {
+  "dojo/promise/all",
+], function(require, declare, lang, window, request, has, json, topic, value, async,
+            generateRandomUuid, Deferred, whenAll) {
 
   var ApiError = declare(Error, {
 
@@ -73,7 +75,23 @@ define([
     timeout: 0,
 
     /**
-     * @type {Object} Parallel requests deferred to later execution
+     * Limit upon the number of API calls per XHR
+     *
+     * If more API calls are made within the timeout, several XHR will be made
+     *
+     * @type {number}
+     */
+    maxReqsPerXHR: 20,
+
+    /**
+     * Delay between different XHR made because of maxReqsPerXHR
+     */
+    subsequentXHRDelay: 400,
+
+    /**
+     * Parallel requests deferred to later execution
+     *
+     * @type {Object}
      */
     _deferredRequests: {},
 
@@ -100,15 +118,34 @@ define([
         req.__options = options;
       }
       self._deferredRequests[generateRandomUuid()] = req;
+
       var executeRequests = function() {
         // execute all deferred requests
         self._timeout = null;
         var reqs = lang.mixin({}, self._deferredRequests);
         self._deferredRequests = {};
         var _deferred = self._deferred;
-        self._doRequest(reqs, options).then(function() { _deferred.resolve(); });
+
+        // Take maxReqsPerXHR into account by dividing API calls into groups
+        var blocks = Object.keys(reqs).reduce(function(blocks, currentKey, idx) {
+          var lastObj = blocks[blocks.length - 1];
+          if (!lastObj || Object.keys(lastObj).length >= self.maxReqsPerXHR) {
+            blocks.push(lastObj = {});
+
+          }
+          lastObj[currentKey] = reqs[currentKey];
+          return blocks;
+        }, []);
+        console.log("API: got", Object.keys(reqs).length, "calls, devided into", blocks.length, "XHR");
+
+        // Call self._doRequest() for actual XHR
+        whenAll(blocks.map(function(block, idx) {
+          return async.whenTimeout(idx * self.subsequentXHRDelay)
+            .then(function() { return self._doRequest(block, options); });
+        })).then(function() { _deferred.resolve(); });
       };
-      if (!self._timeout) {
+
+      if (!self._timeout) { // order requests, if none is pending through setTimeout()
         self._deferred = new Deferred();
         if (self.timeout === null) {
           executeRequests();
