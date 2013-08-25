@@ -81,7 +81,7 @@ define([
      *
      * @type {number}
      */
-    maxReqsPerXHR: 20,
+    maxReqsPerXHR: 40,
 
     /**
      * Delay between different XHR made because of maxReqsPerXHR
