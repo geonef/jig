@@ -220,13 +220,22 @@ return declare([_Widget], { //--noindent--
   /**
    * Build DOM tree, returning clearing function
    */
-  tempDom: function(struct) {
-    var obj = { domWidgets: [] };
+  tempDom: function(struct, objOrFunc) {
+    var obj = lang.mixin({ domWidgets: [] }, typeof objOrFunc === "function" ? objOrFunc.obj : objOrFunc);
     makeDOM(struct, obj);
 
-    return function() {
+    if (typeof objOrFunc === "function") {
+      // the objOrFunc function will destroy or widgets,
+      // which were added to objOrFunc.obj.domWidgets
+      return objOrFunc;
+    }
+
+    var _destroy = function() {
       obj.domWidgets.forEach(function(w) { w.destroy(); });
     };
+    _destroy.obj = obj;
+
+    return _destroy;
   },
 
   /**
