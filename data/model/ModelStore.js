@@ -249,6 +249,7 @@ return declare(null, { //--noindent--
    */
   put: function(object, options) {
     var _this = this;
+    object._beingSaved = true;
     var deferred = object.toServerValue()
       .then(function(value) {
         return _this.apiRequest(lang.mixin({
@@ -264,6 +265,7 @@ return declare(null, { //--noindent--
         return async.bindArg(object, object.fromServerValue(resp.object));
       })
       .then(function() {
+        object._beingSaved = false;
         object.publish(['afterPut']);
         return object;
       });
