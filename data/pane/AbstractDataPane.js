@@ -10,6 +10,11 @@
  * would better fit (form/validation/saving management).
  *
  * This handles init/load/events around this.object.
+ *
+ * The DOM is build after 'isDataReady' is resolved, and again at
+ * 'onModelChange'. In some cases (when you need the obj to be persisted
+ * for example), you may need to do it in afterModelChange() instead:
+ * overload these methods, then.
  */
 define([
   "module",
@@ -142,7 +147,6 @@ define([
      */
     onModelChannel: function(object, type) {
       if (object !== this.object || this._destroyed) { return; }
-      // console.log('dataPane::onModelChannel', this, type);
       if (type === 'put') {
         this.onModelChange();
       }
@@ -160,24 +164,18 @@ define([
      * It should be used by child classed to make custom updates if needed.
      */
     onModelChange: function(saving) {
-      // this.panelPath = ["Ressources", this.object.getSummary()];
       if (this.delayedContent) {
         this.rebuildDom();
       }
-      this.onPanelPathChange();
     },
 
     /**
-     * Hook - called after changes have been saved
+     * Hook - called on data ready and after changes have been saved
      */
-    afterModelChange: function(saving) {
-    },
-
-    onPanelPathChange: function() {},
+    afterModelChange: function(saving) {},
 
     /** hook */
-    onClose: function() {
-    },
+    onClose: function() {},
 
     deleteObject: function() {
       if (!window.global.confirm(this.removeConfirm)) { return; }
