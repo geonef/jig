@@ -230,8 +230,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     if (over) {
       results = results.slice(0, this.limit);
     }
-    this.rows = results.map(this.makeRow, this)
-      .map(this.placeRow, this);
+    this.rows = results.map(this.makeRow, this);
+    this.rows.forEach(this.placeRow, this);
     if (over) {
       var moreLink = new Action(
         { label: string.substitute(this.msgMore, { count: over }),
