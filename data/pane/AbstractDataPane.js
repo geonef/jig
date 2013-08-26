@@ -22,13 +22,15 @@ define([
   "dojo/_base/lang",
   "dojo/_base/window",
   "dojo/dom-class",
+  "dojo/topic",
 
   "dijit/form/DropDownButton",
   "dijit/TooltipDialog",
 ], function(module, declare, _Widget,
-            async, widget, Action, lang, window, domClass,
+            async, widget, Action, lang, window, domClass, topic,
             DropDownButton, TooltipDialog) {
 
+  var h = lang.hitch;
 
   return declare(_Widget, {
 
@@ -82,8 +84,8 @@ define([
           _attach: 'optionsDD',
           'class': 'nolabel gear',
           dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
-          onMouseEnter: lang.hitch(null, domClass.add, this.domNode, 'overDD'),
-          onMouseLeave: lang.hitch(null, domClass.remove, this.domNode, 'overDD'),
+          onMouseEnter: h(null, domClass.add, this.domNode, 'overDD'),
+          onMouseLeave: h(null, domClass.remove, this.domNode, 'overDD'),
         }]);
 
       this.dom(
@@ -109,7 +111,7 @@ define([
      */
     postCreate: function() {
       this.inherited(arguments);
-      this.subscribe(this.object.channel, this.onModelChannel);
+      this.own(topic.subscribe(this.object.channel, h(this, this.onModelChannel)));
     },
 
     /**
@@ -118,8 +120,7 @@ define([
     startup: function() {
       if (this._started) { return; }
       this.inherited(arguments);
-      // this.whenDataReady.then(lang.hitch(this, this.onDataReady));
-      this.whenDataReady.then(lang.hitch(this, function() {
+      this.whenDataReady.then(h(this, function() {
         this.onDataReady();
       }));
     },
