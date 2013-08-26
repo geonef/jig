@@ -256,16 +256,16 @@ return declare([_Widget], { //--noindent--
       }, this);
     widget.placeAt(this.opNode || this.domNode).startup();
     this.subWidget = widget;
-    domClass.add(widget.domNode, 'sub');
-    domClass.add(this.domNode, 'hasSub');
+    domClass.add(widget.domNode, "sub");
+    domClass.add(this.domNode, "hasSub");
     var _this = this;
-    aspect.before(widget, 'uninitialize',// 'destroy',
-                  function() {
-                    _this.destroySubWidget();
-                    if (onDestroy) {
-                      lang.hitch(_this, onDestroy)();
-                    }
-                  });
+    aspect.before(widget, "uninitialize", function() {
+      _this.destroySubWidget(); // uninitialize won't be called again
+      if (onDestroy) {
+        onDestroy.call(_this, widget._argToDestroyHandler);
+      }
+      widget._argToDestroyHandler = null;
+    });
 
     return widget;
   },
@@ -275,11 +275,12 @@ return declare([_Widget], { //--noindent--
    *
    * @return {boolean} Whether the widget was not already closed
    */
-  destroySubWidget: function() {
+  destroySubWidget: function(argToDestroyHandler) {
     var widget = this.subWidget;
     if (widget) {
       delete this.subWidget;
       if (!widget._beingDestroyed) {
+        widget._argToDestroyHandler = argToDestroyHandler;
         widget.destroy();
       }
       this.subHides.forEach(
