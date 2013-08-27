@@ -51,7 +51,7 @@ return declare(_Widget, { //--noindent--
         ]],
         ["td", {"class": "timeOnly"}, [
           [TimeTextBox, {
-            _attach: "timeInput", extraClass: "flow",
+            _attach: "timeInput",
             onChange: h(this, this.onSubChange),
             tooltipPosition: ["above", "below"],
             promptMessage: this.timePromptMessage,
@@ -59,7 +59,7 @@ return declare(_Widget, { //--noindent--
         ]],
         ["td", {"class": "timeOnly"}, [
           [Action, {
-            label: "Retirer l'heure",
+            label: "Enlever l'heure", extraClass: "flow",
             onExecute: h(this, this._setTimeEnabledAttr, false, true)
           }]
         ]]
