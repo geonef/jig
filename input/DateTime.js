@@ -45,13 +45,13 @@ return declare(_Widget, { //--noindent--
         ]],
         ["td", {"class": "noTimeOnly"}, [
           [Action, {
-            label: "Heure...",
+            label: "Heure...", extraClass: "flow",
             onExecute: h(this, this._setTimeEnabledAttr, true, true)
           }]
         ]],
         ["td", {"class": "timeOnly"}, [
           [TimeTextBox, {
-            _attach: "timeInput",
+            _attach: "timeInput", extraClass: "flow",
             onChange: h(this, this.onSubChange),
             tooltipPosition: ["above", "below"],
             promptMessage: this.timePromptMessage,

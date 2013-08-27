@@ -137,21 +137,25 @@ return declare(_Widget, { //--noindent--
       if (this.href) {
         this.domNode = construct.create('a', { href: this.href });
       } else {
-        this.domNode = construct.create(this.nodeName);
+        this.domNode = construct.create(this.nodeName, {});
       }
     }
-    domClass.add(this.domNode, this["class"]+" "+this.extraClass + " " + this.cssClasses);
+    domClass.add(this.domNode, this["class"]+" "+(this.extraClass||"") + " " + this.cssClasses);
     if (this.domNode.nodeName !== 'A' || this.connectA) {
       this.connect(this.domNode, 'onclick', 'onClick');
     }
+    this.domNode.innerHTML = "&nbsp;";
   },
 
   _setLabelAttr: function(label) {
     this.label = label;
     if (label) {
-      this.domNode.innerHTML = domClass.contains(this.domNode, "important") ?
+      label = domClass.contains(this.domNode, "important") ?
         label.toUpperCase() : label;
+    } else {
+      label = "&nbsp;";
     }
+    this.domNode.innerHTML = label;
   },
 
   _setTitleAttr: function(title) {

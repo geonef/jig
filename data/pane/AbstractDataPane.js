@@ -29,11 +29,11 @@ define([
   "dojo/dom-class",
   "dojo/topic",
 
-  "dijit/form/DropDownButton",
+  "../../button/DropDown",
   "dijit/TooltipDialog",
 ], function(module, declare, _Widget,
             async, widget, Action, lang, window, domClass, topic,
-            DropDownButton, TooltipDialog) {
+            DropDown, TooltipDialog) {
 
   var h = lang.hitch;
 
@@ -85,9 +85,8 @@ define([
       var _this = this;
 
       var node = this.dom(
-        [DropDownButton, {
-          _attach: 'optionsDD',
-          'class': 'nolabel gear',
+        [DropDown, {
+          _attach: 'optionsDD', extraClass: 'icon s24 nolabel gear',
           dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
           onMouseEnter: h(null, domClass.add, this.domNode, 'overDD'),
           onMouseLeave: h(null, domClass.remove, this.domNode, 'overDD'),
