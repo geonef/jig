@@ -129,7 +129,6 @@ return declare(_Widget, { //--noindent--
   connectA: true,
 
   buildRendering: function() {
-    //console.log('buildRendering', this, arguments);
     if (this.srcNodeRef) {
       this.domNode = construct.create(this.srcNodeRef.nodeName);
       array.forEach(this.srcNodeRef.childNodes,
@@ -141,9 +140,6 @@ return declare(_Widget, { //--noindent--
         this.domNode = construct.create(this.nodeName);
       }
     }
-    if (this.label) {
-      this.domNode.innerHTML = this.label;
-    }
     domClass.add(this.domNode, this["class"]+" "+this.extraClass + " " + this.cssClasses);
     if (this.domNode.nodeName !== 'A' || this.connectA) {
       this.connect(this.domNode, 'onclick', 'onClick');
@@ -153,7 +149,8 @@ return declare(_Widget, { //--noindent--
   _setLabelAttr: function(label) {
     this.label = label;
     if (label) {
-      this.domNode.innerHTML = label;
+      this.domNode.innerHTML = domClass.contains(this.domNode, "important") ?
+        label.toUpperCase() : label;
     }
   },
 
