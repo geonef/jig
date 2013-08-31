@@ -30,6 +30,8 @@ define([
             Deferred, model, BasicRow,
             async, Action) {
 
+  var h = lang.hitch;
+
 return declare([ _Widget, CreatorMixin ], { //--noindent--
 
   /**
@@ -135,11 +137,12 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   buildRendering: function() {
     this.inherited(arguments);
-    domClass.add(this.domNode, this.readOnly ? 'ro' : 'rw');
+    domClass.add(this.domNode, "loading " + (this.readOnly ? 'ro' : 'rw'));
   },
 
   makeContentNodes: function() {
     return [
+      this.makeSpinnerNode("listLoading"),
       ['div', {_attach: 'listNode', 'class': 'results' }]
     ];
   },
@@ -162,7 +165,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   startup: function() {
     if (this._started) { return; }
     this.inherited(arguments);
-    this.whenReady.then(lang.hitch(this, this.rebuildDom));
+    this.whenReady.then(h(this, this.rebuildDom));
   },
 
   /**
@@ -177,10 +180,15 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * Refresh the list
    */
   refresh: function() {
+    var _this = this;
+    this.clear();
+    domClass.add(this.domNode, "loading");
     this.fetchResults()
       .then(async.deferWhen(this.whenDomReady))
-      .then(lang.hitch(this, this.populateList))
-      .then(async.busy(this.domNode));
+      .then(h(this, this.populateList))
+      .then(function() {
+        domClass.remove(_this.domNode, "loading");
+      });
   },
 
   /**
@@ -216,8 +224,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   populateList: function(results) {
     if (this._destroyed) { return; }
     var scrollTop = this.domNode.scrollTop;
-    this.clear();
-    // this.results = results;
+    // this.clear() done in refresh() now
     if (this.emptyNode) {
       style.set(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
     }
@@ -236,7 +243,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       var moreLink = new Action(
         { label: string.substitute(this.msgMore, { count: over }),
           title: "Cliquer pour afficher",
-          onExecute: lang.hitch(this, this.openList) });
+          onExecute: h(this, this.openList) });
       domClass.add(moreLink.domNode, 'jigDataRow more');
       this.placeRow(moreLink, null);
       this.rows.push(moreLink);

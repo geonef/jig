@@ -3,7 +3,7 @@
  */
 define([
   "require",
-  "dojo/_base/Deferred",
+  "dojo/Deferred",
   "dojo/_base/lang",
   "dojo/_base/window",
   "dojo/_base/kernel",
@@ -74,18 +74,18 @@ var self = { //--noindent--
    */
   whenTimeout: function(delay) {
     var id;
-    var def = new Deferred(function(reason) {
+    var deferred = new Deferred(function(reason) {
       if (id) {
         window.global.clearTimeout(id);
         id = null;
       }
     });
     id = window.global.setTimeout(function() {
-      def.resolve();
+      deferred.resolve();
       id = null;
     }, delay);
 
-    return def;
+    return deferred;
   },
 
   /**

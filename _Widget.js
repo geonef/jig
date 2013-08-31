@@ -55,9 +55,9 @@ return declare([_Widget], { //--noindent--
   contentNodes: [],
 
   /**
-   * If true, content nodes are built upon rebuildDom(), not initial buildRendering()
+   * If true, content nodes are built upon rebuildDom() instead of initial buildRendering()
    *
-   * In this case, the concrete class has the responsability to build
+   * In this case, the concrete class has the responsability to call
    * rebuildDom() (typically, when some data used by makeContentNodes() were
    * sucessfully loaded).
    *
@@ -94,11 +94,12 @@ return declare([_Widget], { //--noindent--
    */
   buildRendering: function() {
     if (!this.domNode) {
-      var attrs = { 'class': this['class']+' '+this.extraClass };
+      var attrs = { 'class': this['class']+' '+this.extraClass+' '+
+                    (this.delayedContent ? "domLoading": "") };
       if (this.srcNodeRef && this.srcNodeRef.hasAttribute('style')) {
         attrs.style = this.srcNodeRef.getAttribute('style');
       }
-      var nodes = this.delayedContent ? [] : this.makeContentNodes();
+      var nodes = this.delayedContent ? [this.makeSpinnerNode()] : this.makeContentNodes();
       this.domNode = this.dom([this.nodeName, attrs, nodes]);
     }
     this.inherited(arguments);
@@ -134,6 +135,16 @@ return declare([_Widget], { //--noindent--
   },
 
   /**
+   * Make DOM definition for a spinner node
+   *
+   * @param {string} extraClass  CSS class to apply to node, in addition to "jigLoading"
+   * @return Array
+   */
+  makeSpinnerNode: function(extraClass) {
+    return ["div", {"class":"jigLoading "+(extraClass || "")}, "Chargement..."];
+  },
+
+  /**
    * @override
    */
   startup: function() {
@@ -162,7 +173,7 @@ return declare([_Widget], { //--noindent--
   destroyDom: function() {
     this.destroySubWidget();
     if (this.domWidgets) {
-      this.domWidgets/*.slice(0)*/.forEach(function(w) { w.destroy(); });
+      this.domWidgets.forEach(function(w) { w.destroy(); });
       this.domWidgets = [];
     }
     if (this.domNode) {
@@ -188,6 +199,7 @@ return declare([_Widget], { //--noindent--
           throw new Error("rebuildDom(): widget was destroyed in the middle :(");
         }
 
+        domClass.remove(domNode, "domLoading");
         nodes.forEach(function(node) { if (node) { domNode.appendChild(node); } });
         _this.afterRebuildDom();
         return nodes;
