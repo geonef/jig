@@ -342,8 +342,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       style.set(this.nextAction.domNode, "visibility", this.currentPage < results.pageCount ? "" : "hidden");
     }
     style.set(this.pageControlNode, "display", results.pageCount > 1 ? "" : "none");
-    this.onTitleChange();
-    this.onUrlChange();
+    if (this.onTitleChange) {
+      this.onTitleChange();
+      this.onUrlChange();
+    }
   },
 
 
