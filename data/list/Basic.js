@@ -25,15 +25,23 @@ define([
   "./BasicRow",
 
   "../../util/async",
+  "../../util/number",
   "../../button/Action",
 ], function(module, declare, _Widget, CreatorMixin,
             lang, style, domClass, string, topic, allPromises,
             Deferred, model, BasicRow,
-            async, Action) {
+            async, number, Action) {
 
   var h = lang.hitch;
 
 return declare([ _Widget, CreatorMixin ], { //--noindent--
+
+  /**
+   * Current page
+   *
+   * @type {integer} positive
+   */
+  currentPage: 1,
 
   /**
    * Object to get the data from (see 'objectProp'), or null for independant query
@@ -79,6 +87,15 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @type {integer}
    */
   limit: null,
+
+  /**
+   * Dic for count title
+   *
+   * For example: ["No objet", "One object", "${count} objects"]
+   *
+   * @type {Array.<string>}
+   */
+  countTitleDic: null,
 
   /**
    * @type {string}
@@ -133,6 +150,12 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     this.store = model.getStore(this.Model);
   },
 
+  getUrlCountPart: function() {
+    var res = this.results;
+
+    return res && res.currentPage > 1 ? ("/" + res.currentPage) : "";
+  },
+
   /**
    * @override
    */
@@ -141,10 +164,38 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     domClass.add(this.domNode, "loading " + (this.readOnly ? 'ro' : 'rw'));
   },
 
+  getPagingLabel: function(currentPageOnly) {
+    var res = this.results;
+    return currentPageOnly ?
+      (res && res.currentPage > 1 ? " ("+res.currentPage+")" : "")
+    : (res && res.pageCount > 1 ? " ("+res.currentPage+"/"+res.pageCount+")" : "");
+  },
+
   makeContentNodes: function() {
     return [
       this.makeSpinnerNode("listLoading"),
-      ['div', {_attach: 'listNode', 'class': 'results' }]
+      ['div', {_attach: 'listNode', 'class': 'results' }],
+      ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
+        [Action, {
+          _attach: "nextAction",
+          label: "suivant &rarr;", extraClass: "primary floatr",
+          onExecute: h(this, function() {
+            this.refresh({ currentPage: this.currentPage + 1});
+          })
+        }],
+        [Action, {
+          _attach: "previousAction",
+          label: "&larr; précédent", extraClass: "primary floatl",
+          onExecute: h(this, function() {
+            this.refresh({ currentPage: this.currentPage - 1});
+          })
+        }],
+        ["span", {"class":"label"}, [
+          ["span", {_attach: "currentPageNode"}],
+          ["span", {}, "/"],
+          ["span", {_attach: "pageCountNode"}],
+        ]]
+      ]],
     ];
   },
 
@@ -180,11 +231,15 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   /**
    * Refresh the list
    */
-  refresh: function() {
+  refresh: function(options) {
     var _this = this;
     var scrollTop = this.domNode.scrollTop;
     this.clear();
     domClass.add(this.domNode, "loading");
+    if (this.pageControlNode) {
+      style.set(this.pageControlNode, "display", "none");
+    }
+    lang.mixin(this, options);
     this.fetchResults()
       .then(function(results) {
         topic.publish("data/list/fetched", _this, results);
@@ -211,9 +266,18 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       if (this.sorting) {
         options.sort = this.sorting;
       }
-      if (this.fieldGroup) {
-        options.fieldGroup = this.fieldGroup;
+      var props = {
+        sorting: "sort",
+        fieldGroup: "fieldGroup",
+        limit: "pageLength",
+        currentPage: "page",
+      };
+      for (prop in props) if (props.hasOwnProperty(prop)) {
+        if (this[prop] !== undefined) {
+          options[props[prop]] = this[prop];
+        }
       }
+
       return this.store.query(this.buildQuery(), options);
     }
   },
@@ -230,30 +294,24 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   populateList: function(results) {
     if (this._destroyed) { return; }
-    // this.clear() done in refresh() now
-    if (this.emptyNode) {
-      style.set(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
-    }
-    if (this.countLink) {
-      this.countLink.set('label', '('+(results.totalCount || results.length)+')');
-    }
-    (results.length > 0 ? domClass.remove : domClass.add)(this.domNode, 'empty');
-    var over = this.limit && this.limit < results.length &&
-      results.length - this.limit;
-    if (over) {
-      results = results.slice(0, this.limit);
-    }
+    this.results = results;
+    this.updateCountStats(results);
+    // var over = this.limit && this.limit < results.length &&
+    //   results.length - this.limit;
+    // if (over) {
+    //   results = results.slice(0, this.limit);
+    // }
     this.rows = results.map(this.makeRow, this);
     this.rows.forEach(this.placeRow, this);
-    if (over) {
-      var moreLink = new Action(
-        { label: string.substitute(this.msgMore, { count: over }),
-          title: "Cliquer pour afficher",
-          onExecute: h(this, this.openList) });
-      domClass.add(moreLink.domNode, 'jigDataRow more');
-      this.placeRow(moreLink, null);
-      this.rows.push(moreLink);
-    }
+    // if (over) {
+    //   var moreLink = new Action(
+    //     { label: string.substitute(this.msgMore, { count: over }),
+    //       title: "Cliquer pour afficher",
+    //       onExecute: h(this, this.openList) });
+    //   domClass.add(moreLink.domNode, 'jigDataRow more');
+    //   this.placeRow(moreLink, null);
+    //   this.rows.push(moreLink);
+    // }
     var _this = this;
     allPromises(this.rows
                 .filter(function(row) { return !!row.whenDataReady; })
@@ -264,6 +322,30 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         _this.whenListReady.resolve();
       });
   },
+
+  updateCountStats: function(results) {
+    if (this.emptyNode) {
+      style.set(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
+    }
+    // if (this.countNode) {
+    //   this.countNode.innerHTML = number.pluralString(results.resultCount, this.countTitleDic);
+    // }
+    (results.length > 0 ? domClass.remove : domClass.add)(this.domNode, 'empty');
+    if (this.currentPageNode) {
+      this.currentPageNode.innerHTML = results.currentPage;
+    }
+    if (this.pageCountNode) {
+      this.pageCountNode.innerHTML = results.pageCount;
+    }
+    if (this.previousAction) {
+      style.set(this.previousAction.domNode, "visibility", this.currentPage > 1 ? "" : "hidden");
+      style.set(this.nextAction.domNode, "visibility", this.currentPage < results.pageCount ? "" : "hidden");
+    }
+    style.set(this.pageControlNode, "display", results.pageCount > 1 ? "" : "none");
+    this.onTitleChange();
+    this.onUrlChange();
+  },
+
 
   /**
    * Hook
@@ -296,7 +378,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         function(row) { if (!row._destroyed) { row.destroy(); } });
     }
     delete this.rows;
-    // delete this.results;
+    delete this.results;
   },
 
   openList: function() {

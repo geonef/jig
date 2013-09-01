@@ -233,7 +233,8 @@ return declare([_Widget], { //--noindent--
    * Build DOM tree, returning clearing function
    */
   tempDom: function(struct, objOrFunc) {
-    var obj = lang.mixin({ domWidgets: [] }, typeof objOrFunc === "function" ? objOrFunc.obj : objOrFunc);
+    var obj = lang.mixin({ domWidgets: [], _started: true },
+                         typeof objOrFunc === "function" ? objOrFunc.obj : objOrFunc);
     makeDOM(struct, obj);
 
     if (typeof objOrFunc === "function") {

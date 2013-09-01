@@ -82,8 +82,23 @@ var self = { //--noindent--
                            { units: ['o', 'ko', 'Mo', 'Go', 'To'], mult: 1024 });
   },
 
-  pluralString: function(count, dic) {
-    return dic[Math.min(2, count)];
+  /**
+   * Choose word given the count
+   *
+   * For example :
+   *     number.pluralString(15, ["objet", "objet", "objets"])
+   *   returns: "objets"
+   *
+   * @param {number} count
+   * @param {Array} dic
+   */
+  pluralString: function(count, dic, useNbsp) {
+    var str = dic[Math.min(2, count)].replace("${count}", count);
+    if (useNbsp !== false) {
+      str = str.replace(" ", "&nbsp;");
+    }
+
+    return str;
   },
 
   formatDuration: function(duration) {

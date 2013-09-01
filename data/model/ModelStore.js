@@ -380,17 +380,24 @@ return declare(null, { //--noindent--
 
     return this.apiRequest(lang.mixin({
       action: 'query',
-      filters: newFilter, /* options: options || {}*/
+      filters: newFilter,
     }, options))
       .then(lang.hitch(this, function(resp) {
         if (!resp.results) {
           console.error("model query ("+this.apiModule+"): no result array", resp);
           return null;
         }
-        return async.whenAll(resp.results.map(
-          function(data) {
-            return this.getLazyObject(lang.mixin({}, implied, data));
-          }, this));
+        return async
+          .whenAll(resp.results.map(
+            function(data) {
+              return this.getLazyObject(lang.mixin({}, implied, data));
+            }, this))
+          .then(function(results) {
+            ["resultCount", "pageLength", "pageCount", "currentPage"].forEach(
+              function(prop) { results[prop] = resp[prop]; });
+
+            return results;
+          });
       }));
   },
 
@@ -560,7 +567,7 @@ return declare(null, { //--noindent--
   refToId: function(ref) {
     if (ref[0] !== 'x') { return ref; }
 
-      var i;
+    var i;
     var str = ref.substr(1);
     // make up base64 string
     for (i = 0; i < 16 - str.length; i++) {
