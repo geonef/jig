@@ -17,6 +17,7 @@ define([
   "dojo/dom-style",
   "dojo/dom-class",
   "dojo/string",
+  "dojo/topic",
   "dojo/promise/all",
 
   "dojo/Deferred",
@@ -26,7 +27,7 @@ define([
   "../../util/async",
   "../../button/Action",
 ], function(module, declare, _Widget, CreatorMixin,
-            lang, style, domClass, string, allPromises,
+            lang, style, domClass, string, topic, allPromises,
             Deferred, model, BasicRow,
             async, Action) {
 
@@ -185,6 +186,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     this.clear();
     domClass.add(this.domNode, "loading");
     this.fetchResults()
+      .then(function(results) {
+        topic.publish("data/list/fetched", _this, results);
+        return results;
+      })
       .then(async.deferWhen(this.whenDomReady))
       .then(h(this, this.populateList))
       .then(function() {
