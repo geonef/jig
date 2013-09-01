@@ -181,6 +181,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   refresh: function() {
     var _this = this;
+    var scrollTop = this.domNode.scrollTop;
     this.clear();
     domClass.add(this.domNode, "loading");
     this.fetchResults()
@@ -188,6 +189,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       .then(h(this, this.populateList))
       .then(function() {
         domClass.remove(_this.domNode, "loading");
+        _this.domNode.scrollTop = scrollTop;
       });
   },
 
@@ -223,7 +225,6 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   populateList: function(results) {
     if (this._destroyed) { return; }
-    var scrollTop = this.domNode.scrollTop;
     // this.clear() done in refresh() now
     if (this.emptyNode) {
       style.set(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
@@ -254,8 +255,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
                 .map(function(row) { return row.whenDataReady; }))
       .then(function() {
         if (_this._destroyed) { return; }
-        _this.domNode.scrollTop = scrollTop;
-        _this.afterPopulateList(scrollTop);
+        _this.afterPopulateList();
         _this.whenListReady.resolve();
       });
   },
