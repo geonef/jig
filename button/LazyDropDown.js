@@ -6,8 +6,7 @@
 define([
   "module",
   "dojo/_base/declare",
-  "dijit/form/DropDownButton",
-  "./DijitFix",
+  "./DropDown",
   "dijit/TooltipDialog",
   "dijit/popup",
   "dojo/_base/lang",
@@ -15,11 +14,11 @@ define([
   "dojo/dom-style",
   "dojo/Deferred",
   "../util/value"
-], function(module, declare, DropDownButton, DijitFix, TooltipDialog, popup, lang,
+], function(module, declare, DropDown, TooltipDialog, popup, lang,
             construct, style, Deferred, value) {
 
 
-return declare([DropDownButton, DijitFix], { //--noindent--
+return declare(DropDown, { //--noindent--
 
   /**
    * @override
@@ -70,6 +69,7 @@ return declare([DropDownButton, DijitFix], { //--noindent--
     if (this._started){ return; }
 
     this.dropDown = { _destroyed: true };
+    this.inherited(arguments);
     // no parent has an interesting startup method
 
     //this.dropDownContainer = null;	// hack to make parent (DropDownButton)

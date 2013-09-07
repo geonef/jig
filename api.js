@@ -29,11 +29,12 @@ define([
     //   return 'ApiError "'+this.name+'": '+this.message;
     // },
     // toLocaleString: function() {
-    //   return 'ApiError "'+this.name+'": '+this.message;
+    //   return this.toString();
+    //   // return 'ApiError "'+this.name+'": '+this.message;
     // },
 
-
     declaredClass: "ApiError"
+
   });
 
   var self = {

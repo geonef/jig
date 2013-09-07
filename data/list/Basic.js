@@ -341,7 +341,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       style.set(this.previousAction.domNode, "visibility", this.currentPage > 1 ? "" : "hidden");
       style.set(this.nextAction.domNode, "visibility", this.currentPage < results.pageCount ? "" : "hidden");
     }
-    style.set(this.pageControlNode, "display", results.pageCount > 1 ? "" : "none");
+    if (this.pageControlNode) {
+      style.set(this.pageControlNode, "display", results.pageCount > 1 ? "" : "none");
+    }
     if (this.onTitleChange) {
       this.onTitleChange();
       this.onUrlChange();
