@@ -45,6 +45,17 @@ define([
         ]]];
     },
 
+    formEntries: function(options, rows) {
+      return rows.map(function(row) {
+        var hasLabel = typeof row[0] === "string";
+        return ["div", {"class": "line"}, hasLabel ?
+                [
+                  ["span", {"class": "label"}, row[0]],
+                  ["span", {}, row[1]],
+                ] :
+                row[0]];
+      });
+    }
 
   };
 
