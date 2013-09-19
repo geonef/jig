@@ -23,23 +23,18 @@ define([
   "dojo/promise/all",
   "dojo/topic",
   "dojo/when",
+  "dojo/has",
   "dojo/promise/all",
 
+  "../type/json",
   "../model",
   "../../util/value",
   "../../util/string",
   "../../util/array",
   "../../util/object",
   "../../util/async",
-], function(module, declare, lang, Deferred, allPromises, topic, when, whenAll,
-            model, value, string, array, object, async) {
-
-
-  var goThrough = function(value) { return value; };
-  var scalar = {
-    fromServer: goThrough,
-    toServer: goThrough,
-  };
+], function(module, declare, lang, Deferred, allPromises, topic, when, has, whenAll,
+            json, model, value, string, array, object, async) {
 
 return declare(null, { //--noindent--
   /**
@@ -104,135 +99,21 @@ return declare(null, { //--noindent--
    * the model prototype, with the 'undefined' value for most cases.
    *
    * Here are the supported property attributes:
-   *    - type (string):        name of type, must exist in the this.types object
+   *    - type (object):        type handler: object providing fromServer() and toServer()
    *    - readOnly (boolean):   whether the property is readOnly
    *    - noEdit (boolean):     whether the property can only be set at creation
    *    - compare (function):   function that take 2 values and compare them
    *                            (used to compute changed properties in 'toServerValue')
    *
-   * In order to be compliant, the object must go through
-   * geonef/jig/data/model.normalizeProperties.
-   *
    * To inherit from a parent Model's properties, use the following syntax:
-   *    properties: geonef/jig/data/model.normalizeProperties(
-   *      dojo/delegate(geonef/jig/data/model/Abstract.prototype.properties, {
+   *    properties: lang.delegate(Abstract.prototype.properties, {
    *        myOwnProperty: { type: 'string' },
-   *    }))
+   *    })
    *
    * @type {Object.<string,Object>}
    */
   properties: {
-    id: { type: 'string', readOnly: true },
-  },
-
-  /**
-   * Implemented property types
-   *
-   * It's in the form of an object whose keys are type names and values
-   * are object defining the style.
-   *
-   * Supported definition options:
-   *    - fromServer (function): return the Javascript value from server's ;
-   *                             defaults to no conversion
-   *                             Can also return a PROMISE.
-   *    - toServer (function):  return the server value from Javascript's ;
-   *                            defaults to no conversion
-   *                            CANNOT return a PROMISE.
-   *
-   * @type {Object.<string,Object>}
-   */
-  types: {
-    string: scalar,
-    integer: scalar,
-    'float': scalar,
-    'boolean': scalar,
-    'enum': scalar,
-    date: {
-      fromServer: function(dateStr) {
-        return dateStr ? new Date(dateStr) : null;
-      },
-      toServer: function(dateObj) {
-        return dateObj ? dateObj.toString() : null;
-      }
-    },
-    array: {
-      fromServer: function(value) {
-        return value instanceof Array ? value : [];
-      },
-      toServer: function(value) {
-        return value instanceof Array ? value : [];
-      }
-    },
-    hash: scalar,
-    refMany: {
-      fromServer: function(ar, type) {
-        if (!(ar instanceof Array)) { return []; }
-        return value.getModule(type.targetModel)
-          .then(function(_Class) {
-            var store = model.getStore(_Class);
-            return async.
-              whenAll(ar.filter(function(obj) { return !!obj.id; })
-                      .map(function(obj, idx) { return store.getLazyObject(obj); }));
-          })
-          .then(function(objList) {
-            if (type.chained) {
-              array.chainArray(objList);
-            }
-            return objList;
-          });
-      },
-      toServer: function(ar, type) {
-        if (!(ar instanceof Array)) { return undefined; }
-        return ar.map(
-          function(obj) {
-            if (!obj.id) {
-              console.warn("refMany: toServer() will not cascade on new obj:", obj);
-            }
-            return { id: obj.id };
-          });
-      }
-    },
-    refOne: {
-      fromServer: function(obj, type) {
-        if (obj === null) { return null; }
-        return value.getModule(type.targetModel)
-          .then(function(_Class) {
-            return model.getStore(_Class).getLazyObject(obj);
-          });
-      },
-      toServer: function(obj, type) {
-        // do not cascade: foreign objects have to be saved independantly
-        if (obj && !obj.id) {
-          console.warn("refOne: toServer() will not cascade on new obj:", obj);
-        }
-
-        return obj && obj.id ? { id: obj.id } : null;
-      }
-    },
-    embedMany: {
-      fromServer: function(ar, type) { // same as 'refMany'
-        if (!(ar instanceof Array)) { return []; }
-        return value.getModule(type.targetModel)
-          .then(function(_Class) {
-            var store = model.getStore(_Class);
-            return async.
-              whenAll(ar.filter(function(obj) { return !!obj.id; })
-                      .map(function(obj) { return store.getLazyObject(obj); }));
-          })
-          .then(function(objList) {
-            if (type.chained) {
-              array.chainArray(objList);
-            }
-            return objList;
-          });
-      },
-      toServer: function(ar, type) {
-        if (!(ar instanceof Array)) { return undefined; }
-        return whenAll(ar.map(function(item) {
-          return item.toServerValue({ allValues: true });
-        }));
-      }
-    }
+    id: { type: json.string, readOnly: true },
   },
 
   /**
@@ -428,10 +309,13 @@ return declare(null, { //--noindent--
       if (!typeSpec) {
         return null;
       }
+      if (has("geonef-debug")) {
+        if (!typeSpec.type) {
+          console.warn("property's 'type' missing for prop", p, this);
+        }
+      }
 
-      var type = this.types[typeSpec.type];
-
-      return when(type.fromServer.call(this, prop, typeSpec))
+      return when(typeSpec.type.fromServer.call(this, prop, typeSpec))
         .then(function(value) {
           _this[p] = value;
           if (options.setOriginal) {
@@ -478,13 +362,17 @@ return declare(null, { //--noindent--
       _value = this[p];
       if (_value !== undefined) {
         var typeSpec = props[p];
-        type = this.types[typeSpec.type];
         if (typeSpec.readOnly ||
             (typeSpec.noEdit && this.id)) {
           continue;
         }
 
-        _value = type.toServer.call(this, _value, typeSpec);
+        if (has("geonef-debug")) {
+          if (!typeSpec.type) {
+            console.warn("property's 'type' missing for prop", p, this);
+          }
+        }
+        _value = typeSpec.type.toServer.call(this, _value, typeSpec);
 
         deferreds.push(
           when(_value).then(function(_value) {
@@ -514,6 +402,56 @@ return declare(null, { //--noindent--
     });
   },
 
+  /**
+   * @return {Array.<string>} Names of properties which have changed
+   */
+  getModifiedProperties: function() {
+    console.log("getModifiedProperties", this, arguments);
+    var props = this.properties;
+    var deferreds = [];
+    var modified = [];
+    var originalValues = this.originalValues;
+
+    for (p in props) if (typeof props[p] == 'object' && props[p].type) {
+      var _value = this[p];
+      if (_value !== undefined) {
+        var typeSpec = props[p];
+        if (typeSpec.readOnly || (typeSpec.noEdit && this.id)) {
+          continue;
+        }
+
+        _value = typeSpec.type.toServer.call(this, _value, typeSpec);
+
+        deferreds.push(
+          when(_value).then(function(_value) {
+            if (_value !== undefined) {
+              var original = originalValues[p];
+
+              console.log("isSame", _value, originalValues[p], value.isSame(_value, originalValues[p]));
+              if (!value.isSame(_value, originalValues[p])) {
+                modified.push(p);
+              }
+            }
+          }));
+      }
+    }
+
+    return whenAll(deferreds)
+      .then(function() { return modified; });
+
+    // var modified = [];
+    // for (var p in props) {
+    //   var isSame = props[p].isSame || value.isSame;
+    //   if (this.originalValues[p] !== undefined &&
+    //       !isSame.call(this, this[p], this.originalValues[p])) {
+    //     modified.push(p);
+    //   }
+    // }
+
+    // return modified;
+  },
+
+
   setOriginalValue: function(name, _value) {
     this.originalValues[name] = _value;
   },
@@ -526,7 +464,7 @@ return declare(null, { //--noindent--
    * @param {dojo/Deferred} subObject
    */
   createSub: function(propName, data) {
-      var property = this.properties[propName];
+    var property = this.properties[propName];
     var _this = this;
     return value.getModule(property.targetModel)
       .then(function(TargetModel) { return model.getStore(TargetModel); })
@@ -631,6 +569,10 @@ return declare(null, { //--noindent--
   },
 
   afterDelete: function() {
+  },
+
+  toString: function() {
+    return "["+this.declaredClass+":"+(this.id || "new")+"]";
   },
 
   declaredClass: module.id

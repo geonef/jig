@@ -58,25 +58,6 @@ var self = { //--noindent--
     return stores[classId];
   },
 
-  /**
-   * Transform given properties definition into canonical form (used for Model's property declaration)
-   *
-   * @deprecated Should not be needed (is for backward compat)
-   * @param {Object.<string,Object>} props
-   * @return {Object}
-   */
-  normalizeProperties: function(props) {
-    for (var p in props) if (props.hasOwnProperty(p)) {
-      if (typeof props[p] != 'object') {
-        props[p] = { type: props[p] };
-      }
-      if (props[p].readOnly !== true && props[p].readOnly !== false) {
-        props[p].readOnly = false;
-      }
-    }
-    return props;
-  },
-
   // /**
   //  * Flatten value recursively
   //  *

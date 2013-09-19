@@ -61,7 +61,8 @@ var self = { //--noindent--
       mult: 1000,
       preci: 0.1,
       joinSep: ' ; ',
-      decimalSep: ','
+      decimalSep: ',',
+      space: "&nbsp;",
     }, options);
     var max = Math.max.apply(null, dims),
       logNp = function(x, base) {
@@ -72,7 +73,7 @@ var self = { //--noindent--
                                       (1 / o.preci)) / (1 / o.preci); },
       commaR = function(s) { return (''+s).replace(/\./, o.decimalSep); },
       ndims = dims.map(function(n) { return commaR(getU(n)); }),
-      str = ndims.join(o.joinSep) + ' ' + o.units[exp];
+      str = ndims.join(o.joinSep) + o.space + o.units[exp];
 
     return str;
   },

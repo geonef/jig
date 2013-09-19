@@ -45,10 +45,30 @@ define([
         ]]];
     },
 
-    formEntries: function(options, rows) {
+    formEntries: function(rows) {
+      if (!(rows instanceof Array)) {
+        return self.formEntriesCompat.apply(null, arguments);
+      }
+
+      return rows.map(self.formEntry);
+    },
+
+    formEntry: function(row) {
+      var content = [
+        ["span", {"class":"label"}, row.title],
+        row.editorNode
+      ];
+      if (row.description) {
+        content.push(["div", {"class":"hint"}, row.description]);
+      }
+      return ["div", {"class": "line stopf"}, content];
+    },
+
+
+    formEntriesCompat: function(options, rows) {
       return rows.map(function(row) {
         var hasLabel = typeof row[0] === "string";
-        return ["div", {"class": "line"}, hasLabel ?
+        return ["div", {"class": "line stopf"}, hasLabel ?
                 [
                   ["span", {"class": "label"}, row[0]],
                   ["span", {}, row[1]],
