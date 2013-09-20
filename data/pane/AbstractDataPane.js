@@ -165,8 +165,10 @@ define([
      */
     onDataReady: function() {
       this.isDataReady = true;
-      this.onModelChange();
-      this.afterModelChange();
+      if (this.delayedContent) {
+        this.onModelChange();
+        this.afterModelChange();
+      }
     },
 
     /**

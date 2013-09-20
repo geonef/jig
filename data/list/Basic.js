@@ -37,6 +37,13 @@ define([
 return declare([ _Widget, CreatorMixin ], { //--noindent--
 
   /**
+   * Refresh list on "put" changes
+   *
+   * @type {boolean}
+   */
+  refreshOnChange: true,
+
+  /**
    * Current page
    *
    * @type {integer} positive
@@ -205,7 +212,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   postCreate: function() {
     this.inherited(arguments);
     this.refresh();
-    this.subscribe(this.store.channel, this.onChannel);
+    if (this.refreshOnChange) {
+      this.subscribe(this.store.channel, this.onChannel);
+    }
     if (this.object) {
       this.subscribe(this.object.store.channel, this.onObjectChannel);
     }

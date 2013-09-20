@@ -23,10 +23,17 @@ define([
     'enum': {
       name: "enum",
       fromServer: function(value, def) {
+        if (value === undefined) {
+          value = null;
+        }
         return (!value && def.nullValue) || value;
       },
       toServer: function(value, def) {
         return value === def.nullValue ? null : value;
+      },
+      isSame: function(v1, v2, def) {
+        return v1 === v2 || def.nullValue &&
+          (v1 === null && v2 === def.nullValue || v2 === null && v1 === def.nullValue);
       }
     },
     hash: scalar("hash"),

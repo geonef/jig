@@ -228,6 +228,10 @@ return declare(null, { //--noindent--
     if (setAsOriginal) {
       this.setOriginalValue(property, value);
     }
+    var props = {};
+    props[property] = value;
+    this.publish(['set', props]);
+
   },
 
   /**
@@ -378,9 +382,10 @@ return declare(null, { //--noindent--
           when(_value).then(function(_value) {
             if (_value !== undefined) {
               var original = originalValues[p];
+              var isSame = typeSpec.type.isSame || value.isSame;
 
               if (options.allValues ||
-                  !value.isSame(_value, originalValues[p])) {
+                  !isSame(_value, originalValues[p], typeSpec)) {
                 struct[p] = _value;
 
                 if (options.setOriginal) {
@@ -406,7 +411,7 @@ return declare(null, { //--noindent--
    * @return {Array.<string>} Names of properties which have changed
    */
   getModifiedProperties: function() {
-    console.log("getModifiedProperties", this, arguments);
+    // console.log("getModifiedProperties", this, arguments);
     var props = this.properties;
     var deferreds = [];
     var modified = [];
@@ -426,9 +431,11 @@ return declare(null, { //--noindent--
           when(_value).then(function(_value) {
             if (_value !== undefined) {
               var original = originalValues[p];
+              var isSame = typeSpec.type.isSame || value.isSame;
 
-              console.log("isSame", _value, originalValues[p], value.isSame(_value, originalValues[p]));
-              if (!value.isSame(_value, originalValues[p])) {
+              // console.log("isSame", _value, "orig:", originalValues[p],
+              //             value.isSame(_value, originalValues[p]), isSame(_value, originalValues[p], typeSpec));
+              if (!isSame(_value, originalValues[p], typeSpec)) {
                 modified.push(p);
               }
             }
@@ -436,8 +443,7 @@ return declare(null, { //--noindent--
       }
     }
 
-    return whenAll(deferreds)
-      .then(function() { return modified; });
+    return whenAll(deferreds).then(function() { return modified; });
 
     // var modified = [];
     // for (var p in props) {
@@ -454,6 +460,10 @@ return declare(null, { //--noindent--
 
   setOriginalValue: function(name, _value) {
     this.originalValues[name] = _value;
+  },
+
+  revertChanges: function() {
+    return this.fromServerValue(this.originalValues);
   },
 
   /**
@@ -548,6 +558,26 @@ return declare(null, { //--noindent--
     this._subscr.push(_h);
     return _h;
   },
+
+  /**
+   * Install a listener upon certain events on this object only
+   *
+   * @param {Array.<string>} eventNames
+   * @param {Function} callback
+   */
+  on: function(eventNames, callback) {
+    var _this = this;
+
+    return topic.subscribe(this.channel, function(args_) {
+      var args = [];
+      args.push.apply(args, arguments);
+      var obj = args.shift();
+      if (obj === _this && eventNames.indexOf(args[0]) !== -1) {
+        callback.apply(_this, args);
+      }
+    });
+  },
+
 
   /**
    * Unsubscribe event registered with selfg subscribe()
