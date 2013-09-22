@@ -95,6 +95,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   limit: null,
 
+  queryOptions: {},
+
   /**
    * Dic for count title
    *
@@ -271,7 +273,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     if (this.objectProperty) {
       return this.object.get(this.objectProperty);
     } else {
-      var options = {};
+      var options = lang.mixin({}, this.queryOptions);
       if (this.sorting) {
         options.sort = this.sorting;
       }

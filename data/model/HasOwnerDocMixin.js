@@ -16,6 +16,11 @@ define([
   var Self = declare(null, {
 
     /**
+     * Name of ownerDoc property
+     */
+    ownerDocProperty: "ownerDoc",
+
+    /**
      * If true, all topics on this doc will be forwarded to ownerDoc as well
      *
      * @type {boolean}
@@ -27,8 +32,8 @@ define([
      */
     publish: function(argsArray) {
       this.inherited(arguments);
-      if (this.ownerDoc && this.forwardTopicToOwner) {
-        this.ownerDoc.publish(["ownedDoc", [this].concat(argsArray)]);
+      if (this[this.ownerDocProperty] && this.forwardTopicToOwner) {
+        this[this.ownerDocProperty].publish([this.ownerDocProperty, [this].concat(argsArray)]);
       }
     },
 

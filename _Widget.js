@@ -213,6 +213,9 @@ return declare([_Widget], { //--noindent--
     if (!(this.whenDomReady.fired >= 0)) {
       this.whenDomReady.resolve();
     }
+    if (this.resize) {
+      this.resize();
+    }
     this.onResize();
   },
 
