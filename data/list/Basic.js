@@ -37,6 +37,13 @@ define([
 return declare([ _Widget, CreatorMixin ], { //--noindent--
 
   /**
+   * Refresh list on widget creation
+   *
+   * @type {boolean}
+   */
+  initialRefresh: true,
+
+  /**
    * Refresh list on "put" changes
    *
    * @type {boolean}
@@ -213,7 +220,12 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   postCreate: function() {
     this.inherited(arguments);
-    this.refresh();
+    if (this.emptyNode) {
+      style.set(this.emptyNode, 'display', 'none');
+    }
+    if (this.initialRefresh) {
+      this.refresh();
+    }
     if (this.refreshOnChange) {
       this.subscribe(this.store.channel, this.onChannel);
     }

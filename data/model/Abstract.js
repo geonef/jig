@@ -200,6 +200,8 @@ return declare(null, { //--noindent--
   /**
    * Request value of differents properties
    *
+   * Only properties which are undefined on this will be fetched
+   *
    * The returned promise will be resolved when the specified properties
    * have been fetched. The callback arg is 'this'.
    *
