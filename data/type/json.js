@@ -4,7 +4,8 @@
  */
 define([
   "module",
-], function(module) {
+  "geonef/jig/util/string"
+], function(module, string) {
 
   var goThrough = function(value) { return value; };
   var scalar = function(name) {
@@ -12,6 +13,9 @@ define([
       name: name,
       fromServer: goThrough,
       toServer: goThrough,
+      buildLabelNode: function(value, def) {
+        return ["span", {}, string.escapeHtml(value)];
+      }
     };
   };
 
@@ -34,6 +38,15 @@ define([
       isSame: function(v1, v2, def) {
         return v1 === v2 || def.nullValue &&
           (v1 === null && v2 === def.nullValue || v2 === null && v1 === def.nullValue);
+      },
+      buildLabelNode: function(value, def) {
+        var key = value || def.nullValue || def.defaultValue;
+        value = def.values[key] || "";
+        value = string.escapeHtml(value);
+        if (def.icons && def.icons[key]) {
+          value = '<img src="'+require.toUrl(def.icons[key])+'"/> ' + value;
+        }
+        return ["span", {}, value];
       }
     },
     hash: scalar("hash"),
