@@ -119,6 +119,11 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   msgMore: "+ ${count} objets",
 
   /**
+   * @type {string}
+   */
+  emptyLabel: "aucun résultat",
+
+  /**
    * @type {geonef/jig/data/model/Abstract}
    */
   Model: null,
@@ -190,6 +195,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   makeContentNodes: function() {
     return [
       this.makeSpinnerNode("listLoading"),
+      ["div", {_attach: "emptyNode", _style:{display:"none"}}, "("+this.emptyLabel+")"],
       ['div', {_attach: 'listNode', 'class': 'results' }],
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
