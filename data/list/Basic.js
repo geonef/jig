@@ -232,7 +232,11 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * Refresh the list
    */
   refresh: function(options) {
+    if (this.refreshing) {
+      return;
+    }
     var _this = this;
+    this.refreshing = true;
     var scrollTop = this.domNode.scrollTop;
     this.clear();
     domClass.add(this.domNode, "loading");
@@ -250,6 +254,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       .then(function() {
         domClass.remove(_this.domNode, "loading");
         _this.domNode.scrollTop = scrollTop;
+        _this.refreshing = false;
       });
   },
 
