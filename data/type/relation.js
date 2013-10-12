@@ -15,6 +15,12 @@ define([
 
   return {
 
+    /**
+     * Multiple references
+     *
+     * Non recursive: only yhe reference is managed.
+     * Modification in target models have to be saved through their respective object.
+     */
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }
@@ -41,8 +47,16 @@ define([
             }
             return { id: obj.id };
           });
-      }
+      },
+      // TODO: isSame(): non-recursive, only target IDs with same order
     },
+
+    /**
+     * Single reference
+     *
+     * Non recursive: only yhe reference is managed.
+     * Modification in target models have to be saved through their respective object.
+     */
     refOne: {
       fromServer: function(obj, type) {
         if (obj === null) { return null; }
@@ -58,8 +72,17 @@ define([
         }
 
         return obj && obj.id ? { id: obj.id } : null;
+      },
+      isSame: function(v1, v2, type) {
+        return !v1 && !v2 || v1 && v2 && v1.id === v2.id;
       }
     },
+
+    /**
+     * Embedding of multiple documents
+     *
+     * Unlike refOne and refMany, this is of course recursive.
+     */
     embedMany: {
       fromServer: function(ar, type) { // same as 'refMany'
         if (!(ar instanceof Array)) { return []; }
