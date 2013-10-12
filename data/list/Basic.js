@@ -37,6 +37,20 @@ define([
 return declare([ _Widget, CreatorMixin ], { //--noindent--
 
   /**
+   * Refresh list on widget creation
+   *
+   * @type {boolean}
+   */
+  initialRefresh: true,
+
+  /**
+   * Refresh list on "put" changes
+   *
+   * @type {boolean}
+   */
+  refreshOnChange: true,
+
+  /**
    * Current page
    *
    * @type {integer} positive
@@ -88,6 +102,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   limit: null,
 
+  queryOptions: {},
+
   /**
    * Dic for count title
    *
@@ -101,6 +117,11 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @type {string}
    */
   msgMore: "+ ${count} objets",
+
+  /**
+   * @type {string}
+   */
+  emptyLabel: "aucun résultat",
 
   /**
    * @type {geonef/jig/data/model/Abstract}
@@ -174,6 +195,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   makeContentNodes: function() {
     return [
       this.makeSpinnerNode("listLoading"),
+      ["div", {_attach: "emptyNode", _style:{display:"none"}}, "("+this.emptyLabel+")"],
       ['div', {_attach: 'listNode', 'class': 'results' }],
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
@@ -204,8 +226,15 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   postCreate: function() {
     this.inherited(arguments);
-    this.refresh();
-    this.subscribe(this.store.channel, this.onChannel);
+    if (this.emptyNode) {
+      style.set(this.emptyNode, 'display', 'none');
+    }
+    if (this.initialRefresh) {
+      this.refresh();
+    }
+    if (this.refreshOnChange) {
+      this.subscribe(this.store.channel, this.onChannel);
+    }
     if (this.object) {
       this.subscribe(this.object.store.channel, this.onObjectChannel);
     }
@@ -267,7 +296,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     if (this.objectProperty) {
       return this.object.get(this.objectProperty);
     } else {
-      var options = {};
+      var options = lang.mixin({}, this.queryOptions);
       if (this.sorting) {
         options.sort = this.sorting;
       }
@@ -346,7 +375,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       style.set(this.previousAction.domNode, "visibility", this.currentPage > 1 ? "" : "hidden");
       style.set(this.nextAction.domNode, "visibility", this.currentPage < results.pageCount ? "" : "hidden");
     }
-    style.set(this.pageControlNode, "display", results.pageCount > 1 ? "" : "none");
+    if (this.pageControlNode) {
+      style.set(this.pageControlNode, "display", results.pageCount > 1 ? "" : "none");
+    }
     if (this.onTitleChange) {
       this.onTitleChange();
       this.onUrlChange();

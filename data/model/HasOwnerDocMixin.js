@@ -1,15 +1,24 @@
 /**
- * Description courte du module (obligatoire)
+ * Mixin class for models aving an "ownerDoc" property
  *
- * Description plus longue du module (conseillé)
+ *  {
+ *    ownerDoc: HasOwnerDocMixin.defProperty("target/model/amd/module")
+ *  }
+ *
  */
 define([
   "module",
   "dojo/_base/declare",
-  "dojo/_base/lang"
-], function(module, declare, lang) {
+  "dojo/_base/lang",
+  "../type/relation"
+], function(module, declare, lang, relation) {
 
   var Self = declare(null, {
+
+    /**
+     * Name of ownerDoc property
+     */
+    ownerDocProperty: "ownerDoc",
 
     /**
      * If true, all topics on this doc will be forwarded to ownerDoc as well
@@ -23,8 +32,8 @@ define([
      */
     publish: function(argsArray) {
       this.inherited(arguments);
-      if (this.ownerDoc && this.forwardTopicToOwner) {
-        this.ownerDoc.publish(["ownedDoc", [this].concat(argsArray)]);
+      if (this[this.ownerDocProperty] && this.forwardTopicToOwner) {
+        this[this.ownerDocProperty].publish([this.ownerDocProperty, [this].concat(argsArray)]);
       }
     },
 
@@ -42,7 +51,7 @@ define([
    * })
    */
   Self.defProperty = function(targetModelRef) {
-    return { type: 'refOne', targetModel: targetModelRef, noEdit: true };
+    return { type: relation.refOne, targetModel: targetModelRef, noEdit: true };
   };
 
   return Self;

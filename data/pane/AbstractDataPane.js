@@ -40,11 +40,6 @@ define([
   return declare(_Widget, {
 
     /**
-     * @override
-     */
-    'class': _Widget.prototype['class'] + ' jigDataPane',
-
-    /**
      * The model object - mandatory, must be given at construction
      *
      * @type {geonef/jig/data/model/Abstract}
@@ -65,7 +60,31 @@ define([
      */
     isDataReady: false,
 
+    /**
+     * Whether to enable the duplicate action, in gear DD
+     *
+     * @type {boolean}
+     */
+    enableDuplicateAction: false,
+
+    /**
+     * Whether to enable the delete action, in gear DD
+     *
+     * @type {boolean}
+     */
+    enableDeleteAction: true,
+
+    /**
+     * Confirmation question to ask before deleting, set null to diable confirm
+     *
+     * @type {string}
+     */
     removeConfirm: "Vraiment supprimer cet objet ?",
+
+    /**
+     * @override
+     */
+    "class": _Widget.prototype["class"] + " jigDataPane",
 
     /**
      * @override
@@ -101,13 +120,25 @@ define([
     },
 
     makeOptions: function() {
-      return [
-        [Action, {
+      var nodes = [];
+
+      if (this.enableDuplicateAction) {
+        nodes.push([Action, {
+          label: "Dupliquer",
+          "class": "item remove",
+          onExecute: async.deferHitch(this, this.deleteObject),
+        }]);
+      }
+
+      if (this.enableDeleteAction) {
+        nodes.push([Action, {
           label: "Supprimer",
           "class": "item remove",
           onExecute: async.deferHitch(this, this.deleteObject),
-        }],
-      ];
+        }]);
+      }
+
+      return nodes;
     },
 
     /**
@@ -134,8 +165,10 @@ define([
      */
     onDataReady: function() {
       this.isDataReady = true;
-      this.onModelChange();
-      this.afterModelChange();
+      if (this.delayedContent) {
+        this.onModelChange();
+        this.afterModelChange();
+      }
     },
 
     /**
@@ -179,6 +212,17 @@ define([
     deleteObject: function() {
       if (!window.global.confirm(this.removeConfirm)) { return; }
       this.object.store.remove(this.object)
+        .then(async.busy(this.domNode));
+    },
+
+    duplicateObject: function() {
+      var msg = "Nom de la copie ?";
+      var name = window.global.prompt(msg);
+      if (!name) { return; }
+      this.object.store.duplicate(this.object, { properties: { name: name }})
+        .then(function(newObj) {
+          newObj.openPane();
+        })
         .then(async.busy(this.domNode));
     },
 
