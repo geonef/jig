@@ -165,10 +165,10 @@ define([
      */
     onDataReady: function() {
       this.isDataReady = true;
-      if (this.delayedContent) {
-        this.onModelChange();
-        this.afterModelChange();
-      }
+      // if (this.delayedContent) {
+      this.onModelChange();
+      this.afterModelChange();
+      // }
     },
 
     /**
@@ -196,8 +196,8 @@ define([
      * It should be used by child classed to make custom updates if needed.
      */
     onModelChange: function(saving) {
+      // console.log("onModelChange", this, arguments);
       if (this.delayedContent) {
-        (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
         this.rebuildDom();
       }
     },
@@ -205,7 +205,10 @@ define([
     /**
      * Hook - called on data ready and after changes have been saved
      */
-    afterModelChange: function(saving) {},
+    afterModelChange: function(saving) {
+      // console.log("afterModelChange", this, arguments);
+      (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
+    },
 
     /** hook */
     onClose: function() {},
