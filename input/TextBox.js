@@ -40,7 +40,7 @@ define([
     _jigOnKeyDown: function(e) {
       if (e && e.keyCode === keys.ENTER) {
         event.stop(e);
-        var ret = this.onExecute();
+        var ret = this.validate() && this.onExecute();
         if (ret !== false && !this.noSubmit) {
           var domNode = this.domNode;
           // the timeout is need to avoid bad key event being

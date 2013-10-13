@@ -197,6 +197,7 @@ define([
      */
     onModelChange: function(saving) {
       if (this.delayedContent) {
+        (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
         this.rebuildDom();
       }
     },
