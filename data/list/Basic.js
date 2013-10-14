@@ -104,6 +104,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
 
   queryOptions: {},
 
+  refreshChannelTypes: ['put', 'delete'],
+
   /**
    * Dic for count title
    *
@@ -432,7 +434,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @param {string} type                        type of event
    */
   onChannel: function(obj, type) {
-    if (['put', 'delete'].indexOf(type) !== -1) {
+    if (this.refreshChannelTypes.indexOf(type) !== -1) {
       this.refresh();
     }
   },
