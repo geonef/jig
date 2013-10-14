@@ -121,7 +121,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   /**
    * @type {string}
    */
-  emptyLabel: "aucun résultat",
+  emptyLabel: "", //"aucun résultat",
 
   /**
    * @type {geonef/jig/data/model/Abstract}

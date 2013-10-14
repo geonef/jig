@@ -414,14 +414,19 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback with no arg
    */
   remove: function(obj) {
-    var deferred = this.apiRequest({
-      action: 'delete',
-      id: obj.getId(),
-    }, null, obj)
-      .then(function(resp) {
-        obj.afterDelete();
-      });
-
+    var deferred;
+    if (obj.id) {
+      deferred = this.apiRequest({
+        action: 'delete',
+        id: obj.getId(),
+      }, null, obj)
+        .then(lang.hitch(obj, obj.afterDelete)
+          /*function(resp) {
+          obj.afterDelete();
+        }*/);
+    } else {
+      deferred = async.bindArg();
+    }
     obj.publish(['delete']);
     return deferred;
   },
@@ -465,7 +470,7 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} promise with created object
    */
   createObject: function(discriminatorValue) {
-    var data = {};
+      var data = {};
     var discrProp = this.Model.prototype.discriminatorProperty;
     if (discrProp) {
       if (!discriminatorValue) {
