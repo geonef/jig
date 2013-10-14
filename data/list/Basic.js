@@ -281,9 +281,11 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       .then(async.deferWhen(this.whenDomReady))
       .then(h(this, this.populateList))
       .then(function() {
-        domClass.remove(_this.domNode, "loading");
-        _this.domNode.scrollTop = scrollTop;
-        _this.refreshing = false;
+        if (!_this._destroyed) {
+          domClass.remove(_this.domNode, "loading");
+          _this.domNode.scrollTop = scrollTop;
+          _this.refreshing = false;
+        }
       });
   },
 

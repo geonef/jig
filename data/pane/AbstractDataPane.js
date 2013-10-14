@@ -96,8 +96,22 @@ define([
      */
     postMixInProperties: function() {
       this.inherited(arguments);
-      this.whenDataReady = this.autoRequestProps.length > 0 ?
-        this.object.requestProps(this.autoRequestProps) : async.bindArg();
+      // var promise;
+      // if (this.autoRequestProps instanceof Array) {
+      //   promise = this.object.requestProps(this.autoRequestProps);
+      // } else if (typeof this.autoRequestProps == "string") {
+      //   promise =
+      // } else {
+      //   promise = async.bindArg();
+      // }
+      // this.whenDataReady = promise;
+      this.whenDataReady =
+        this.object.id &&
+        (typeof this.autoRequestProps == "string" ||
+         this.autoRequestProps.length > 0)
+
+        ? this.object.requestProps(this.autoRequestProps)
+        : async.bindArg();
     },
 
     makeDropDownNode: function(title) {

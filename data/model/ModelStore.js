@@ -142,7 +142,13 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred}
    */
   get: function(id, options) {
-    var obj = this.index[id];
+    var obj;
+    if (typeof id == "string") {
+      obj = this.index[id];
+    } else {
+      obj = id;
+      id = obj.id;
+    }
     if (obj && (!options || (!options.fields && !options.fieldGroup))) {
       return async.bindArg(obj);
     } else {
@@ -193,6 +199,9 @@ return declare(null, { //--noindent--
     // combine subsequent fetchProps call for same object into the same
     // API request, as long as it hasn't been sent (whenSealed)
     // var promise = object._fetchPropsP;
+    if (!object.id) {
+      return async.bindArg(object);
+    }
     var req = object._fetchPropsReq;
     if (req) {
       // if (!promise._request) {
@@ -222,7 +231,6 @@ return declare(null, { //--noindent--
         // console.log(object.id, "sealed");
         delete object._fetchPropsReq;
       });
-      // console.log("22");
 
       return promise;
     }
@@ -258,7 +266,6 @@ return declare(null, { //--noindent--
         }, options), {}, object);
       })
       .then(function(resp) {
-        // console.log('in PUT then', arguments, object);
         if (!object.id) {
           _this.index[resp.object.id] = object;
         }
@@ -286,7 +293,6 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback whose arg is the model object
    */
   add: function(object, options) {
-    // console.log('add', this, arguments);
     if (object.getId()) {
       throw new Error("object is not new, it has ID: "+object.getId()+
                       " ["+object.getSummary()+"]");

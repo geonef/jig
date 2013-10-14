@@ -23,6 +23,7 @@ return declare(_Widget, { //--noindent--
   timeEnabled: false,
   nodeName: "table",
   "class": "jigInputDateTime",
+  dateOptions: {},
 
   datePromptMessage: null,
   dateMissingMessage: null,
@@ -35,13 +36,13 @@ return declare(_Widget, { //--noindent--
     return [
       ["tbody", {}, ["tr", {}, [
         ["td", {}, [
-          [DateTextBox, {
+          [DateTextBox, lang.mixin({
             _attach: "dateInput",
             onChange: h(this, this.onSubChange),
             tooltipPosition: ["above", "below"],
             promptMessage: this.datePromptMessage,
             missingMessage: this.dateMissingMessage,
-          }]
+          }, this.dateOptions)]
         ]],
         ["td", {"class": "noTimeOnly"}, [
           [Action, {

@@ -210,8 +210,14 @@ return declare(null, { //--noindent--
    */
   requestProps: function(propArray) {
     var _this = this;
-    return async.bindArg(this, allPromises(
-      propArray.map(function(prop) { return _this.get(prop); })));
+    if (propArray instanceof Array) {
+
+      return async.bindArg(this, allPromises(
+        propArray.map(function(prop) { return _this.get(prop); })));
+
+    } else {
+      return this.store.get(this, propArray ? { fieldGroup: propArray } : null);
+    }
   },
 
   /**
