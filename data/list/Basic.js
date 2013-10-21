@@ -262,33 +262,46 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   /**
    * Refresh the list
    */
-  refresh: function(options) {
+  refresh: function(options, fetchOptions) {
     if (this.refreshing) {
       return;
     }
     var _this = this;
     this.refreshing = true;
-    var scrollTop = this.domNode.scrollTop;
-    this.clear();
+    // var scrollTop = this.domNode.scrollTop;
+    // this.clear();
     domClass.add(this.domNode, "loading");
     if (this.pageControlNode) {
       style.set(this.pageControlNode, "display", "none");
     }
     lang.mixin(this, options);
-    this.fetchResults()
-      .then(function(results) {
+    this.fetchResults(fetchOptions)
+      .then(
+        function(results) {
         topic.publish("data/list/fetched", _this, results);
         return results;
-      })
+        },
+        function(error) {
+          console.log("error", error);
+          throw error;
+        }
+      )
       .then(async.deferWhen(this.whenDomReady))
-      .then(h(this, this.populateList))
-      .then(function() {
+      .then(
+        function(results) {
         if (!_this._destroyed) {
+          _this.clear();
+          _this.populateList(results);
           domClass.remove(_this.domNode, "loading");
-          _this.domNode.scrollTop = scrollTop;
+          // _this.domNode.scrollTop = scrollTop;
           _this.refreshing = false;
         }
-      });
+        },
+        function() {
+          domClass.remove(_this.domNode, "loading");
+          _this.refreshing = false;
+        })
+    ;
   },
 
   /**
@@ -296,11 +309,11 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    *
    * @return {dojo/Deferred}
    */
-  fetchResults: function() {
+  fetchResults: function(options) {
     if (this.objectProperty) {
       return this.object.get(this.objectProperty);
     } else {
-      var options = lang.mixin({}, this.queryOptions);
+      options = lang.mixin({}, this.queryOptions, options);
       if (this.sorting) {
         options.sort = this.sorting;
       }
@@ -331,25 +344,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @param {Array.<geonef/jig/data/model/Abstract>} results
    */
   populateList: function(results) {
-    if (this._destroyed) { return; }
     this.results = results;
     this.updateCountStats(results);
-    // var over = this.limit && this.limit < results.length &&
-    //   results.length - this.limit;
-    // if (over) {
-    //   results = results.slice(0, this.limit);
-    // }
     this.rows = results.map(this.makeRow, this);
     this.rows.forEach(this.placeRow, this);
-    // if (over) {
-    //   var moreLink = new Action(
-    //     { label: string.substitute(this.msgMore, { count: over }),
-    //       title: "Cliquer pour afficher",
-    //       onExecute: h(this, this.openList) });
-    //   domClass.add(moreLink.domNode, 'jigDataRow more');
-    //   this.placeRow(moreLink, null);
-    //   this.rows.push(moreLink);
-    // }
     var _this = this;
     allPromises(this.rows
                 .filter(function(row) { return !!row.whenDataReady; })
@@ -435,7 +433,12 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   onChannel: function(obj, type) {
     if (this.refreshChannelTypes.indexOf(type) !== -1) {
-      this.refresh();
+      console.log("filter", type, this.filter, obj);
+    }
+    if (this.refreshChannelTypes.indexOf(type) !== -1/* &&
+        this.store.matchFilter(obj, this.filter || {})*/) {
+
+      this.refresh({}, { ifMatch: obj.id });
     }
   },
 

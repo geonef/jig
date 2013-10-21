@@ -389,6 +389,9 @@ return declare(null, { //--noindent--
       filters: newFilter,
     }, options))
       .then(lang.hitch(this, function(resp) {
+        if (resp.ifMatch === false) {
+          throw 42;
+        }
         if (!resp.results) {
           console.error("model query ("+this.apiModule+"): no result array", resp);
           return null;
@@ -421,9 +424,9 @@ return declare(null, { //--noindent--
         id: obj.getId(),
       }, null, obj)
         .then(lang.hitch(obj, obj.afterDelete)
-          /*function(resp) {
-          obj.afterDelete();
-        }*/);
+              /*function(resp) {
+                obj.afterDelete();
+                }*/);
     } else {
       deferred = async.bindArg();
     }
@@ -470,7 +473,7 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} promise with created object
    */
   createObject: function(discriminatorValue) {
-      var data = {};
+    var data = {};
     var discrProp = this.Model.prototype.discriminatorProperty;
     if (discrProp) {
       if (!discriminatorValue) {
@@ -487,7 +490,7 @@ return declare(null, { //--noindent--
   },
 
   /**
-   * Create object (or get ref), hydrate from given data
+   * Create object (or get from ref), then hydrate from given flat data
    *
    * This is the right function to use to instanciate a model object
    * which has an identifier.
@@ -578,7 +581,7 @@ return declare(null, { //--noindent--
   refToId: function(ref) {
     if (ref[0] !== 'x') { return ref; }
 
-    var i;
+      var i;
     var str = ref.substr(1);
     // make up base64 string
     for (i = 0; i < 16 - str.length; i++) {
@@ -595,6 +598,56 @@ return declare(null, { //--noindent--
     }
     return c;
   },
+
+  // /**
+  //  * Is the given model obj is part of this store and matches the given filter?
+  //  */
+  // matchFilter: function(object, filter) {
+  //   var ops = {
+  //     equals: function(type, objectValue, filterValue) {
+  //       var isSame = type.isSame || value.isSame;
+  //       return isSame(objectValue, filterValue, type);
+  //     },
+  //     notEquals: function(type, objectValue, filterValue) {
+  //       var isSame = type.isSame || value.isSame;
+  //       return !isSame(objectValue, filterValue, type);
+  //     },
+  //     ref: function(type, objectValue, filterValue) {
+  //       return objectValue && objectValue.id === filterValue;
+  //     },
+  //     gt: function(type, objectValue, filterValue) {
+  //       return objectValue > filterValue;
+  //     },
+  //     gte: function(type, objectValue, filterValue) {
+  //       return objectValue >= filterValue;
+  //     },
+  //     lt: function(type, objectValue, filterValue) {
+  //       return objectValue < filterValue;
+  //     },
+  //     lte: function(type, objectValue, filterValue) {
+  //       return objectValue <= filterValue;
+  //     },
+  //   };
+
+  //   return object instanceof this.Model &&
+  //     Object.keys(filter).every(function(name) {
+  //       var prop = object.properties[name];
+  //       if (prop === undefined) {
+  //         // Server-only filter prop or not hydrated value:
+  //         // we don't know whether it matches, consider it doesn't
+    //         console.log("prop undef", name, filter, object);
+  //         return false;
+  //       }
+  //       var rule = filter[name];
+  //       if (!rule.op) {
+  //         rule = { op: "equal", value: rule };
+  //       }
+  //       var type = prop.type;
+  //       console.log("test", name, rule.op, object[name], rule.value,
+  //                   ops[rule.op](type, object[name], rule.value));
+  //       return ops[rule.op](type, object[name], rule.value);
+  //     });
+  // },
 
   declaredClass: module.id
 
