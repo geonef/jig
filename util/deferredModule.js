@@ -11,8 +11,9 @@
  */
 define([
   "require",
-  "dojo/Deferred"
-], function(require, Deferred) {
+  "dojo/Deferred",
+  "dojo/has"
+], function(require, Deferred, has) {
 
   function deferredModule(mid, localRequire) {
 
@@ -22,6 +23,9 @@ define([
 
       load: function() {
         var deferred = new Deferred();
+        if (has("geonef-debug-loading")) {
+          console.info("deferredModule: loading", mid);
+        }
         (localRequire || require)([mid], function(Module) {
           deferred.resolve(Module);
         });
