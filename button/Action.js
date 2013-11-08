@@ -218,7 +218,8 @@ return declare(_Widget, { //--noindent--
   onExecute: function() {
     if (this.autoInstanciate) {
       // geonef/jig/workspace is private to Geonef's
-      // Replace this 'onExecute' function to suit your application.
+      // Replace this 'onExecute' function to suit your application
+      // like: Action.prototype.onExecute = function() { ... }
       require("geonef/jig/workspace").autoAnchorInstanciate(
         this.autoInstanciate, null, this.autoInstanciateOptions);
     }
