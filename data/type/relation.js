@@ -27,9 +27,8 @@ define([
         return value.getModule(type.targetModel)
           .then(function(_Class) {
             var store = model.getStore(_Class);
-            return async.
-              whenAll(ar.filter(function(obj) { return !!obj.id; })
-                      .map(function(obj, idx) { return store.getLazyObject(obj); }));
+            return whenAll(ar.filter(function(obj) { return !!obj.id; })
+                           .map(function(obj, idx) { return store.getLazyObject(obj); }));
           })
           .then(function(objList) {
             if (type.chained) {
@@ -89,9 +88,8 @@ define([
         return value.getModule(type.targetModel)
           .then(function(_Class) {
             var store = model.getStore(_Class);
-            return async.
-              whenAll(ar.filter(function(obj) { return !!obj.id; })
-                      .map(function(obj) { return store.getLazyObject(obj); }));
+            return whenAll(ar.filter(function(obj) { return !!obj.id; })
+                           .map(function(obj) { return store.getLazyObject(obj); }));
           })
           .then(function(objList) {
             if (type.chained) {

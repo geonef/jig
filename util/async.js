@@ -62,12 +62,11 @@ var self = { //--noindent--
    * @deprecated use dojo's dojo/promise/all instead
    * @return {dojo/Deferred}
    */
-  whenAll: function(deferreds) {
-    kernel.deprecated("geonef/jig/util/async.whenAll()",
-                      "use dojo/promise/all instead");
-
-    return allPromises(deferreds);
-  },
+  // whenAll: function(deferreds) {
+  //   kernel.deprecated("geonef/jig/util/async.whenAll()",
+  //                     "use dojo/promise/all instead");
+  //   return allPromises(deferreds);
+  // },
 
   /**
    * @param {Number} delay in milliseconds (arg 2 to dojo/global/setTimeout)

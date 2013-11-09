@@ -40,9 +40,10 @@ define([
   "dojo/_base/lang",
   "dojo/topic",
   "dojo/when",
+  "dojo/promise/all",
   "../../util/async",
   "../../util/value",
-], function(module, require, declare, api, lang, topic, when, async, value) {
+], function(module, require, declare, api, lang, topic, when, whenAll, async, value) {
 
 return declare(null, { //--noindent--
 
@@ -396,11 +397,10 @@ return declare(null, { //--noindent--
           console.error("model query ("+this.apiModule+"): no result array", resp);
           return null;
         }
-        return async
-          .whenAll(resp.results.map(
-            function(data) {
-              return this.getLazyObject(lang.mixin({}, implied, data));
-            }, this))
+        return whenAll(resp.results.map(
+          function(data) {
+            return this.getLazyObject(lang.mixin({}, implied, data));
+          }, this))
           .then(function(results) {
             ["resultCount", "pageLength", "pageCount", "currentPage"].forEach(
               function(prop) { results[prop] = resp[prop]; });
