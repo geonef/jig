@@ -7,7 +7,17 @@
  *              refModule.load().then(function(Module) { ... });
  *          });
  *
+ * Or like a regular (non-plugin) function:
+ *   define(["geonef/jig/util/deferredModule"],
+ *          function(deferredModule) {
+ *              var refModule = deferredModule("my/lazy/Module");
+ *              refModule.load().then(function(Module) { ... });
+ *          });
+ *
+ *
  * Also compatible with geonef/jig/util/value.getModule().
+ *
+ * @see http://requirejs.org/docs/plugins.html
  */
 define([
   "require",
@@ -15,6 +25,9 @@ define([
   "dojo/has"
 ], function(require, Deferred, has) {
 
+  /**
+   * Non-plugin base function: reference builder
+   */
   function deferredModule(mid, localRequire) {
 
     return {
@@ -37,7 +50,9 @@ define([
 
 
   /*******************************************************************
-   ** AMD plugin
+   ** AMD plugin interface
+   **           (AMD won't care that 'deferredModule'
+   **           is a function, it just needs the "load" property
    **/
 
   deferredModule.normalize = function(mid, toAbsMid) {
