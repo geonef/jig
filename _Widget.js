@@ -24,7 +24,7 @@ define([
 return declare([_Widget], { //--noindent--
 
   /**
-   * CSS classes to be set on domNode
+   * CSS classes to be set on domNode (prefer 'extraClass' at construction-time)
    *
    * @type {string} class
    */
