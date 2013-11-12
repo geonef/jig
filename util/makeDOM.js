@@ -113,8 +113,12 @@ define([
     }
   }
 
+  /**
+   * Main module function
+   */
   function self(args, obj) {
     // console.log('makeDOM args=', args);
+    obj = obj || {};
     var node;
 
     if (!args) { return null; }
@@ -196,19 +200,17 @@ define([
       if (magic._srcNodeName) {
         srcNode = self([magic._srcNodeName, {}, args[2]], obj);
       }
-      var widget = new _Class(attrs, srcNode);
-      if (obj) {
-        if (obj.domWidgets) {
-          obj.domWidgets.push(widget);
-        }
-        if (magic._attach) {
-          obj[magic._attach] = widget;
-        }
+      var widget = new _Class(lang.mixin(attrs, obj && obj.domWidgetProps), srcNode);
+      if (obj.domWidgets) {
+        obj.domWidgets.push(widget);
+      }
+      if (magic._attach) {
+        obj[magic._attach] = widget;
       }
       if (!magic._srcNodeName) {
         addChildren(args[2], widget.containerNode, obj);
       }
-      if (obj && obj._started) {
+      if (obj._started) {
         widget.startup();
       }
       // console.log('made widget', widget, node);
@@ -219,13 +221,8 @@ define([
     } else { // assume string - node name of DOMElement to create
       node = construct.create(args[0], attrs);
       addChildren(args[2], node, obj);
-      if (obj) {
-        // if (obj.domWidgets) {
-        //   obj.domWidgets.push()
-        // }
-        if (magic._attach) {
-          obj[magic._attach] = node;
-        }
+      if (magic._attach) {
+        obj[magic._attach] = node;
       }
     }
     if (magic._insert) {
@@ -236,7 +233,7 @@ define([
         lang.mixin({ label: magic._tooltip, connectId: [node],
                      showDelay: 200, position: ['below', 'above']
                    }, magic._tooltipOptions));
-      if (obj && obj.domWidgets) {
+      if (obj.domWidgets) {
         obj.domWidgets.push(tooltip);
       }
     }

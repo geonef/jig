@@ -7,13 +7,9 @@
  * At some point, it should replace geonef/jig/button/Action as well,
  * providing a simpler implementation & DOM structure.
  *
- * IDEA: implement special 'target' values, for example:
- *      - "_dialog" : open the HREF into a new dijit/Dialog
- *      - "_workspace" : be handled though workspace's autoAnchorWidget()
- *      - ...
  */
 define([
-  "module", "require",
+  "module",
   "dojo/_base/declare",
   "dijit/_Widget",
 
@@ -27,7 +23,7 @@ define([
   "dojo/dom-class",
   "dojo/_base/array",
   "dojo/_base/lang",
-], function(module, require, declare, _Widget,
+], function(module, declare, _Widget,
             widget, async,
             event, window, topic, construct, domClass, array, lang) {
 
@@ -89,19 +85,6 @@ return declare(_Widget, { //--noindent--
   href: '',
 
   target: '',
-
-  /**
-   * If provided (and 'href' is not), that class is instanciated
-   * and auto-anchored automatically when the link is clicked.
-   *
-   * @type {string} name of class to load & instanciate
-   */
-  autoInstanciate: '',
-
-  /**
-   * If 'autoInstanciate' is set, use this to provide options for instanciation
-   */
-  autoInstanciateOptions: null,
 
   /**
    * If true, onExecute() is called on a deferred loop
@@ -215,15 +198,10 @@ return declare(_Widget, { //--noindent--
     }
   },
 
-  onExecute: function() {
-    if (this.autoInstanciate) {
-      // geonef/jig/workspace is private to Geonef's
-      // Replace this 'onExecute' function to suit your application
-      // like: Action.prototype.onExecute = function() { ... }
-      require("geonef/jig/workspace").autoAnchorInstanciate(
-        this.autoInstanciate, null, this.autoInstanciateOptions);
-    }
-  },
+  /**
+   * Hook
+   */
+  onExecute: function() {},
 
   _setEmphasizeAttr: function(state) {
     (state ? domClass.add : domClass.remove)(this.domNode, 'emphasize');

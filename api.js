@@ -183,22 +183,7 @@ define([
             req.promise.reject(new ApiError(response.error));
             return;
           }
-	  if (response.status === 'error') {
-            // this type of response is deprecated
-            console.error('error status from API', response);
-	  }
-	  if (response.status === 'exception' && !options.ignoreException) {
-            // this type of response is deprecated
-            console.error('Server API exception', response);
-            self.processException(req, response);
-            req.promise.reject(new ApiError({name: "unknown:exception"}));
-            return;
-	  }
-          // try {
           req.promise.resolve(response);
-          // } catch (error) {
-          // console.error("exception in API request callback", req, response);
-          // }
         };
 
       /**
@@ -291,23 +276,6 @@ define([
         postData: jsonText,
       }, options), true)
         .then(_processResponse, _processError);
-    },
-
-    processException: function(req, response) {
-      if (has("geonef-exception-show")) {
-        value.getModule('geonef/jig/tool/dev/ExceptionDump').then(
-          function(_Class) {
-            var dump = new _Class(
-              lang.mixin({ context: { request: req, response: response }},
-                         response.exception));
-            require("geonef/jig/workspace").autoAnchorWidget(dump);
-            dump.startup();
-          });
-      } else {
-        window.global.alert("Une erreur est survenue durant la requête serveur.\n" +
-                            "Elle a été enregistrée en vue d'une correction prochaine.");
-      }
-      // console.log('started exception', this, arguments);
     },
 
     /**

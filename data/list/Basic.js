@@ -394,10 +394,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   },
 
   makeRow: function(obj, key) {
-    var row = new (this.RowClass)(
-      lang.mixin({ object: obj, listWidget: this },
-                 this.rowOptions));
-    return row;
+    return new (this.RowClass)(
+      lang.mixin({ object: obj, listWidget: this }, this.domWidgetProps, this.rowOptions));
   },
 
   /**

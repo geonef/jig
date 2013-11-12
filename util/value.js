@@ -5,36 +5,16 @@ define([
   "dojo/_base/lang",
   "dojo/_base/kernel",
   "dojo/Deferred",
-  // this file uses the global AMD 'require' function
-], function(lang, kernel, Deferred) {
+  "./async"
+], function(lang, kernel, Deferred, async) {
 
 var self = { //--noindent--
 
   /**
-   * Flexible AMD module getter
-   *
-   * If 'name' is a string, the module is required, using the given
-   * 'contextRequire' function (if provided), or the global one.
-   *
-   * If 'name' is not a string, it is simply returned (through the deferred).
-   *
-   * @param {mixed} name
-   * @param {!Function} contextRequire context-sensitive require function
-   * @return {dojo/Deferred}
+   * @deprecated
    */
   getModule: function(name, contextRequire) {
-    if (name.load) {
-      return name.load();
-    }
-    var deferred = new Deferred();
-    if (typeof name === "string") {
-      (contextRequire || require)([name], function(module) {
-        deferred.resolve(module);
-      });
-    } else {
-      deferred.resolve(name);
-    }
-    return deferred;
+    return async.getModule(name, contextRequire);
   },
 
 
