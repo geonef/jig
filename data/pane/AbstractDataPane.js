@@ -220,7 +220,6 @@ define([
      * Hook - called on data ready and after changes have been saved
      */
     afterModelChange: function(saving) {
-      // console.log("afterModelChange", this, arguments);
       (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
     },
 

@@ -170,7 +170,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     this.rowOptions = lang.mixin({}, this.rowOptions);
     this.whenReady = async.bindArg();
     this.whenListReady = new Deferred();
-    this.store = model.getStore(this.Model);
+    this.store = model.getAppStore(this.appView, this.Model);
   },
 
   getUrlCountPart: function() {

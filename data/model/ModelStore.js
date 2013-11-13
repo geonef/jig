@@ -45,6 +45,21 @@ define([
   "../../util/value",
 ], function(module, require, declare, api, lang, topic, when, whenAll, async, value) {
 
+  var ConsoleIO = declare(null, {
+
+    get: function(store, id) {
+
+    },
+
+    apiRequest: function(store, params, options, object) {
+      var module = object ? object.apiModule : store.apiModule;
+      return api.request(
+        lang.mixin({ module: module }, store.apiParams, params), options);
+    },
+
+
+  });
+
 return declare(null, { //--noindent--
 
   /**
@@ -462,6 +477,7 @@ return declare(null, { //--noindent--
     var _this = this;
 
     return when(Model).then(function(Model) {
+      // console.log("makeObj!", _this.io, _this);
       return new Model({ store: _this });
     });
   },
@@ -528,10 +544,17 @@ return declare(null, { //--noindent--
   /**
    * Specialisation of geonef/jig/api.request, for this class
    */
-  apiRequest: function(params, options, object) {
+  apiRequest: function(command, options, object) {
     var module = object ? object.apiModule : this.apiModule;
-    return api.request(
-      lang.mixin({ module: module }, this.apiParams, params), options);
+    // if (this.io) {
+    //   console.info("io :)", this.io, command, this);
+    // } else {
+    //   console.warn("no io!", this.io, command, this);
+    // }
+    return this.io.command(
+      lang.mixin({ module: module }, this.apiParams, command), options);
+    // return api.request(
+    //   lang.mixin({ module: module }, this.apiParams, params), options);
   },
 
   /**

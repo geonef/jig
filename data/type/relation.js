@@ -24,9 +24,10 @@ define([
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }
+        var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            var store = model.getStore(_Class);
+            var store = model.ioWrap(_this.store.io, model.getStore(_Class));
             return whenAll(ar.filter(function(obj) { return !!obj.id; })
                            .map(function(obj, idx) { return store.getLazyObject(obj); }));
           })
@@ -59,9 +60,10 @@ define([
     refOne: {
       fromServer: function(obj, type) {
         if (obj === null) { return null; }
+        var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            return model.getStore(_Class).getLazyObject(obj);
+            return model.ioWrap(_this.store.io, model.getStore(_Class)).getLazyObject(obj);
           });
       },
       toServer: function(obj, type) {
@@ -85,9 +87,10 @@ define([
     embedMany: {
       fromServer: function(ar, type) { // same as 'refMany'
         if (!(ar instanceof Array)) { return []; }
+        var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            var store = model.getStore(_Class);
+            var store = model.ioWrap(_this.store.io, model.getStore(_Class));
             return whenAll(ar.filter(function(obj) { return !!obj.id; })
                            .map(function(obj) { return store.getLazyObject(obj); }));
           })
