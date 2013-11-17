@@ -266,6 +266,7 @@ define([
        * @return {Object} the structure ready to be serialized
        */
       var _prepareRequest = h(this, function(origRequest) {
+        console.log("prepare", this, this.requestCommonParams);
         origRequest.promise.whenSealed.resolve(origRequest);
         var ret = lang.mixin({}, origRequest, this.requestCommonParams);
         delete ret.promise;

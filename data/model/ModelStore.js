@@ -389,7 +389,7 @@ return declare(null, { //--noindent--
         tmpFilter = newFilter[prop] = filter[prop];
         if (tmpFilter instanceof Abstract) {
           tmpFilter = newFilter[prop] = { op: 'ref', value: tmpFilter.id };
-        } else if (typeof tmpFilter == 'string' || !Number.isNaN(tmpFilter)) {
+        } else if (typeof tmpFilter == 'string' || !isNaN(tmpFilter)) {
           tmpFilter = newFilter[prop] = { op: 'equals', value: tmpFilter };
         }
         if (tmpFilter.op === "equals") {
