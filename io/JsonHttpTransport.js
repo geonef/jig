@@ -13,7 +13,7 @@ define([
   "dojo/topic",
   "../util/async",
 
-  "dojox/uuid/generateRandomUuid",
+  "../util/generateRandomUuid",
   "dojo/Deferred",
   "dojo/promise/all",
 ], function(module, declare, lang, window, request, has, json, topic, async,

@@ -10,7 +10,7 @@ define([
   "./util/value",
   "./util/async",
 
-  "dojox/uuid/generateRandomUuid",
+  "./util/generateRandomUuid",
   "dojo/Deferred",
   "dojo/promise/all",
 ], function(require, declare, lang, window, request, has, json, topic, value, async,
