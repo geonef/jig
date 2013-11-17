@@ -156,7 +156,7 @@ define([
         // Take maxReqsPerXHR into account by dividing API calls into groups
         var blocks = Object.keys(reqs).reduce(function(blocks, currentKey, idx) {
           var lastObj = blocks[blocks.length - 1];
-          if (!lastObj || Object.keys(lastObj).length >= this.maxReqsPerXHR) {
+          if (!lastObj || Object.keys(lastObj).length >= _this.maxReqsPerXHR) {
             blocks.push(lastObj = {});
 
           }
@@ -266,7 +266,6 @@ define([
        * @return {Object} the structure ready to be serialized
        */
       var _prepareRequest = h(this, function(origRequest) {
-        console.log("prepare", this, this.requestCommonParams);
         origRequest.promise.whenSealed.resolve(origRequest);
         var ret = lang.mixin({}, origRequest, this.requestCommonParams);
         delete ret.promise;

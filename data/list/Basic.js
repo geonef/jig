@@ -337,7 +337,6 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @return {Object}
    */
   buildQuery: function() {
-    console.log("query", this.filter);
     return lang.mixin({}, this.filter);
   },
 
