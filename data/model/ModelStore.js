@@ -329,7 +329,7 @@ return declare(null, { //--noindent--
    *
    * @param {geonef/jig/data/model/Abstract} object the model object
    * @param {Object} options API options (see geonef/jig/api)
-   * @return {dojo/Deferred} callback whose arg is the model object
+   * @return {dojo/Deferred} callback whose arg is the copy model object
    */
   duplicate: function(object, options) {
     var _this = this;
@@ -355,7 +355,7 @@ return declare(null, { //--noindent--
   },
 
   /**
-   * Add (persist) a new (unpersisted) object
+   * Query the store with filter
    *
    * 'filter' is something like:
    *   {
@@ -450,7 +450,7 @@ return declare(null, { //--noindent--
   },
 
   /**
-   * Create new object (for private use)
+   * Create new object (for private use) - app code should use createObject()
    *
    * WARNING: the object is not added to the local cache,
    *          and dataForDiscriminator is used only to distinguish
@@ -477,7 +477,6 @@ return declare(null, { //--noindent--
     var _this = this;
 
     return when(Model).then(function(Model) {
-      // console.log("makeObj!", _this.io, _this);
       return new Model({ store: _this });
     });
   },
@@ -604,7 +603,7 @@ return declare(null, { //--noindent--
   refToId: function(ref) {
     if (ref[0] !== 'x') { return ref; }
 
-      var i;
+    var i;
     var str = ref.substr(1);
     // make up base64 string
     for (i = 0; i < 16 - str.length; i++) {
@@ -658,7 +657,7 @@ return declare(null, { //--noindent--
   //       if (prop === undefined) {
   //         // Server-only filter prop or not hydrated value:
   //         // we don't know whether it matches, consider it doesn't
-    //         console.log("prop undef", name, filter, object);
+  //         console.log("prop undef", name, filter, object);
   //         return false;
   //       }
   //       var rule = filter[name];
