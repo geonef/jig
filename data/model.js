@@ -36,12 +36,14 @@ var self = { //--noindent--
    * Get store for corresponding model
    *
    * @param {geonef/jig/data/model/Abstract} Model
+   * @param {geonef/jig/io/IOInterface} io
    * @return {geonef/jig/data/model/ModelStore}
    */
-  getStore: function(Model) {
+  getStore: function(Model, io) {
     var stores = self._stores;
     var classId = Model.prototype.declaredClass;
-    if (!stores[classId]) {
+    var store;
+    if (!(store = stores[classId])) {
       var options = { Model: Model, id: "store:"+classId };
       var proto = Model.prototype;
       if (proto.discriminatorMap && !proto.hasOwnProperty("discriminatorMap")) {
@@ -53,10 +55,10 @@ var self = { //--noindent--
       }
 
       var Store = Model.prototype.Store || ModelStore;
-      stores[classId] = new Store(options);
+      store = stores[classId] = new Store(options);
     }
 
-    return stores[classId];
+    return io ? self.ioWrap(io, store) : store;
   },
 
   ioWrap: function(io, store) {

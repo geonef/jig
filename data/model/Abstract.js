@@ -485,7 +485,7 @@ return declare(null, { //--noindent--
     var property = this.properties[propName];
     var _this = this;
     return value.getModule(property.targetModel)
-      .then(function(TargetModel) { return model.getStore(TargetModel); })
+      .then(function(TargetModel) { return model.getStore(TargetModel, _this.store.io); })
       .then(function(store) {
         return _this.store.apiRequest({
           action: 'createSub', id: _this.id,

@@ -27,7 +27,7 @@ define([
         var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            var store = model.ioWrap(_this.store.io, model.getStore(_Class));
+            var store = model.getStore(_Class, _this.store.io);
             return whenAll(ar.filter(function(obj) { return !!obj.id; })
                            .map(function(obj, idx) { return store.getLazyObject(obj); }));
           })
@@ -63,7 +63,7 @@ define([
         var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            return model.ioWrap(_this.store.io, model.getStore(_Class)).getLazyObject(obj);
+            return model.getStore(_Class, _this.store.io).getLazyObject(obj);
           });
       },
       toServer: function(obj, type) {
@@ -90,7 +90,7 @@ define([
         var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            var store = model.ioWrap(_this.store.io, model.getStore(_Class));
+            var store = model.getStore(_Class, _this.store.io);
             return whenAll(ar.filter(function(obj) { return !!obj.id; })
                            .map(function(obj) { return store.getLazyObject(obj); }));
           })
