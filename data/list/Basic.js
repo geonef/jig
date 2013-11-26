@@ -282,8 +282,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         return results;
         },
         function(error) {
-          console.log("error", error);
-          throw error;
+          console.log("data query error", error);
+          if (error != "geonef-data-query-notMatched") {
+            throw error;
+          }
         }
       )
       .then(async.deferWhen(this.whenDomReady))
@@ -430,9 +432,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @param {string} type                        type of event
    */
   onChannel: function(obj, type) {
-    if (this.refreshChannelTypes.indexOf(type) !== -1) {
-      console.log("filter", type, this.filter, obj);
-    }
+    // if (this.refreshChannelTypes.indexOf(type) !== -1) {
+    //   console.log("filter", type, this.filter, obj);
+    // }
     if (this.refreshChannelTypes.indexOf(type) !== -1/* &&
         this.store.matchFilter(obj, this.filter || {})*/) {
 

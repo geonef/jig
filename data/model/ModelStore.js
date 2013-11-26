@@ -406,7 +406,7 @@ return declare(null, { //--noindent--
     }, options))
       .then(lang.hitch(this, function(resp) {
         if (resp.ifMatch === false) {
-          throw 42;
+          throw "geonef-data-query-notMatched";
         }
         if (!resp.results) {
           console.error("model query ("+this.apiModule+"): no result array", resp);
