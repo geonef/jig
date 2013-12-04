@@ -278,28 +278,29 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     this.fetchResults(fetchOptions)
       .then(
         function(results) {
-        topic.publish("data/list/fetched", _this, results);
-        return results;
+          topic.publish("data/list/fetched", _this, results);
+          return results;
         },
         function(error) {
           console.log("data query error", error);
-          if (error != "geonef-data-query-notMatched") {
-            throw error;
-          }
+          // if (error != "geonef-data-query-notMatched") {
+          throw error;
+          // }
         }
       )
       .then(async.deferWhen(this.whenDomReady))
       .then(
         function(results) {
-        if (!_this._destroyed) {
-          _this.clear();
-          _this.populateList(results);
-          domClass.remove(_this.domNode, "loading");
-          // _this.domNode.scrollTop = scrollTop;
-          _this.refreshing = false;
-        }
+          if (!_this._destroyed) {
+            _this.clear();
+            _this.populateList(results);
+            domClass.remove(_this.domNode, "loading");
+            // _this.domNode.scrollTop = scrollTop;
+            _this.refreshing = false;
+          }
         },
         function() {
+          // console.log("in error", this, arguments);
           domClass.remove(_this.domNode, "loading");
           _this.refreshing = false;
         })
@@ -436,7 +437,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     //   console.log("filter", type, this.filter, obj);
     // }
     if (this.refreshChannelTypes.indexOf(type) !== -1/* &&
-        this.store.matchFilter(obj, this.filter || {})*/) {
+                                                        this.store.matchFilter(obj, this.filter || {})*/) {
 
       this.refresh({}, { ifMatch: obj.id });
     }
