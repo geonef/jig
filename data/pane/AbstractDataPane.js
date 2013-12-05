@@ -136,13 +136,13 @@ define([
     makeOptions: function() {
       var nodes = [];
 
-      if (this.enableDuplicateAction) {
-        nodes.push([Action, {
-          label: "Dupliquer",
-          "class": "item remove",
-          onExecute: async.deferHitch(this, this.deleteObject),
-        }]);
-      }
+      // if (this.enableDuplicateAction) {
+      //   nodes.push([Action, {
+      //     label: "Dupliquer",
+      //     "class": "item remove",
+      //     onExecute: async.deferHitch(this, this.duplicateObject),
+      //   }]);
+      // }
 
       if (this.enableDeleteAction) {
         nodes.push([Action, {

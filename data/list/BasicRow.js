@@ -2,12 +2,15 @@ define([
   "module",
   "dojo/_base/declare",
   "../../_Widget",
+
   "dojo/_base/lang",
   "dojo/_base/event",
   "dojo/dom-class",
+  "dojo/on",
   "../../util/async",
   "../../util/string"
-], function(module, declare, _Widget, lang, event, domClass, async, string) {
+], function(module, declare, _Widget,
+            lang, event, domClass, on, async, string) {
 
 return declare(_Widget, { //--noindent--
 
@@ -57,7 +60,7 @@ return declare(_Widget, { //--noindent--
   postCreate: function() {
     this.inherited(arguments);
     if (this.enableClickEvent) {
-      this.connect(this, 'onClick', this.onItemClick);
+      this.own(on(this, "click", lang.hitch(this, this.onItemClick)));
     }
   },
 
@@ -71,6 +74,7 @@ return declare(_Widget, { //--noindent--
   },
 
   onItemClick: function(evt) {
+    console.log("onItemClick", this, arguments);
     if (evt) {
       event.stop(evt);
     }
@@ -78,8 +82,9 @@ return declare(_Widget, { //--noindent--
   },
 
   onExecute: function() {
-    if (this.object.openPane) {
-      this.object.openPane();
+    var pane = this.appView.modelPane(this.object);
+    if (pane) {
+      pane.open();
     }
   },
 
