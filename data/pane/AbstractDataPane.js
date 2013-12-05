@@ -211,10 +211,14 @@ define([
      */
     onModelChange: function(saving) {
       // console.log("onModelChange", this, arguments);
+      this.setupAfterModel();
       if (this.delayedContent) {
         this.rebuildDom();
       }
     },
+
+    /** hook */
+    setupAfterModel: function() {},
 
     /**
      * Hook - called on data ready and after changes have been saved
