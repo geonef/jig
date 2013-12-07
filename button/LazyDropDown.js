@@ -59,7 +59,8 @@ return declare(DropDown, { //--noindent--
   postMixInProperties: function() {
     this.whenDDLoaded = new Deferred();
     this.inherited(arguments);
-    this.ddOptions = lang.mixin({}, this.ddOptions);
+    this.ddOptions = lang.mixin({ /*appView: this.appView*/ }, this.ddOptions);
+    // console.log("this.ddOptions", this.ddOptions, this.appView);
   },
 
   /**
@@ -136,7 +137,8 @@ return declare(DropDown, { //--noindent--
   widgetCreateFunc: function() {
     var _this = this;
     return value.getModule(this.ddClass).then(function(_Class) {
-      var widget = new _Class(lang.mixin({}, _this.ddOptions));
+      console.log("this.ddOptions", _this.ddOptions, _Class.prototype.declaredClass);
+      var widget = new _Class(lang.mixin({ appView: _this.appView }, _this.ddOptions));
       widget._floatAnchor = true;
       style.set(widget.domNode, _this.ddStyle);
       return widget;
