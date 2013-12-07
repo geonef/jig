@@ -74,7 +74,6 @@ return declare(_Widget, { //--noindent--
   },
 
   onItemClick: function(evt) {
-    console.log("onItemClick", this, arguments);
     if (evt) {
       event.stop(evt);
     }
