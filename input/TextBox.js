@@ -15,6 +15,7 @@ define([
   /**
    * Add some features to dijit/form/TextBox :
    *      - Pressing ENTER triggers onExecute
+   *      - autoExecute
    *
    * @class
    */
@@ -24,6 +25,16 @@ define([
 
     noSubmit: false,
 
+    autoExecute: false,
+
+    autoExecuteDelay: 800,
+
+    postMixInProperties: function() {
+      this.inherited(arguments);
+      if (this.autoExecute) {
+        this.intermediateChanges = true;
+      }
+    },
 
     postCreate: function() {
       this.inherited(arguments);
@@ -56,6 +67,27 @@ define([
 
     onExecute: function() {
       // hook
+    },
+
+    onChange: function() {
+      if (this.autoExecute) {
+        this.resetAutoExecuteTimer();
+      }
+    },
+
+    resetAutoExecuteTimer: function() {
+      // console.log("resetAutoExecuteTimer", this, arguments);
+      var _this = this;
+      if (this.autoExecutePromise) {
+        // console.log("this.autoExecutePromise", this.autoExecutePromise);
+        this.autoExecutePromise.cancel();
+      }
+      this.autoExecutePromise =
+        async.whenTimeout(this.autoExecuteDelay)
+        .then(function() {
+          _this.autoExecutePromise = null;
+          _this.onExecute();
+        });
     },
 
     declaredClass: module.id
