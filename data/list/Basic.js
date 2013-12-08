@@ -368,9 +368,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     if (this.emptyNode) {
       style.set(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
     }
-    // if (this.countNode) {
-    //   this.countNode.innerHTML = number.pluralString(results.resultCount, this.countTitleDic);
-    // }
+    if (this.countNode) {
+      this.countNode.innerHTML = number.pluralString(results.resultCount, this.countTitleDic);
+    }
     (results.length > 0 ? domClass.remove : domClass.add)(this.domNode, 'empty');
     if (this.currentPageNode) {
       this.currentPageNode.innerHTML = results.currentPage;
