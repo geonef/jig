@@ -27,6 +27,8 @@ define([
   "../../util/async",
   "../../util/number",
   "../../button/Action",
+  // "css!./Basic",
+  // "css!./Basic"
 ], function(module, declare, _Widget, CreatorMixin,
             lang, style, domClass, string, topic, allPromises,
             Deferred, model, BasicRow,
@@ -198,7 +200,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     return [
       this.makeSpinnerNode("listLoading"),
       ["div", {_attach: "emptyNode", _style:{display:"none"}}, "("+this.emptyLabel+")"],
-      ['div', {_attach: 'listNode', 'class': 'results' }],
+      ['div', {_attach: 'listNode', 'class': 'jigDataListResults results' }], // TODO: remove "results"
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
           _attach: "nextAction",

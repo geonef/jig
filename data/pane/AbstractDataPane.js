@@ -240,9 +240,10 @@ define([
       var msg = "Nom de la copie ?";
       var name = window.global.prompt(msg);
       if (!name) { return; }
+      var _this = this;
       this.object.store.duplicate(this.object, { properties: { name: name }})
         .then(function(newObj) {
-          newObj.openPane();
+          _this.appView.modelPane(newObj).open();
         })
         .then(async.busy(this.domNode));
     },

@@ -10,6 +10,7 @@ define([
   return declare(null, {
 
     paneTitle: "",
+    paneNodeTitle: "",
     titleLink: null,
     enableTitleClick: false,
 
@@ -40,7 +41,7 @@ define([
      * Called by makePaneTitleNode() - can be overriden to provide dynamic titles
      */
     getPaneTitle: function() {
-      return this.paneTitle;
+      return this.paneNodeTitle || this.paneTitle;
     },
 
     /**
