@@ -199,7 +199,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   makeContentNodes: function() {
     return [
       this.makeSpinnerNode("listLoading"),
-      ["div", {_attach: "emptyNode", _style:{display:"none"}}, "("+this.emptyLabel+")"],
+      ["div", {_attach: "emptyNode", _style:{display:"none"}}, this.emptyLabel],
       ['div', {_attach: 'listNode', 'class': 'jigDataListResults results' }], // TODO: remove "results"
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
@@ -268,6 +268,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     if (this.refreshing) {
       return;
     }
+    console.log("list refresh", this.id, options, this.domNode);
     var _this = this;
     this.refreshing = true;
     // var scrollTop = this.domNode.scrollTop;
