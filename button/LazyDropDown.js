@@ -137,7 +137,7 @@ return declare(DropDown, { //--noindent--
   widgetCreateFunc: function() {
     var _this = this;
     return value.getModule(this.ddClass).then(function(_Class) {
-      console.log("this.ddOptions", _this.ddOptions, _Class.prototype.declaredClass);
+      // console.log("this.ddOptions", _this.ddOptions, _Class.prototype.declaredClass);
       var widget = new _Class(lang.mixin({ appView: _this.appView }, _this.ddOptions));
       widget._floatAnchor = true;
       style.set(widget.domNode, _this.ddStyle);

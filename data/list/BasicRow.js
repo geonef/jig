@@ -26,6 +26,11 @@ return declare(_Widget, { //--noindent--
   autoRequestProps: [],
 
   /**
+   * Options for appView.modelPane()
+   */
+  paneOptions: {},
+
+  /**
    * @override
    */
   'class': _Widget.prototype['class'] + ' jigDataRow',
@@ -81,7 +86,7 @@ return declare(_Widget, { //--noindent--
   },
 
   onExecute: function() {
-    var pane = this.appView.modelPane(this.object);
+    var pane = this.appView.modelPane(this.object, this.paneOptions);
     if (pane) {
       pane.open();
     }

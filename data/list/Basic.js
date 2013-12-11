@@ -14,6 +14,7 @@ define([
   "../pane/CreatorMixin",
 
   "dojo/_base/lang",
+  "dojo/io-query",
   "dojo/dom-style",
   "dojo/dom-class",
   "dojo/string",
@@ -30,7 +31,7 @@ define([
   // "css!./Basic",
   // "css!./Basic"
 ], function(module, declare, _Widget, CreatorMixin,
-            lang, style, domClass, string, topic, allPromises,
+            lang, ioQuery, style, domClass, string, topic, allPromises,
             Deferred, model, BasicRow,
             async, number, Action) {
 
@@ -199,18 +200,18 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   makeContentNodes: function() {
     return [
       this.makeSpinnerNode("listLoading"),
-      ["div", {_attach: "emptyNode", _style:{display:"none"}}, this.emptyLabel],
+      ["div", {_attach: "emptyNode", "class":"panelControl", _style:{display:"none"}}, this.emptyLabel],
       ['div', {_attach: 'listNode', 'class': 'jigDataListResults results' }], // TODO: remove "results"
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
-          _attach: "nextAction",
+          _attach: "nextAction", noSubmit: true,
           label: "suivant &rarr;", extraClass: "primary floatr",
           onExecute: h(this, function() {
             this.refresh({ currentPage: this.currentPage + 1});
           })
         }],
         [Action, {
-          _attach: "previousAction",
+          _attach: "previousAction", noSubmit: true,
           label: "&larr; précédent", extraClass: "primary floatl",
           onExecute: h(this, function() {
             this.refresh({ currentPage: this.currentPage - 1});
@@ -268,7 +269,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     if (this.refreshing) {
       return;
     }
-    console.log("list refresh", this.id, options, this.domNode);
+    // console.log("list refresh", this.id, options, this.domNode);
     var _this = this;
     this.refreshing = true;
     // var scrollTop = this.domNode.scrollTop;
@@ -297,17 +298,21 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
           if (!_this._destroyed) {
             _this.clear();
             _this.populateList(results);
-            domClass.remove(_this.domNode, "loading");
-            // _this.domNode.scrollTop = scrollTop;
-            _this.refreshing = false;
+            _this.afterRefresh();
           }
         },
         function() {
           // console.log("in error", this, arguments);
-          domClass.remove(_this.domNode, "loading");
-          _this.refreshing = false;
+            _this.afterRefresh();
         })
     ;
+  },
+
+  afterRefresh: function() {
+    domClass.remove(this.domNode, "loading");
+    // this.domNode.scrollTop = scrollTop;
+    this.refreshing = false;
+    this.onResize();
   },
 
   /**
@@ -345,6 +350,22 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   buildQuery: function() {
     return lang.mixin({}, this.filter);
   },
+
+  /**
+   * Build a query-string formatting of this.buildQuery() and sorting
+   */
+  makeQueryString: function() {
+    var query = this.buildQuery();
+    Object.keys(query).forEach(function(key) {
+      if (query[key].id) {
+        query[key] = query[key].id;
+      }
+    });
+    var qs = ioQuery.objectToQuery(query);
+    // console.log("qs", qs, query);
+    return qs;
+  },
+
 
   /**
    * @param {Array.<geonef/jig/data/model/Abstract>} results
@@ -439,10 +460,14 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     // if (this.refreshChannelTypes.indexOf(type) !== -1) {
     //   console.log("filter", type, this.filter, obj);
     // }
-    if (this.refreshChannelTypes.indexOf(type) !== -1/* &&
-                                                        this.store.matchFilter(obj, this.filter || {})*/) {
+    if (this.refreshChannelTypes.indexOf(type) !== -1
+        /* && this.store.matchFilter(obj, this.filter || {})*/) {
 
-      this.refresh({}, { ifMatch: obj.id });
+      var inPage = this.results &&
+        this.results.some(function(object) { return object === obj; });
+      // console.log("inPage", inPage, obj, this.results);
+
+      this.refresh({}, { ifMatch: inPage ? null : obj.id });
     }
   },
 

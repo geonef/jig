@@ -147,6 +147,7 @@ define([
       if (this.enableDeleteAction) {
         nodes.push([Action, {
           label: "Supprimer",
+          iconClass: "remove",
           "class": "item remove",
           onExecute: async.deferHitch(this, this.deleteObject),
         }]);

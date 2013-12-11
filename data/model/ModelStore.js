@@ -158,6 +158,7 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred}
    */
   get: function(id, options) {
+    options = lang.mixin({}, options);
     var obj;
     if (typeof id == "string") {
       obj = this.index[id];
@@ -165,8 +166,11 @@ return declare(null, { //--noindent--
       obj = id;
       id = obj.id;
     }
-    if (obj && (!options || (!options.fields && !options.fieldGroup))) {
+    if (obj && (!options.fields && !options.fieldGroup)) {
       return async.bindArg(obj);
+      // if (!options.fields && !options.fieldGroup) {
+      //   return obj ? async.bindArg(obj) : this.getLazyObject({ id: id });
+      // } else {
     } else {
       var _this = this;
       return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
