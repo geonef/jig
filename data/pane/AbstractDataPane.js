@@ -28,12 +28,14 @@ define([
   "dojo/_base/window",
   "dojo/dom-class",
   "dojo/topic",
+  "dojo/string",
 
+  "geonef/jig/tool/dialog",
   "../../button/DropDown",
   "dijit/TooltipDialog",
 ], function(module, declare, _Widget,
-            async, widget, Action, lang, window, domClass, topic,
-            DropDown, TooltipDialog) {
+            async, widget, Action, lang, window, domClass, topic, string,
+            dialog, DropDown, TooltipDialog) {
 
   var h = lang.hitch;
 
@@ -116,19 +118,23 @@ define([
 
     makeDropDownNode: function(title) {
       var _this = this;
+      var node = null;
+      var options = this.dom(this.makeOptions()).filter(function(o) { return !!o; });
 
-      var node = this.dom(
-        [DropDown, {
-          _attach: 'optionsDD', extraClass: 'icon s24 nolabel gear',
-          dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
-          onMouseEnter: h(null, domClass.add, this.domNode, 'overDD'),
-          onMouseLeave: h(null, domClass.remove, this.domNode, 'overDD'),
-        }]);
+      if (options.length > 0) {
+        node = this.dom(
+          [DropDown, {
+            _attach: 'optionsDD', extraClass: 'icon s24 nolabel gear',
+            dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
+            onMouseEnter: h(null, domClass.add, this.domNode, 'overDD'),
+            onMouseLeave: h(null, domClass.remove, this.domNode, 'overDD'),
+          }]);
 
-      this.dom(
-        ['div', { _insert: this.optionsDD.dropDown.containerNode },
-         [['h2', {}, title || ""],
-          ['div', {'class':'actions'}, this.makeOptions()]]]);
+        this.dom(
+          ['div', { _insert: this.optionsDD.dropDown.containerNode },
+           [['h2', {}, title || ""],
+            ['div', {'class':'actions'}, options]]]);
+      }
 
       return node;
     },
@@ -232,9 +238,20 @@ define([
     onClose: function() {},
 
     deleteObject: function() {
-      if (!window.global.confirm(this.removeConfirm)) { return; }
-      this.object.store.remove(this.object)
-        .then(async.busy(this.domNode));
+      var _this = this;
+
+      dialog.confirm({
+        confirmLabel: "Supprimer",
+        cancelLabel: "Annuler",
+        message: string.substitute(this.removeConfirm, this.object)
+      }).then(
+        function() {
+          return _this.object.store.remove(_this.object);
+        },
+        function() {
+        }
+      ).then(async.busy(this.domNode));
+
     },
 
     duplicateObject: function() {
