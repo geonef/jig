@@ -44,6 +44,7 @@ return declare(_Widget, { //--noindent--
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
       this.object.requestProps(this.autoRequestProps) : async.bindArg();
+    this["class"] = this["class"] + " ref-" + this.object.getRef();
   },
 
   buildRendering: function() {
