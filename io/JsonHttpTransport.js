@@ -240,7 +240,7 @@ define([
           _processResponseReq(req, data, xhr);
         } else {
           for (i in data) {
-            if (data.hasOwnProperty(i)) {
+            if (data.hasOwnProperty(i) && req[i]) {
               _processResponseReq(req[i], data[i], xhr);
             }
           }
