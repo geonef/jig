@@ -128,13 +128,16 @@ define([
     if (args.then) {
       return args.then(function(def) { return self(def, obj); });
     }
-    if (!args[0]) {
-      console.error("obj is: ", obj, " and args are: ", args);
-      throw new Error("makeDOM: args[0] is null: undeclared widget class?");
-    }
     if (!(args instanceof Array)) {
       console.error("args is: ", args);
       throw new Error("makeDOM: args is not an array not promise or a DOM element");
+    }
+    if (!args.length) {
+      return [];
+    }
+    if (!args[0]) {
+      console.error("obj is: ", obj, " and args are: ", args);
+      throw new Error("makeDOM: args[0] is null: undeclared widget class?");
     }
     if (args[0] && ['string', 'function'].indexOf(typeof args[0]) === -1) {
       // if args[0] is neither of string, function or falsy: assume node-array mode
