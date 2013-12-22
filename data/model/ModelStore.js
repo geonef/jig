@@ -496,7 +496,15 @@ return declare(null, { //--noindent--
     var discrProp = this.Model.prototype.discriminatorProperty;
     if (discrProp) {
       if (!discriminatorValue) {
+        discriminatorValue = this.Model.prototype.discriminatorKey;
+      }
+      if (!discriminatorValue) {
+        // if (this.Mo) {
+        // var map = this.Model.prototype.discriminatorMap;
+
+        // } else {
         throw new Error("createObject(): discriminator is required");
+        // }
       }
       data[discrProp] = discriminatorValue;
     }
