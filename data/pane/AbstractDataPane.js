@@ -15,6 +15,8 @@
  * 'onModelChange'. In some cases (when you need the obj to be persisted
  * for example), you may need to do it in afterModelChange() instead:
  * overload these methods, then.
+ *
+ * @see ./WithControlMixin
  */
 define([
   "module",
@@ -218,8 +220,8 @@ define([
      */
     onModelChange: function(saving) {
       // console.log("onModelChange", this, arguments);
-      this.setupAfterModel();
-      if (this.delayedContent) {
+      if (this.delayedContent === true || this.delayedContent === "onModelChange") {
+        this.setupAfterModel();
         this.rebuildDom();
       }
     },
@@ -232,6 +234,10 @@ define([
      */
     afterModelChange: function(saving) {
       (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
+      if (this.delayedContent === "afterModelChange") {
+        this.setupAfterModel();
+        this.rebuildDom();
+      }
     },
 
     /** hook */

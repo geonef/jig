@@ -33,8 +33,9 @@ define([
   "../../util/array",
   "../../util/object",
   "../../util/async",
+  "../../util/generateRandomUuid",
 ], function(module, declare, lang, Deferred, allPromises, topic, when, has, whenAll,
-            json, model, value, string, array, object, async) {
+            json, model, value, string, array, object, async, generateRandomUuid) {
 
 return declare(null, { //--noindent--
   /**
@@ -216,7 +217,9 @@ return declare(null, { //--noindent--
         propArray.map(function(prop) { return _this.get(prop); })));
 
     } else {
-      return this.store.get(this, propArray ? { fieldGroup: propArray } : null);
+      return this.id ?
+        this.store.get(this, propArray ? { fieldGroup: propArray } : null)
+      : async.bindArg(this);
     }
   },
 
@@ -610,8 +613,16 @@ return declare(null, { //--noindent--
   },
 
   toString: function() {
-    return "["+this.declaredClass+":"+(this.id || "new")+"]";
+    return "["+this.declaredClass+":"+(this.id || ("new:"+generateRandomUuid()))+"]";
   },
+
+  toUniqueString: function() {
+    if (!this.uniqueId) {
+      this.uniqueId = generateRandomUuid();
+    }
+    return this.uniqueId;
+  },
+
 
   declaredClass: module.id
 
