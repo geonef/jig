@@ -63,7 +63,11 @@ define([
         var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            return model.getStore(_Class, _this.store.io).getLazyObject(obj);
+            var store = model.getStore(_Class, _this.store.io);
+            // if (!_this.store.io) {
+            //   console.error("no IO in refOne for store", store, "out of", _this.store);
+            // }
+            return store.getLazyObject(obj);
           });
       },
       toServer: function(obj, type) {
