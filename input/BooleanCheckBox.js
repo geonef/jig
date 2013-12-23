@@ -4,9 +4,10 @@ define([
   "dijit/form/CheckBox",
 
   "dojo/_base/lang",
+  "dojo/aspect",
   "dijit/registry",
 ], function(module, declare, CheckBox,
-            lang, registry) {
+            lang, aspect, registry) {
 
 
   /**
@@ -26,10 +27,16 @@ define([
      */
     toggleInput: '',
 
+    toggleInputInverse: false,
 
     postMixInProperties: function() {
       this.inherited(arguments);
       this.checked = this.value;
+    },
+
+    destroy: function() {
+      this.cleanToggleInput();
+      this.inherited(arguments);
     },
 
     startup: function() {
@@ -49,10 +56,7 @@ define([
     },
 
     updateToggleInput: function() {
-      if (this._toggleInputCnt) {
-        this._toggleInputCnt.forEach(function(c) { this.disconnect(c); });
-        this._toggleInputCnt = undefined;
-      }
+      this.cleanToggleInput();
       if (this.toggleInput) {
         var w = registry.byId(this.toggleInput);
         if (!w) {
@@ -61,32 +65,51 @@ define([
         }
         var savedValue; // static to all calls to the closure below
         var notNull = function(v) { return v !== null && v !== undefined && v !== ''; };
+        var _this = this;
+
+        function isChecked() {
+          return _this.toggleInputInverse ? !_this.checked : _this.checked;
+        }
+
         var updateFromValue = lang.hitch(this, function() {
           var value = w.attr('value');
           if (notNull(value)) {
             savedValue = value;
           }
-          if (this.checked !== notNull(value)) {
-            this.attr('checked', !!value);
+          if (isChecked() !== notNull(value)) {
+            this.attr('checked', _this.toggleInputInverse ? !value : !!value);
           }
         });
+
         this._toggleInputCnt = [
-          this.connect(this, 'onChange', function() {
-            if (!this.checked && !w.attr('disabled')) {
+
+          // Hook on our changes
+          aspect.before(this, 'onChange', function() {
+
+            if (!isChecked() && !w.attr('disabled')) {
               var value = w.attr('value');
               if (notNull(value)) {
                 savedValue = value;
               }
               w.attr('value', null);
             }
-            if (this.checked && w.attr('disabled') && notNull(savedValue)) {
+            if (isChecked() && w.attr('disabled') && notNull(savedValue)) {
               w.attr('value', savedValue);
             }
-            w.attr('disabled', !this.checked);
+            w.attr('disabled', !isChecked());
           }),
-          this.connect(w, 'onChange', updateFromValue)
+
+          // Hook on target widget change
+          aspect.before(w, 'onChange', updateFromValue)
         ];
         updateFromValue();
+      }
+    },
+
+    cleanToggleInput: function() {
+      if (this._toggleInputCnt) {
+        this._toggleInputCnt.forEach(function(c) { c.remove(); });
+        this._toggleInputCnt = undefined;
       }
     },
 

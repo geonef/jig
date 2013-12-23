@@ -1,5 +1,9 @@
+/**
+ * JSON application transport - the one used for the Geonef servers
+ *
+ */
 define([
-  "require",
+  "module",
   "dojo/_base/declare",
   "dojo/_base/lang",
   "dojo/_base/window",
@@ -7,14 +11,15 @@ define([
   "dojo/has",
   "dojo/json",
   "dojo/topic",
-  "./util/value",
-  "./util/async",
+  "../util/async",
 
-  "./util/generateRandomUuid",
+  "../util/generateRandomUuid",
   "dojo/Deferred",
   "dojo/promise/all",
-], function(require, declare, lang, window, request, has, json, topic, value, async,
+], function(module, declare, lang, window, request, has, json, topic, async,
             generateRandomUuid, Deferred, whenAll) {
+
+  var h = lang.hitch;
 
   var ApiError = declare(Error, {
 
@@ -25,22 +30,21 @@ define([
       this.error = errorData;
     },
 
-    // toString: function() {
-    //   return 'ApiError "'+this.name+'": '+this.message;
-    // },
-    // toLocaleString: function() {
-    //   return this.toString();
-    //   // return 'ApiError "'+this.name+'": '+this.message;
-    // },
-
     declaredClass: "ApiError"
 
   });
 
-  var self = {
+  var Self = declare(null, {
 
     /**
-     * @type {string} Default URL, if not given in params
+     * Related application - mandatory
+     *
+     * @type {geonef/jig/data/model/App}
+     */
+    app: null,
+
+    /**
+     * @type {string} Default URL, if not given in params (relative to app's)
      */
     url: '/api',
 
@@ -102,14 +106,34 @@ define([
     _deferred: null,
 
     /**
-     * Make API request - asynchronous
+     * constructor
+     */
+    constructor: function(options) {
+      lang.mixin(this, options);
+      this._deferredRequests = {};
+      this.delayPing();
+    },
+
+    /**
+     * Execute a command - the only public method
+     */
+    command: function(command, options) {
+      // console.log("command!", this, arguments);
+      return this.request(command, options)/*.then(function(data) {
+        // console.log("command ret", arguments);
+        return data;
+      })*/;
+    },
+
+    /**
+     * Make an API request - asynchronous
      *
      * @param {Object} req Request object
      * @param {?Object} object for parameters to pass to dojo XHR.
      * @return {dojo/Deferred} promise, resolved with response
      */
     request: function(req, options) {
-      self.cancelPing();
+      this.cancelPing();
       options = options || {};
       var ret = req.promise = new Deferred();
       ret._request = req;
@@ -118,19 +142,21 @@ define([
       if (options) {
         req.__options = options;
       }
-      self._deferredRequests[generateRandomUuid()] = req;
+      this._deferredRequests[generateRandomUuid()] = req;
 
-      var executeRequests = function() {
+      var _this = this;
+
+      var executeRequests = h(this, function() {
         // execute all deferred requests
-        self._timeout = null;
-        var reqs = lang.mixin({}, self._deferredRequests);
-        self._deferredRequests = {};
-        var _deferred = self._deferred;
+        this._timeout = null;
+        var reqs = lang.mixin({}, this._deferredRequests);
+        this._deferredRequests = {};
+        var _deferred = this._deferred;
 
         // Take maxReqsPerXHR into account by dividing API calls into groups
         var blocks = Object.keys(reqs).reduce(function(blocks, currentKey, idx) {
           var lastObj = blocks[blocks.length - 1];
-          if (!lastObj || Object.keys(lastObj).length >= self.maxReqsPerXHR) {
+          if (!lastObj || Object.keys(lastObj).length >= _this.maxReqsPerXHR) {
             blocks.push(lastObj = {});
 
           }
@@ -141,19 +167,19 @@ define([
           console.info("API: got", Object.keys(reqs).length, "calls, devided into", blocks.length, "XHR");
         }
 
-        // Call self._doRequest() for actual XHR
+        // Call this._doRequest() for actual XHR
         whenAll(blocks.map(function(block, idx) {
-          return async.whenTimeout(idx * self.subsequentXHRDelay)
-            .then(function() { return self._doRequest(block, options); });
+          return async.whenTimeout(idx * this.subsequentXHRDelay)
+            .then(function() { return _this._doRequest(block, options); });
         })).then(function() { _deferred.resolve(); });
-      };
+      });
 
-      if (!self._timeout) { // order requests, if none is pending through setTimeout()
-        self._deferred = new Deferred();
-        if (self.timeout === null) {
+      if (!this._timeout) { // order requests, if none is pending through setTimeout()
+        this._deferred = new Deferred();
+        if (this.timeout === null) {
           executeRequests();
         } else {
-          self._timeout = window.global.setTimeout(executeRequests, self.timeout);
+          this._timeout = window.global.setTimeout(executeRequests, this.timeout);
         }
       }
 
@@ -189,7 +215,7 @@ define([
       /**
        * Process XHR (transport) response
        */
-      var _processResponse = function(text, xhr) {
+      var _processResponse = h(this, function(text, xhr) {
         //console.log('JiG API Response', xhr, text);
         // topic.publish('noticeTopic', false);
         var i, data = null;
@@ -214,13 +240,12 @@ define([
           _processResponseReq(req, data, xhr);
         } else {
           for (i in data) {
-            if (data.hasOwnProperty(i)) {
+            if (data.hasOwnProperty(i) && req[i]) {
               _processResponseReq(req[i], data[i], xhr);
             }
           }
         }
-        self.delayPing();
-      };
+      });
 
       /**
        * Process XHR (transport) failure
@@ -240,13 +265,13 @@ define([
        * @param {Object} origRequest
        * @return {Object} the structure ready to be serialized
        */
-      var _prepareRequest = function(origRequest) {
+      var _prepareRequest = h(this, function(origRequest) {
         origRequest.promise.whenSealed.resolve(origRequest);
-        var ret = lang.mixin({}, origRequest, self.requestCommonParams);
+        var ret = lang.mixin({}, origRequest, this.requestCommonParams);
         delete ret.promise;
         delete ret.__options;
         return ret;
-      };
+      });
 
       var requestToSend;
       if (request.module) {
@@ -271,7 +296,7 @@ define([
       }
 
       return request.post(lang.mixin({
-        url: options.url || self.url,
+        url: this.app.baseUrl + (options.url || this.url),
         handleAs: 'text',
         postData: jsonText,
       }, options), true)
@@ -285,23 +310,26 @@ define([
      * The timeout cleared before an API request is sent.
      */
     delayPing: function() {
-      var delay = self.pingDelay * 1000;
-      self._pingTO = window.global.setTimeout(self.doPing, delay);
+      var delay = this.pingDelay * 1000;
+      this._pingTO = window.global.setTimeout(h(this, this.doPing), delay);
     },
 
     cancelPing: function() {
-      if (self._pingTO) {
-        window.global.clearTimeout(self._pingTO);
-        delete self._pingTO;
+      if (this._pingTO) {
+        window.global.clearTimeout(this._pingTO);
+        delete this._pingTO;
       }
     },
 
     doPing: function() {
-      self.request({ module: 'user', action: 'ping' } );
+      this.command({ module: 'user', action: 'ping' } );
     },
 
-  };
+    declaredClass: module.id
 
-  return self;
+  });
+
+  return Self;
 
 });
+

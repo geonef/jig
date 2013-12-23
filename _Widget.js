@@ -24,7 +24,7 @@ define([
 return declare([_Widget], { //--noindent--
 
   /**
-   * CSS classes to be set on domNode
+   * CSS classes to be set on domNode (prefer 'extraClass' at construction-time)
    *
    * @type {string} class
    */
@@ -79,6 +79,12 @@ return declare([_Widget], { //--noindent--
    */
   subHides: [],
 
+  /**
+   * Used to provide makeDOM (thruogh this.dom()) with the values of these args
+   *
+   * @type {Array.<string>}
+   */
+  recursiveWidgetsProps: ["appView"],
 
   /**
    * @override
@@ -87,6 +93,10 @@ return declare([_Widget], { //--noindent--
     this.domWidgets = [];
     this.whenDomReady = new Deferred();
     this.inherited(arguments);
+    this.domWidgetProps = {};
+    this.recursiveWidgetsProps.forEach(function(name) {
+      this.domWidgetProps[name] = this[name];
+    }, this);
   },
 
   /**

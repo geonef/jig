@@ -15,15 +15,21 @@ define([
 
   return {
 
+    /**
+     * Multiple references
+     *
+     * Non recursive: only yhe reference is managed.
+     * Modification in target models have to be saved through their respective object.
+     */
     refMany: {
       fromServer: function(ar, type) {
         if (!(ar instanceof Array)) { return []; }
+        var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            var store = model.getStore(_Class);
-            return async.
-              whenAll(ar.filter(function(obj) { return !!obj.id; })
-                      .map(function(obj, idx) { return store.getLazyObject(obj); }));
+            var store = model.getStore(_Class, _this.store.io);
+            return whenAll(ar.filter(function(obj) { return !!obj.id; })
+                           .map(function(obj, idx) { return store.getLazyObject(obj); }));
           })
           .then(function(objList) {
             if (type.chained) {
@@ -41,14 +47,27 @@ define([
             }
             return { id: obj.id };
           });
-      }
+      },
+      // TODO: isSame(): non-recursive, only target IDs with same order
     },
+
+    /**
+     * Single reference
+     *
+     * Non recursive: only yhe reference is managed.
+     * Modification in target models have to be saved through their respective object.
+     */
     refOne: {
       fromServer: function(obj, type) {
         if (obj === null) { return null; }
+        var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            return model.getStore(_Class).getLazyObject(obj);
+            var store = model.getStore(_Class, _this.store.io);
+            // if (!_this.store.io) {
+            //   console.error("no IO in refOne for store", store, "out of", _this.store);
+            // }
+            return store.getLazyObject(obj);
           });
       },
       toServer: function(obj, type) {
@@ -58,17 +77,26 @@ define([
         }
 
         return obj && obj.id ? { id: obj.id } : null;
+      },
+      isSame: function(v1, v2, type) {
+        return !v1 && !v2 || v1 && v2 && v1.id === v2.id;
       }
     },
+
+    /**
+     * Embedding of multiple documents
+     *
+     * Unlike refOne and refMany, this is of course recursive.
+     */
     embedMany: {
       fromServer: function(ar, type) { // same as 'refMany'
         if (!(ar instanceof Array)) { return []; }
+        var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
-            var store = model.getStore(_Class);
-            return async.
-              whenAll(ar.filter(function(obj) { return !!obj.id; })
-                      .map(function(obj) { return store.getLazyObject(obj); }));
+            var store = model.getStore(_Class, _this.store.io);
+            return whenAll(ar.filter(function(obj) { return !!obj.id; })
+                           .map(function(obj) { return store.getLazyObject(obj); }));
           })
           .then(function(objList) {
             if (type.chained) {

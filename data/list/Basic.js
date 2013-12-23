@@ -14,6 +14,7 @@ define([
   "../pane/CreatorMixin",
 
   "dojo/_base/lang",
+  "dojo/io-query",
   "dojo/dom-style",
   "dojo/dom-class",
   "dojo/string",
@@ -27,8 +28,10 @@ define([
   "../../util/async",
   "../../util/number",
   "../../button/Action",
+  // "css!./Basic",
+  // "css!./Basic"
 ], function(module, declare, _Widget, CreatorMixin,
-            lang, style, domClass, string, topic, allPromises,
+            lang, ioQuery, style, domClass, string, topic, allPromises,
             Deferred, model, BasicRow,
             async, number, Action) {
 
@@ -104,6 +107,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
 
   queryOptions: {},
 
+  refreshChannelTypes: ['put', 'delete'],
+
   /**
    * Dic for count title
    *
@@ -121,7 +126,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   /**
    * @type {string}
    */
-  emptyLabel: "aucun résultat",
+  emptyLabel: "", //"aucun résultat",
 
   /**
    * @type {geonef/jig/data/model/Abstract}
@@ -168,7 +173,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     this.rowOptions = lang.mixin({}, this.rowOptions);
     this.whenReady = async.bindArg();
     this.whenListReady = new Deferred();
-    this.store = model.getStore(this.Model);
+    this.store = model.getAppStore(this.appView, this.Model);
   },
 
   getUrlCountPart: function() {
@@ -195,18 +200,18 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   makeContentNodes: function() {
     return [
       this.makeSpinnerNode("listLoading"),
-      ["div", {_attach: "emptyNode", _style:{display:"none"}}, "("+this.emptyLabel+")"],
-      ['div', {_attach: 'listNode', 'class': 'results' }],
+      ["div", {_attach: "emptyNode", "class":"panelControl", _style:{display:"none"}}, this.emptyLabel],
+      ['div', {_attach: 'listNode', 'class': 'jigDataListResults results' }], // TODO: remove "results"
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
-          _attach: "nextAction",
+          _attach: "nextAction", noSubmit: true,
           label: "suivant &rarr;", extraClass: "primary floatr",
           onExecute: h(this, function() {
             this.refresh({ currentPage: this.currentPage + 1});
           })
         }],
         [Action, {
-          _attach: "previousAction",
+          _attach: "previousAction", noSubmit: true,
           label: "&larr; précédent", extraClass: "primary floatl",
           onExecute: h(this, function() {
             this.refresh({ currentPage: this.currentPage - 1});
@@ -260,31 +265,54 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   /**
    * Refresh the list
    */
-  refresh: function(options) {
+  refresh: function(options, fetchOptions) {
     if (this.refreshing) {
       return;
     }
+    // console.log("list refresh", this.id, options, this.domNode);
     var _this = this;
     this.refreshing = true;
-    var scrollTop = this.domNode.scrollTop;
-    this.clear();
+    // var scrollTop = this.domNode.scrollTop;
+    // this.clear();
     domClass.add(this.domNode, "loading");
     if (this.pageControlNode) {
       style.set(this.pageControlNode, "display", "none");
     }
     lang.mixin(this, options);
-    this.fetchResults()
-      .then(function(results) {
-        topic.publish("data/list/fetched", _this, results);
-        return results;
-      })
+    this.fetchResults(fetchOptions)
+      .then(
+        function(results) {
+          topic.publish("data/list/fetched", _this, results);
+          return results;
+        },
+        function(error) {
+          console.log("data query error", error);
+          // if (error != "geonef-data-query-notMatched") {
+          throw error;
+          // }
+        }
+      )
       .then(async.deferWhen(this.whenDomReady))
-      .then(h(this, this.populateList))
-      .then(function() {
-        domClass.remove(_this.domNode, "loading");
-        _this.domNode.scrollTop = scrollTop;
-        _this.refreshing = false;
-      });
+      .then(
+        function(results) {
+          if (!_this._destroyed) {
+            _this.clear();
+            _this.populateList(results);
+            _this.afterRefresh();
+          }
+        },
+        function() {
+          // console.log("in error", this, arguments);
+            _this.afterRefresh();
+        })
+    ;
+  },
+
+  afterRefresh: function() {
+    domClass.remove(this.domNode, "loading");
+    // this.domNode.scrollTop = scrollTop;
+    this.refreshing = false;
+    this.onResize();
   },
 
   /**
@@ -292,11 +320,11 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    *
    * @return {dojo/Deferred}
    */
-  fetchResults: function() {
+  fetchResults: function(options) {
     if (this.objectProperty) {
       return this.object.get(this.objectProperty);
     } else {
-      var options = lang.mixin({}, this.queryOptions);
+      options = lang.mixin({}, this.queryOptions, options);
       if (this.sorting) {
         options.sort = this.sorting;
       }
@@ -324,28 +352,29 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   },
 
   /**
+   * Build a query-string formatting of this.buildQuery() and sorting
+   */
+  makeQueryString: function() {
+    var query = this.buildQuery();
+    Object.keys(query).forEach(function(key) {
+      if (query[key].id) {
+        query[key] = query[key].id;
+      }
+    });
+    var qs = ioQuery.objectToQuery(query);
+    // console.log("qs", qs, query);
+    return qs;
+  },
+
+
+  /**
    * @param {Array.<geonef/jig/data/model/Abstract>} results
    */
   populateList: function(results) {
-    if (this._destroyed) { return; }
     this.results = results;
     this.updateCountStats(results);
-    // var over = this.limit && this.limit < results.length &&
-    //   results.length - this.limit;
-    // if (over) {
-    //   results = results.slice(0, this.limit);
-    // }
     this.rows = results.map(this.makeRow, this);
     this.rows.forEach(this.placeRow, this);
-    // if (over) {
-    //   var moreLink = new Action(
-    //     { label: string.substitute(this.msgMore, { count: over }),
-    //       title: "Cliquer pour afficher",
-    //       onExecute: h(this, this.openList) });
-    //   domClass.add(moreLink.domNode, 'jigDataRow more');
-    //   this.placeRow(moreLink, null);
-    //   this.rows.push(moreLink);
-    // }
     var _this = this;
     allPromises(this.rows
                 .filter(function(row) { return !!row.whenDataReady; })
@@ -361,9 +390,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     if (this.emptyNode) {
       style.set(this.emptyNode, 'display', results.length > 0 ? 'none' : '');
     }
-    // if (this.countNode) {
-    //   this.countNode.innerHTML = number.pluralString(results.resultCount, this.countTitleDic);
-    // }
+    if (this.countNode) {
+      this.countNode.innerHTML = number.pluralString(results.resultCount, this.countTitleDic);
+    }
     (results.length > 0 ? domClass.remove : domClass.add)(this.domNode, 'empty');
     if (this.currentPageNode) {
       this.currentPageNode.innerHTML = results.currentPage;
@@ -392,10 +421,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   },
 
   makeRow: function(obj, key) {
-    var row = new (this.RowClass)(
-      lang.mixin({ object: obj, listWidget: this },
-                 this.rowOptions));
-    return row;
+    return new (this.RowClass)(
+      lang.mixin({ object: obj, listWidget: this }, this.domWidgetProps, this.rowOptions));
   },
 
   /**
@@ -430,8 +457,17 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @param {string} type                        type of event
    */
   onChannel: function(obj, type) {
-    if (['put', 'delete'].indexOf(type) !== -1) {
-      this.refresh();
+    // if (this.refreshChannelTypes.indexOf(type) !== -1) {
+    //   console.log("filter", type, this.filter, obj);
+    // }
+    if (this.refreshChannelTypes.indexOf(type) !== -1
+        /* && this.store.matchFilter(obj, this.filter || {})*/) {
+
+      var inPage = this.results &&
+        this.results.some(function(object) { return object === obj; });
+      // console.log("inPage", inPage, obj, this.results);
+
+      this.refresh({}, { ifMatch: inPage ? null : obj.id });
     }
   },
 

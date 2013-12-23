@@ -45,6 +45,9 @@ define([
         ]]];
     },
 
+    /**
+     * @param {Array} rows    see formEntry() for info
+     */
     formEntries: function(rows) {
       if (!(rows instanceof Array)) {
         return self.formEntriesCompat.apply(null, arguments);
@@ -53,6 +56,9 @@ define([
       return rows.map(self.formEntry);
     },
 
+    /**
+     * @param {{title: string, editorNode: Array, description: string}}
+     */
     formEntry: function(row) {
       var content = [
         ["span", {"class":"label"}, row.title],

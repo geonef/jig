@@ -15,6 +15,8 @@
  * 'onModelChange'. In some cases (when you need the obj to be persisted
  * for example), you may need to do it in afterModelChange() instead:
  * overload these methods, then.
+ *
+ * @see ./WithControlMixin
  */
 define([
   "module",
@@ -28,12 +30,14 @@ define([
   "dojo/_base/window",
   "dojo/dom-class",
   "dojo/topic",
+  "dojo/string",
 
+  "geonef/jig/tool/dialog",
   "../../button/DropDown",
   "dijit/TooltipDialog",
 ], function(module, declare, _Widget,
-            async, widget, Action, lang, window, domClass, topic,
-            DropDown, TooltipDialog) {
+            async, widget, Action, lang, window, domClass, topic, string,
+            dialog, DropDown, TooltipDialog) {
 
   var h = lang.hitch;
 
@@ -96,25 +100,43 @@ define([
      */
     postMixInProperties: function() {
       this.inherited(arguments);
-      this.whenDataReady = this.autoRequestProps.length > 0 ?
-        this.object.requestProps(this.autoRequestProps) : async.bindArg();
+      // var promise;
+      // if (this.autoRequestProps instanceof Array) {
+      //   promise = this.object.requestProps(this.autoRequestProps);
+      // } else if (typeof this.autoRequestProps == "string") {
+      //   promise =
+      // } else {
+      //   promise = async.bindArg();
+      // }
+      // this.whenDataReady = promise;
+      this.whenDataReady =
+        this.object.id &&
+        (typeof this.autoRequestProps == "string" ||
+         this.autoRequestProps.length > 0)
+
+        ? this.object.requestProps(this.autoRequestProps)
+        : async.bindArg();
     },
 
     makeDropDownNode: function(title) {
       var _this = this;
+      var node = null;
+      var options = this.dom(this.makeOptions()).filter(function(o) { return !!o; });
 
-      var node = this.dom(
-        [DropDown, {
-          _attach: 'optionsDD', extraClass: 'icon s24 nolabel gear',
-          dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
-          onMouseEnter: h(null, domClass.add, this.domNode, 'overDD'),
-          onMouseLeave: h(null, domClass.remove, this.domNode, 'overDD'),
-        }]);
+      if (options.length > 0) {
+        node = this.dom(
+          [DropDown, {
+            _attach: 'optionsDD', extraClass: 'icon s24 nolabel gear',
+            dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
+            onMouseEnter: h(null, domClass.add, this.domNode, 'overDD'),
+            onMouseLeave: h(null, domClass.remove, this.domNode, 'overDD'),
+          }]);
 
-      this.dom(
-        ['div', { _insert: this.optionsDD.dropDown.containerNode },
-         [['h2', {}, title || ""],
-          ['div', {'class':'actions'}, this.makeOptions()]]]);
+        this.dom(
+          ['div', { _insert: this.optionsDD.dropDown.containerNode },
+           [['h2', {}, title || ""],
+            ['div', {'class':'actions'}, options]]]);
+      }
 
       return node;
     },
@@ -122,17 +144,18 @@ define([
     makeOptions: function() {
       var nodes = [];
 
-      if (this.enableDuplicateAction) {
-        nodes.push([Action, {
-          label: "Dupliquer",
-          "class": "item remove",
-          onExecute: async.deferHitch(this, this.deleteObject),
-        }]);
-      }
+      // if (this.enableDuplicateAction) {
+      //   nodes.push([Action, {
+      //     label: "Dupliquer",
+      //     "class": "item remove",
+      //     onExecute: async.deferHitch(this, this.duplicateObject),
+      //   }]);
+      // }
 
       if (this.enableDeleteAction) {
         nodes.push([Action, {
           label: "Supprimer",
+          iconClass: "remove",
           "class": "item remove",
           onExecute: async.deferHitch(this, this.deleteObject),
         }]);
@@ -165,10 +188,10 @@ define([
      */
     onDataReady: function() {
       this.isDataReady = true;
-      if (this.delayedContent) {
-        this.onModelChange();
-        this.afterModelChange();
-      }
+      // if (this.delayedContent) {
+      this.onModelChange();
+      this.afterModelChange();
+      // }
     },
 
     /**
@@ -196,32 +219,55 @@ define([
      * It should be used by child classed to make custom updates if needed.
      */
     onModelChange: function(saving) {
-      if (this.delayedContent) {
+      // console.log("onModelChange", this, arguments);
+      if (this.delayedContent === true || this.delayedContent === "onModelChange") {
+        this.setupAfterModel();
         this.rebuildDom();
       }
     },
 
+    /** hook */
+    setupAfterModel: function() {},
+
     /**
      * Hook - called on data ready and after changes have been saved
      */
-    afterModelChange: function(saving) {},
+    afterModelChange: function(saving) {
+      (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
+      if (this.delayedContent === "afterModelChange") {
+        this.setupAfterModel();
+        this.rebuildDom();
+      }
+    },
 
     /** hook */
     onClose: function() {},
 
     deleteObject: function() {
-      if (!window.global.confirm(this.removeConfirm)) { return; }
-      this.object.store.remove(this.object)
-        .then(async.busy(this.domNode));
+      var _this = this;
+
+      dialog.confirm({
+        confirmLabel: "Supprimer",
+        cancelLabel: "Annuler",
+        message: string.substitute(this.removeConfirm, this.object)
+      }).then(
+        function() {
+          return _this.object.store.remove(_this.object);
+        },
+        function() {
+        }
+      ).then(async.busy(this.domNode));
+
     },
 
     duplicateObject: function() {
       var msg = "Nom de la copie ?";
       var name = window.global.prompt(msg);
       if (!name) { return; }
+      var _this = this;
       this.object.store.duplicate(this.object, { properties: { name: name }})
         .then(function(newObj) {
-          newObj.openPane();
+          _this.appView.modelPane(newObj).open();
         })
         .then(async.busy(this.domNode));
     },

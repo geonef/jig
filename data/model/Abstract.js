@@ -33,8 +33,9 @@ define([
   "../../util/array",
   "../../util/object",
   "../../util/async",
+  "../../util/generateRandomUuid",
 ], function(module, declare, lang, Deferred, allPromises, topic, when, has, whenAll,
-            json, model, value, string, array, object, async) {
+            json, model, value, string, array, object, async, generateRandomUuid) {
 
 return declare(null, { //--noindent--
   /**
@@ -210,8 +211,16 @@ return declare(null, { //--noindent--
    */
   requestProps: function(propArray) {
     var _this = this;
-    return async.bindArg(this, allPromises(
-      propArray.map(function(prop) { return _this.get(prop); })));
+    if (propArray instanceof Array) {
+
+      return async.bindArg(this, allPromises(
+        propArray.map(function(prop) { return _this.get(prop); })));
+
+    } else {
+      return this.id ?
+        this.store.get(this, propArray ? { fieldGroup: propArray } : null)
+      : async.bindArg(this);
+    }
   },
 
   /**
@@ -479,7 +488,7 @@ return declare(null, { //--noindent--
     var property = this.properties[propName];
     var _this = this;
     return value.getModule(property.targetModel)
-      .then(function(TargetModel) { return model.getStore(TargetModel); })
+      .then(function(TargetModel) { return model.getStore(TargetModel, _this.store.io); })
       .then(function(store) {
         return _this.store.apiRequest({
           action: 'createSub', id: _this.id,
@@ -604,8 +613,16 @@ return declare(null, { //--noindent--
   },
 
   toString: function() {
-    return "["+this.declaredClass+":"+(this.id || "new")+"]";
+    return "["+this.declaredClass+":"+(this.id || ("new:"+generateRandomUuid()))+"]";
   },
+
+  toUniqueString: function() {
+    if (!this.uniqueId) {
+      this.uniqueId = generateRandomUuid();
+    }
+    return this.uniqueId;
+  },
+
 
   declaredClass: module.id
 

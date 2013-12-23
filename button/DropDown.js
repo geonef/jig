@@ -37,6 +37,8 @@ define([
       this.toggleDropDown();
     },
 
+    declaredClass: module.id
+
   });
 
 });

@@ -2,12 +2,15 @@ define([
   "module",
   "dojo/_base/declare",
   "../../_Widget",
+
   "dojo/_base/lang",
   "dojo/_base/event",
   "dojo/dom-class",
+  "dojo/on",
   "../../util/async",
   "../../util/string"
-], function(module, declare, _Widget, lang, event, domClass, async, string) {
+], function(module, declare, _Widget,
+            lang, event, domClass, on, async, string) {
 
 return declare(_Widget, { //--noindent--
 
@@ -23,6 +26,11 @@ return declare(_Widget, { //--noindent--
   autoRequestProps: [],
 
   /**
+   * Options for appView.modelPane()
+   */
+  paneOptions: {},
+
+  /**
    * @override
    */
   'class': _Widget.prototype['class'] + ' jigDataRow',
@@ -36,6 +44,7 @@ return declare(_Widget, { //--noindent--
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
       this.object.requestProps(this.autoRequestProps) : async.bindArg();
+    this["class"] = this["class"] + " ref-" + this.object.getRef();
   },
 
   buildRendering: function() {
@@ -57,7 +66,7 @@ return declare(_Widget, { //--noindent--
   postCreate: function() {
     this.inherited(arguments);
     if (this.enableClickEvent) {
-      this.connect(this, 'onClick', this.onItemClick);
+      this.own(on(this, "click", lang.hitch(this, this.onItemClick)));
     }
   },
 
@@ -78,8 +87,9 @@ return declare(_Widget, { //--noindent--
   },
 
   onExecute: function() {
-    if (this.object.openPane) {
-      this.object.openPane();
+    var pane = this.appView.modelPane(this.object, this.paneOptions);
+    if (pane) {
+      pane.open();
     }
   },
 

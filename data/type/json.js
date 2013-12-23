@@ -24,6 +24,7 @@ define([
     integer: scalar("integer"),
     'float': scalar("float"),
     'boolean': scalar("boolean"),
+    bool: scalar("boolean"),
     'enum': {
       name: "enum",
       fromServer: function(value, def) {

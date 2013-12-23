@@ -2,13 +2,13 @@
  * Utilities about deferred, promises and asynchronicity in general
  */
 define([
-  "require",
+  "require", // the getModule() function also uses the global AMD 'require' function
   "dojo/Deferred",
   "dojo/_base/lang",
   "dojo/_base/window",
   "dojo/_base/kernel",
   "dojo/promise/all",
-], function(require, Deferred, lang, window, kernel, allPromises) {
+], function(myRequire, Deferred, lang, window, kernel, allPromises) {
 
 
 var self = { //--noindent--
@@ -62,12 +62,11 @@ var self = { //--noindent--
    * @deprecated use dojo's dojo/promise/all instead
    * @return {dojo/Deferred}
    */
-  whenAll: function(deferreds) {
-    kernel.deprecated("geonef/jig/util/async.whenAll()",
-                      "use dojo/promise/all instead");
-
-    return allPromises(deferreds);
-  },
+  // whenAll: function(deferreds) {
+  //   kernel.deprecated("geonef/jig/util/async.whenAll()",
+  //                     "use dojo/promise/all instead");
+  //   return allPromises(deferreds);
+  // },
 
   /**
    * @param {Number} delay in milliseconds (arg 2 to dojo/global/setTimeout)
@@ -131,7 +130,7 @@ var self = { //--noindent--
    */
   busy: function(node) {
     var control;
-    require(["../tool/Processing"], function(Processing) {
+    myRequire(["../tool/Processing"], function(Processing) {
       if (control !== null) { // if terminate callback was called before we are
         control = new Processing({ processingNode: node });
         control.startup();
@@ -184,6 +183,41 @@ var self = { //--noindent--
     };
   },
 
+  /**
+   * Flexible AMD module getter
+   *
+   * If 'name' is a string, the module is required, using the given
+   * 'contextRequire' function (if provided), or the global one.
+   *
+   * If 'name' is a promise, that will be resolved first, then
+   * getModule() is called again with the promise value
+   * (which again can be a string, a module ref or a class).
+   *
+   * If 'name' is not a string, it is simply returned (through the deferred).
+   *
+   * @param {mixed} name
+   * @param {!Function} contextRequire context-sensitive require function
+   * @return {dojo/Deferred}
+   */
+  getModule: function(name, contextRequire) {
+    if (name.load) {
+      return name.load();
+    }
+    if (name.then) {
+      return name.then(function(resolvedName) {
+        return self.getModule(resolvedName, contextRequire);
+      });
+    }
+    var deferred = new Deferred();
+    if (typeof name === "string") {
+      (contextRequire || require)([name], function(module) {
+        deferred.resolve(module);
+      });
+    } else {
+      deferred.resolve(name);
+    }
+    return deferred;
+  },
 
 };
 

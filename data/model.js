@@ -27,6 +27,7 @@ define([
   "dojo/_base/lang"
 ], function(ModelStore, lang) {
 
+
 var self = { //--noindent--
 
   _stores: {},
@@ -35,13 +36,15 @@ var self = { //--noindent--
    * Get store for corresponding model
    *
    * @param {geonef/jig/data/model/Abstract} Model
+   * @param {geonef/jig/io/IOInterface} io
    * @return {geonef/jig/data/model/ModelStore}
    */
-  getStore: function(Model) {
+  getStore: function(Model, io) {
     var stores = self._stores;
     var classId = Model.prototype.declaredClass;
-    if (!stores[classId]) {
-      var options = { Model: Model };
+    var store;
+    if (!(store = stores[classId])) {
+      var options = { Model: Model, id: "store:"+classId };
       var proto = Model.prototype;
       if (proto.discriminatorMap && !proto.hasOwnProperty("discriminatorMap")) {
         // dig into parent class and find the one wich define the discriminatorMap
@@ -52,10 +55,29 @@ var self = { //--noindent--
       }
 
       var Store = Model.prototype.Store || ModelStore;
-      stores[classId] = new Store(options);
+      store = stores[classId] = new Store(options);
     }
 
-    return stores[classId];
+    return io ? self.ioWrap(io, store) : store;
+  },
+
+  ioWrap: function(io, store) {
+    return lang.delegate(store, { io: io });
+  },
+
+  /**
+   * Get store for corresponding model, wrapped with application view IO
+   *
+   * If 'app' is null, a regular store is returned
+   *
+   * @param {geonef/jig/data/pane/app/AppView} appView
+   * @param {geonef/jig/data/model/Abstract} Model
+   * @return {geonef/jig/data/model/ModelStore}
+   */
+  getAppStore: function(appView, Model) {
+    var store = self.getStore(Model);
+
+    return appView ? appView.ioWrap(store) : store;
   },
 
   // /**

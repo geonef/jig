@@ -40,9 +40,25 @@ define([
   "dojo/_base/lang",
   "dojo/topic",
   "dojo/when",
+  "dojo/promise/all",
   "../../util/async",
   "../../util/value",
-], function(module, require, declare, api, lang, topic, when, async, value) {
+], function(module, require, declare, api, lang, topic, when, whenAll, async, value) {
+
+  var ConsoleIO = declare(null, {
+
+    get: function(store, id) {
+
+    },
+
+    apiRequest: function(store, params, options, object) {
+      var module = object ? object.apiModule : store.apiModule;
+      return api.request(
+        lang.mixin({ module: module }, store.apiParams, params), options);
+    },
+
+
+  });
 
 return declare(null, { //--noindent--
 
@@ -142,9 +158,19 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred}
    */
   get: function(id, options) {
-    var obj = this.index[id];
-    if (obj && (!options || (!options.fields && !options.fieldGroup))) {
+    options = lang.mixin({}, options);
+    var obj;
+    if (typeof id == "string") {
+      obj = this.index[id];
+    } else {
+      obj = id;
+      id = obj.id;
+    }
+    if (obj && (!options.fields && !options.fieldGroup)) {
       return async.bindArg(obj);
+      // if (!options.fields && !options.fieldGroup) {
+      //   return obj ? async.bindArg(obj) : this.getLazyObject({ id: id });
+      // } else {
     } else {
       var _this = this;
       return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
@@ -193,6 +219,9 @@ return declare(null, { //--noindent--
     // combine subsequent fetchProps call for same object into the same
     // API request, as long as it hasn't been sent (whenSealed)
     // var promise = object._fetchPropsP;
+    if (!object.id) {
+      return async.bindArg(object);
+    }
     var req = object._fetchPropsReq;
     if (req) {
       // if (!promise._request) {
@@ -222,7 +251,6 @@ return declare(null, { //--noindent--
         // console.log(object.id, "sealed");
         delete object._fetchPropsReq;
       });
-      // console.log("22");
 
       return promise;
     }
@@ -258,7 +286,6 @@ return declare(null, { //--noindent--
         }, options), {}, object);
       })
       .then(function(resp) {
-        // console.log('in PUT then', arguments, object);
         if (!object.id) {
           _this.index[resp.object.id] = object;
         }
@@ -286,7 +313,6 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback whose arg is the model object
    */
   add: function(object, options) {
-    // console.log('add', this, arguments);
     if (object.getId()) {
       throw new Error("object is not new, it has ID: "+object.getId()+
                       " ["+object.getSummary()+"]");
@@ -307,7 +333,7 @@ return declare(null, { //--noindent--
    *
    * @param {geonef/jig/data/model/Abstract} object the model object
    * @param {Object} options API options (see geonef/jig/api)
-   * @return {dojo/Deferred} callback whose arg is the model object
+   * @return {dojo/Deferred} callback whose arg is the copy model object
    */
   duplicate: function(object, options) {
     var _this = this;
@@ -333,7 +359,7 @@ return declare(null, { //--noindent--
   },
 
   /**
-   * Add (persist) a new (unpersisted) object
+   * Query the store with filter
    *
    * 'filter' is something like:
    *   {
@@ -383,15 +409,17 @@ return declare(null, { //--noindent--
       filters: newFilter,
     }, options))
       .then(lang.hitch(this, function(resp) {
+        if (resp.ifMatch === false) {
+          throw "geonef-data-query-notMatched";
+        }
         if (!resp.results) {
           console.error("model query ("+this.apiModule+"): no result array", resp);
           return null;
         }
-        return async
-          .whenAll(resp.results.map(
-            function(data) {
-              return this.getLazyObject(lang.mixin({}, implied, data));
-            }, this))
+        return whenAll(resp.results.map(
+          function(data) {
+            return this.getLazyObject(lang.mixin({}, implied, data));
+          }, this))
           .then(function(results) {
             ["resultCount", "pageLength", "pageCount", "currentPage"].forEach(
               function(prop) { results[prop] = resp[prop]; });
@@ -408,20 +436,25 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback with no arg
    */
   remove: function(obj) {
-    var deferred = this.apiRequest({
-      action: 'delete',
-      id: obj.getId(),
-    }, null, obj)
-      .then(function(resp) {
-        obj.afterDelete();
-      });
-
+    var deferred;
+    if (obj.id) {
+      deferred = this.apiRequest({
+        action: 'delete',
+        id: obj.getId(),
+      }, null, obj)
+        .then(lang.hitch(obj, obj.afterDelete)
+              /*function(resp) {
+                obj.afterDelete();
+                }*/);
+    } else {
+      deferred = async.bindArg();
+    }
     obj.publish(['delete']);
     return deferred;
   },
 
   /**
-   * Create new object (for private use)
+   * Create new object (for private use) - app code should use createObject()
    *
    * WARNING: the object is not added to the local cache,
    *          and dataForDiscriminator is used only to distinguish
@@ -463,7 +496,15 @@ return declare(null, { //--noindent--
     var discrProp = this.Model.prototype.discriminatorProperty;
     if (discrProp) {
       if (!discriminatorValue) {
+        discriminatorValue = this.Model.prototype.discriminatorKey;
+      }
+      if (!discriminatorValue) {
+        // if (this.Mo) {
+        // var map = this.Model.prototype.discriminatorMap;
+
+        // } else {
         throw new Error("createObject(): discriminator is required");
+        // }
       }
       data[discrProp] = discriminatorValue;
     }
@@ -476,7 +517,7 @@ return declare(null, { //--noindent--
   },
 
   /**
-   * Create object (or get ref), hydrate from given data
+   * Create object (or get from ref), then hydrate from given flat data
    *
    * This is the right function to use to instanciate a model object
    * which has an identifier.
@@ -514,10 +555,17 @@ return declare(null, { //--noindent--
   /**
    * Specialisation of geonef/jig/api.request, for this class
    */
-  apiRequest: function(params, options, object) {
+  apiRequest: function(command, options, object) {
     var module = object ? object.apiModule : this.apiModule;
-    return api.request(
-      lang.mixin({ module: module }, this.apiParams, params), options);
+    // if (this.io) {
+    //   console.info("io :)", this.io, command, this);
+    // } else {
+    //   console.warn("no io!", this.io, command, this);
+    // }
+    return this.io.command(
+      lang.mixin({ module: module }, this.apiParams, command), options);
+    // return api.request(
+    //   lang.mixin({ module: module }, this.apiParams, params), options);
   },
 
   /**
@@ -584,6 +632,56 @@ return declare(null, { //--noindent--
     }
     return c;
   },
+
+  // /**
+  //  * Is the given model obj is part of this store and matches the given filter?
+  //  */
+  // matchFilter: function(object, filter) {
+  //   var ops = {
+  //     equals: function(type, objectValue, filterValue) {
+  //       var isSame = type.isSame || value.isSame;
+  //       return isSame(objectValue, filterValue, type);
+  //     },
+  //     notEquals: function(type, objectValue, filterValue) {
+  //       var isSame = type.isSame || value.isSame;
+  //       return !isSame(objectValue, filterValue, type);
+  //     },
+  //     ref: function(type, objectValue, filterValue) {
+  //       return objectValue && objectValue.id === filterValue;
+  //     },
+  //     gt: function(type, objectValue, filterValue) {
+  //       return objectValue > filterValue;
+  //     },
+  //     gte: function(type, objectValue, filterValue) {
+  //       return objectValue >= filterValue;
+  //     },
+  //     lt: function(type, objectValue, filterValue) {
+  //       return objectValue < filterValue;
+  //     },
+  //     lte: function(type, objectValue, filterValue) {
+  //       return objectValue <= filterValue;
+  //     },
+  //   };
+
+  //   return object instanceof this.Model &&
+  //     Object.keys(filter).every(function(name) {
+  //       var prop = object.properties[name];
+  //       if (prop === undefined) {
+  //         // Server-only filter prop or not hydrated value:
+  //         // we don't know whether it matches, consider it doesn't
+  //         console.log("prop undef", name, filter, object);
+  //         return false;
+  //       }
+  //       var rule = filter[name];
+  //       if (!rule.op) {
+  //         rule = { op: "equal", value: rule };
+  //       }
+  //       var type = prop.type;
+  //       console.log("test", name, rule.op, object[name], rule.value,
+  //                   ops[rule.op](type, object[name], rule.value));
+  //       return ops[rule.op](type, object[name], rule.value);
+  //     });
+  // },
 
   declaredClass: module.id
 
