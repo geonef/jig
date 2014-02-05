@@ -91,7 +91,7 @@ define([
           // }
         }
       }
-      return "quelques secondes";
+      return "il y a quelques secondes";
     },
 
   };

@@ -17,6 +17,7 @@
  * overload these methods, then.
  *
  * @see ./WithControlMixin
+ * @todo inherits from ./WithOptionsButtonMixin and remove dedicated code from this class
  */
 define([
   "module",
@@ -257,7 +258,6 @@ define([
         function() {
         }
       ).then(async.busy(this.domNode));
-
     },
 
     duplicateObject: function() {

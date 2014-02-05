@@ -633,6 +633,7 @@ return declare(null, { //--noindent--
     return c;
   },
 
+  // // partially copied to data/model.js
   // /**
   //  * Is the given model obj is part of this store and matches the given filter?
   //  */
