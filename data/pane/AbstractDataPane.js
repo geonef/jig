@@ -235,6 +235,8 @@ define([
      */
     afterModelChange: function(saving) {
       (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
+      this.onUrlChange && this.onUrlChange();
+      this.onTitleChange && this.onTitleChange();
       if (this.delayedContent === "afterModelChange") {
         this.setupAfterModel();
         this.rebuildDom();

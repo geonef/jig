@@ -275,7 +275,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   refresh: function(options, fetchOptions) {
     if (this.refreshing) {
-      return;
+      return async.bindArg(null);
     }
     // console.log("list refresh", this.id, options, this.domNode);
     var _this = this;
@@ -287,7 +287,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       style.set(this.pageControlNode, "display", "none");
     }
     lang.mixin(this, options);
-    this.fetchResults(fetchOptions)
+    var promise = this.fetchResults(fetchOptions)
       .then(
         function(results) {
           topic.publish("data/list/fetched", _this, results);
@@ -314,6 +314,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
             _this.afterRefresh();
         })
     ;
+    if (this.whenDomReady.fired >= 0) {
+      promise.then(async.busy(this.domNode));
+    }
+    return promise;
   },
 
   afterRefresh: function() {

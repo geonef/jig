@@ -17,13 +17,27 @@ define([
       var dateStr = "";
       var dateParts = [];
       if (options.docStyle) {
+        var spanWrap = function(str, cssClass) {
+          if (options.html) {
+            str = '<span class="'+cssClass+'">'+str+'</span>';
+          } else {
+            // str = str.replace(/&nbsp;/g, ' ');
+          }
+          return str;
+        };
         var now = new Date();
         var day = 24*3600*1000;
-        var inmonth;
+        var inmonth, inday;
         opts.datePattern =
+          // 12:33 (si aujourd'hui)
+          (inday =
+           now.getFullYear() === date.getFullYear() &&
+           now.getMonth() === date.getMonth() &&
+           now.getDate() === date.getDate()) ? "" :
           // jeudi 4 (si dans le mois)
-          (inmonth = now.getFullYear() === date.getFullYear() &&
-          now.getMonth() === date.getMonth()) ? "EEEE d" :
+          (inmonth =
+           now.getFullYear() === date.getFullYear() &&
+           now.getMonth() === date.getMonth()) ? "EEEE d" :
           // jeu. 4 fév. (si - de 30 jours)
           Math.abs(now - date) < 30 * day ? "EEE d MMM":
           // 4 février (si dans l'année)
@@ -35,10 +49,17 @@ define([
         //            now.getFullYear(), date.getFullYear
         //   now.getMonth() === date.getMonth()
         //            );
-        dateParts.push(localeDate.format(date, opts)/* + (inmonth ? "," : "")*/);
-        if (inmonth) {
-          dateParts.push("à");
-          dateParts.push(localeDate.format(date, {selector:'time',formatLength:'short'}));
+        if (!inday) {
+          if (options.leadingProposition) {
+            dateParts.push(spanWrap(" le", "geonefLighter"));
+          }
+          dateParts.push(spanWrap(localeDate.format(date, opts)/* + (inmonth ? "," : "")*/, "date"));
+        }
+        if (inday || inmonth) {
+          if (options.leadingProposition || !inday) {
+            dateParts.push(spanWrap("à", "geonefLighter"));
+          }
+          dateParts.push(spanWrap(localeDate.format(date, {selector:'time',formatLength:'short'}), "time"));
         }
       } else if (options.length === 'full') {
 
