@@ -322,7 +322,13 @@ return declare(null, { //--noindent--
     if (object.beforeCreate) {
       object.beforeCreate();
     }
-    var dfr = this.put(object, options);
+    var dfr = this.put(object, options)
+      .then(function(_arg) {
+        if (object.afterCreate) {
+          object.afterCreate();
+        }
+        return _arg;
+      });
     object.publish(['create']);
 
     return dfr;

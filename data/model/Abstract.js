@@ -156,6 +156,12 @@ return declare(null, { //--noindent--
   initNew: function() {},
 
   getRef: function() {
+    if (has("geonef-debug")) {
+      if (!this.id) {
+        console.error(this, "::getRef(): object has no ID");
+        throw new Error("backtrace...");
+      }
+    }
     return this.store.idToRef(this.id);
   },
 

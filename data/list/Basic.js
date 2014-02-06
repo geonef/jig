@@ -480,11 +480,14 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @param {string} type                        type of event
    */
   onChannel: function(obj, type) {
+
     // if (this.refreshChannelTypes.indexOf(type) !== -1) {
     //   console.log("filter", type, this.filter, obj);
     // }
     if (this.refreshChannelTypes.indexOf(type) !== -1
         /* && this.store.matchFilter(obj, this.filter || {})*/) {
+
+      // console.log("list channel", this, arguments);
 
       var inPage = this.results &&
         this.results.some(function(object) { return object === obj; });
