@@ -101,15 +101,7 @@ define([
      */
     postMixInProperties: function() {
       this.inherited(arguments);
-      // var promise;
-      // if (this.autoRequestProps instanceof Array) {
-      //   promise = this.object.requestProps(this.autoRequestProps);
-      // } else if (typeof this.autoRequestProps == "string") {
-      //   promise =
-      // } else {
-      //   promise = async.bindArg();
-      // }
-      // this.whenDataReady = promise;
+
       this.whenDataReady =
         this.object.id &&
         (typeof this.autoRequestProps == "string" ||

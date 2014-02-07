@@ -41,7 +41,7 @@ define([
           // jeu. 4 fév. (si - de 30 jours)
           Math.abs(now - date) < 30 * day ? "EEE d MMM":
           // 4 février (si dans l'année)
-          now.getFullYear() === date.getFullYear ? "d MMMM" :
+          now.getFullYear() === date.getFullYear() ? "d MMMM" :
           // 4 fév 2011
           "d MMM y";
 

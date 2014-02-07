@@ -136,6 +136,7 @@ return declare(null, { //--noindent--
     if (options) {
       lang.mixin(this, options);
     }
+    this._propGroups = {};
     this.originalValues = lang.mixin({}, this.originalValues);
     this.init();
   },
@@ -223,9 +224,10 @@ return declare(null, { //--noindent--
         propArray.map(function(prop) { return _this.get(prop); })));
 
     } else {
-      return this.id ?
-        this.store.get(this, propArray ? { fieldGroup: propArray } : null)
-      : async.bindArg(this);
+
+      return !this.id
+        ? async.bindArg(this)
+        : this.store.get(this, { fieldGroup: propArray });
     }
   },
 

@@ -52,6 +52,8 @@ define([
      */
     message: "",
 
+    extraNodes: [],
+
     "class": _Widget.prototype["class"] + " jigDialog",
 
     postMixInProperties: function() {
@@ -64,9 +66,10 @@ define([
      */
     makeContentNodes: function() {
       return [
-        ["p", {}, this.makeMessageNode()],
+        ["p", {"class":"msg"}, this.makeMessageNode()],
+      ].concat(this.extraNodes).concat([
         ["div", {"class":"actions geonefActions"}, this.makeActionNodes()],
-      ];
+      ]);
     },
 
     makeMessageNode: function() {
@@ -129,14 +132,14 @@ define([
 
   });
 
-  
+
   var self = {
 
     alert: function(message) {
       var w = self.open(new _AlertWidget({ message: message }));
       return w.promise;
     },
-    
+
     confirm: function(options) {
       return self.open(self.create(options));
     },

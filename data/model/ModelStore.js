@@ -166,15 +166,20 @@ return declare(null, { //--noindent--
       obj = id;
       id = obj.id;
     }
+    // working with fieldGroup on given object
+    var propGroups =  options.fieldGroup && obj && obj._propGroups;
+
     if (obj && (!options.fields && !options.fieldGroup)) {
       return async.bindArg(obj);
       // if (!options.fields && !options.fieldGroup) {
       //   return obj ? async.bindArg(obj) : this.getLazyObject({ id: id });
       // } else {
+    } else if (propGroups && propGroups[options.fieldGroup]) {
+      return obj._propGroups[options.fieldGroup];
     } else {
       var _this = this;
-      return this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
-                             options ? options.api : {})
+      var promise = this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
+                                    options ? options.api : {})
         .then(function(resp) {
           if (resp.error) {
             throw new Error(resp.error);
@@ -182,15 +187,26 @@ return declare(null, { //--noindent--
           }
           if (obj) {
             return async.bindArg(obj, obj.fromServerValue(resp.object));
+
           } else if (resp.object) {
-            // index the object first before setting values
-            // obj = _this.index[id] = _this.makeObject(resp.object);
-            // obj.fromServerValue(resp.object);
             return _this.getLazyObject(resp.object);
+
           } else {
             return null;
           }
+        })
+        .then(function(obj) {
+          if (obj && options.fieldGroup && !propGroups) {
+            obj._propGroups[options.fieldGroup] = async.bindArg(obj);
+          }
+          return obj;
         });
+
+      if (propGroups) {
+        propGroups[options.fieldGroup] = promise;
+      }
+
+      return promise;
     }
   },
 
@@ -218,24 +234,21 @@ return declare(null, { //--noindent--
   fetchProps: function(object, props) {
     // combine subsequent fetchProps call for same object into the same
     // API request, as long as it hasn't been sent (whenSealed)
-    // var promise = object._fetchPropsP;
     if (!object.id) {
       return async.bindArg(object);
     }
     var req = object._fetchPropsReq;
     if (req) {
-      // if (!promise._request) {
-      // console.log("!promise._request", object.id, object._fetchPropsP);
-      // }
-      var fields = /*promise._request*/ req.fields;
+      var fields = req.fields;
       Array.prototype.push.apply(fields, props.filter(
         function(prop) { return fields.indexOf(prop) === -1; }));
 
       return req._promise;
 
     } else {
+
       var rawPromise;
-      var promise = /*object._fetchPropsP =*/ (
+      var promise =  (
         rawPromise = this.apiRequest({
           action: 'get', id: object.getId(),
           fields: props
@@ -243,12 +256,11 @@ return declare(null, { //--noindent--
       ).then(function(resp) {
         return async.bindArg(object, object.fromServerValue(resp.object));
       });
+
       object._fetchPropsReq = rawPromise._request;
       object._fetchPropsReq._promise = promise;
-      // promise._request = rawPromise._request;
-      // console.log("promise", object.id, promise, rawPromise);
+
       rawPromise.whenSealed.then(function() {
-        // console.log(object.id, "sealed");
         delete object._fetchPropsReq;
       });
 
@@ -460,38 +472,6 @@ return declare(null, { //--noindent--
   },
 
   /**
-   * Create new object (for private use) - app code should use createObject()
-   *
-   * WARNING: the object is not added to the local cache,
-   *          and dataForDiscriminator is used only to distinguish
-   *          what class to use if a discriminatorProperty is defined.
-   *
-   * @param {Object} dataForDiscriminator data object whose discriminator
-   *                     field (if any) is used to determine the class to instanciate
-   * @return {dojo/Deferred} promise with created object
-   */
-  makeObject: function(dataForDiscriminator) {
-    var Model = this.Model;
-    var discrProp = Model.prototype.discriminatorProperty;
-    if (discrProp) {
-      var discrValue = dataForDiscriminator[discrProp];
-      var _class = Model.prototype.discriminatorMap[discrValue];
-      if (!discrValue || !_class) {
-        console.error("happening on store", this, ", model ", this.Model.prototype,
-                      "makeObject(): invalid discriminator '"+discrProp+"': "+discrValue);
-        throw new Error("makeObject(): invalid discriminator '"+
-                        discrProp+"': "+discrValue);
-      }
-      Model = value.getModule(_class);
-    }
-    var _this = this;
-
-    return when(Model).then(function(Model) {
-      return new Model({ store: _this });
-    });
-  },
-
-  /**
    * Create a fresh new object (to be used from app code)
    *
    * @param {string} discriminatorValue dicriminator value to use (if needed for that model)
@@ -519,6 +499,38 @@ return declare(null, { //--noindent--
       lang.mixin(object, data);
       object.initNew();
       return object;
+    });
+  },
+
+  /**
+   * Instanciate the model (for private use) - app code should use createObject()
+   *
+   * WARNING: the object is not added to the local cache,
+   *          and dataForDiscriminator is used only to distinguish
+   *          what class to use if a discriminatorProperty is defined.
+   *
+   * @param {Object} dataForDiscriminator data object whose discriminator
+   *                     field (if any) is used to determine the class to instanciate
+   * @return {dojo/Deferred} promise with created object
+   */
+  makeObject: function(dataForDiscriminator) {
+    var Model = this.Model;
+    var discrProp = Model.prototype.discriminatorProperty;
+    if (discrProp) {
+      var discrValue = dataForDiscriminator[discrProp];
+      var _class = Model.prototype.discriminatorMap[discrValue];
+      if (!discrValue || !_class) {
+        console.error("happening on store", this, ", model ", this.Model.prototype,
+                      "makeObject(): invalid discriminator '"+discrProp+"': "+discrValue);
+        throw new Error("makeObject(): invalid discriminator '"+
+                        discrProp+"': "+discrValue);
+      }
+      Model = value.getModule(_class);
+    }
+    var _this = this;
+
+    return when(Model).then(function(Model) {
+      return new Model({ store: _this });
     });
   },
 
