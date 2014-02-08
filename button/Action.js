@@ -65,6 +65,12 @@ return declare(_Widget, { //--noindent--
   cssClasses: '',
 
   /**
+   * Set 'false' to disable :
+   *    - auto uppercase label when node has the CSS class "important"
+   */
+  autoFeatures: true,
+
+  /**
    * If set, a confirmation is asked on mouseClick before calling onExecute
    */
   confirm: '',
@@ -133,7 +139,7 @@ return declare(_Widget, { //--noindent--
   _setLabelAttr: function(label) {
     this.label = label;
     if (label) {
-      label = domClass.contains(this.domNode, "important") ?
+      label = this.autoFeatures && domClass.contains(this.domNode, "important") ?
         label.toUpperCase() : label;
     } else {
       label = "&nbsp;";
