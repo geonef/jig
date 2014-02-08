@@ -375,6 +375,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     this.updateCountStats(results);
     this.rows = results.map(this.makeRow, this);
     this.rows.forEach(this.placeRow, this);
+    this.modelId2row = {};
+    this.rows.forEach(function(row) {
+      this.modelId2row[row.object.id] = row;
+    }, this);
     var _this = this;
     allPromises(this.rows
                 .filter(function(row) { return !!row.whenDataReady; })
