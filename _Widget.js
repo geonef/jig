@@ -305,6 +305,9 @@ return declare([_Widget], { //--noindent--
     var widget = this.subWidget;
     if (widget) {
       delete this.subWidget;
+      if (this.domNode) {
+        domClass.remove(this.domNode, "hasSub "+(widget.parentClass || ""));
+      }
       if (!widget._beingDestroyed) {
         widget._argToDestroyHandler = argToDestroyHandler;
         widget.destroy();
@@ -316,9 +319,6 @@ return declare([_Widget], { //--noindent--
             style.set(node.domNode || node, 'display', '');
           }
         }, this);
-      if (this.domNode) {
-        domClass.remove(this.domNode, 'hasSub');
-      }
       return true;
     }
 
