@@ -283,7 +283,7 @@ return declare([_Widget], { //--noindent--
     widget.placeAt(this.opNode || this.domNode).startup();
     this.subWidget = widget;
     domClass.add(widget.domNode, "sub");
-    domClass.add(this.domNode, "hasSub");
+    domClass.add(this.domNode, "hasSub "+(widget.parentClass || ""));
     var _this = this;
     aspect.before(widget, "uninitialize", function() {
       _this.destroySubWidget(); // uninitialize won't be called again
