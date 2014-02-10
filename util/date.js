@@ -12,17 +12,72 @@ define([
     formatDate: function(date, options) {
       if (!date) { return ""; }
       options = lang.mixin({ length: 'full' }, options);
-        var opts = { selector: 'date',
-                     formatLength: options.length === 'full' ? 'long' : options.length };
+      var opts = { selector: 'date',
+                   formatLength: options.length === 'full' ? 'long' : options.length };
       var dateStr = "";
-      if (options.length === 'full') {
-        dateStr += localeDate.format(date, {selector:'date', datePattern:'EEEE'})+' ';
-      }
-      dateStr += localeDate.format(date, opts)/*.replace(/ /g, '&nbsp;')*/;
-      dateStr += " ";
-      dateStr += localeDate.format(date, {selector:'time',formatLength:'short'});
+      var dateParts = [];
+      if (options.docStyle) {
+        var spanWrap = function(str, cssClass) {
+          if (options.html) {
+            str = '<span class="'+cssClass+'">'+str+'</span>';
+          } else {
+            // str = str.replace(/&nbsp;/g, ' ');
+          }
+          return str;
+        };
+        var now = new Date();
+        var day = 24*3600*1000;
+        var inmonth, inday;
+        opts.datePattern =
+          // 12:33 (si aujourd'hui)
+          (inday =
+           now.getFullYear() === date.getFullYear() &&
+           now.getMonth() === date.getMonth() &&
+           now.getDate() === date.getDate()) ? "" :
+          // jeudi 4 (si dans le mois)
+          (inmonth =
+           now.getFullYear() === date.getFullYear() &&
+           now.getMonth() === date.getMonth()) ? "EEEE d" :
+          // jeu. 4 fév. (si - de 30 jours)
+          Math.abs(now - date) < 30 * day ? "EEE d MMM":
+          // 4 février (si dans l'année)
+          now.getFullYear() === date.getFullYear() ? "d MMMM" :
+          // 4 fév 2011
+          "d MMM y";
 
-      return dateStr;
+        // console.log("inmonth", inmonth, date,
+        //            now.getFullYear(), date.getFullYear
+        //   now.getMonth() === date.getMonth()
+        //            );
+        if (!inday) {
+          if (options.leadingProposition) {
+            dateParts.push(spanWrap(" le", "geonefLighter"));
+          }
+          dateParts.push(spanWrap(localeDate.format(date, opts)/* + (inmonth ? "," : "")*/, "date"));
+        }
+        if (inday || inmonth) {
+          if (options.leadingProposition || !inday) {
+            dateParts.push(spanWrap("à", "geonefLighter"));
+          }
+          dateParts.push(spanWrap(localeDate.format(date, {selector:'time',formatLength:'short'}), "time"));
+        }
+      } else if (options.length === 'full') {
+
+        opts.datePattern = "";
+        dateParts.push(localeDate.format(date, {selector:'date', datePattern:'EEEE'}));
+        dateParts.push(localeDate.format(date, opts));
+        dateParts.push(localeDate.format(date, {selector:'time',formatLength:'short'}));
+
+        // // dateStr += localeDate.format(date, {selector:'date', datePattern:'EEEE'})+' ';
+        // console.log("EEEE", localeDate.format(date, {selector:'date', datePattern:'EEEE'}));
+        // console.log("EEE", localeDate.format(date, {selector:'date', datePattern:'EEE'}));
+      }
+
+      // dateStr = localeDate.format(date, opts)/*.replace(/ /g, '&nbsp;')*/;
+      // dateStr += " ";
+      // dateStr += localeDate.format(date, {selector:'time',formatLength:'short'});
+
+      return dateParts.join(" ");
     },
 
     /**
@@ -87,11 +142,16 @@ define([
           num = Math.round(num);
           // if (num > 0) {
           str += num + " " + number.pluralString(num, [_d.sing, _d.sing, _d.plur]);
+          if (str === "il y a 1 jour") {
+            str = "hier";
+          } else if (str === "dans 1 jour") {
+            str = "demain";
+          }
           return str;
           // }
         }
       }
-      return "quelques secondes";
+      return "il y a quelques secondes";
     },
 
   };

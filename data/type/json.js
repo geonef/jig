@@ -63,14 +63,15 @@ define([
     array: {
       name: "array",
       fromServer: function(value) {
-        return value instanceof Array ? value : [];
+        return value === null ? null :
+          (value instanceof Array ? value : []);
       },
       toServer: function(value) {
-        return value instanceof Array ? value : [];
+        return value === null ? null :
+          (value instanceof Array ? value : []);
       }
     },
 
   };
 
 });
-

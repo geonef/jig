@@ -45,17 +45,16 @@ define([
 
   });
 
-  var _ConfirmWidget = declare(_Widget, {
+  var _AlertWidget = declare(_Widget, {
 
     /**
-     * Confirmation message
+     * Dialog message
      */
-    message: "Êtes-vous sûr ?",
+    message: "",
+
+    extraNodes: [],
 
     "class": _Widget.prototype["class"] + " jigDialog",
-
-    confirmLabel: "Confirmer",
-    cancelLabel: "Annuler",
 
     postMixInProperties: function() {
       this.inherited(arguments);
@@ -67,9 +66,10 @@ define([
      */
     makeContentNodes: function() {
       return [
-        ["p", {}, this.makeMessageNode()],
+        ["p", {"class":"msg"}, this.makeMessageNode()],
+      ].concat(this.extraNodes).concat([
         ["div", {"class":"actions geonefActions"}, this.makeActionNodes()],
-      ];
+      ]);
     },
 
     makeMessageNode: function() {
@@ -79,15 +79,10 @@ define([
     makeActionNodes: function() {
       return [
         [Action, {
-          label: this.confirmLabel,
+          label: "VU",
           extraClass: "primary", noConfirm: true,
           onExecute: h(this, this.action, true)
         }],
-        ['span', {}, " "],
-        [Action, {
-          label: this.cancelLabel, noConfirm: true,
-          onExecute: h(this, this.action, false)
-        }]
       ];
     },
 
@@ -104,11 +99,46 @@ define([
       }
     },
 
+    declaredClass: module.id + "::_AlertWidget"
+
+  });
+
+  var _ConfirmWidget = declare(_AlertWidget, {
+
+    /**
+     * Confirmation message
+     */
+    message: "Êtes-vous sûr ?",
+
+    confirmLabel: "Confirmer",
+    cancelLabel: "Annuler",
+
+    makeActionNodes: function() {
+      return [
+        [Action, {
+          label: this.confirmLabel,
+          extraClass: "primary", noConfirm: true,
+          onExecute: h(this, this.action, true)
+        }],
+        ['span', {}, " "],
+        [Action, {
+          label: this.cancelLabel, noConfirm: true,
+          onExecute: h(this, this.action, false)
+        }]
+      ];
+    },
+
     declaredClass: module.id + "::_ConfirmWidget"
 
   });
 
+
   var self = {
+
+    alert: function(message) {
+      var w = self.open(new _AlertWidget({ message: message }));
+      return w.promise;
+    },
 
     confirm: function(options) {
       return self.open(self.create(options));

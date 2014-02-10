@@ -17,6 +17,7 @@
  * overload these methods, then.
  *
  * @see ./WithControlMixin
+ * @todo inherits from ./WithOptionsButtonMixin and remove dedicated code from this class
  */
 define([
   "module",
@@ -100,15 +101,7 @@ define([
      */
     postMixInProperties: function() {
       this.inherited(arguments);
-      // var promise;
-      // if (this.autoRequestProps instanceof Array) {
-      //   promise = this.object.requestProps(this.autoRequestProps);
-      // } else if (typeof this.autoRequestProps == "string") {
-      //   promise =
-      // } else {
-      //   promise = async.bindArg();
-      // }
-      // this.whenDataReady = promise;
+
       this.whenDataReady =
         this.object.id &&
         (typeof this.autoRequestProps == "string" ||
@@ -233,6 +226,8 @@ define([
      */
     afterModelChange: function(saving) {
       (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
+      this.onUrlChange && this.onUrlChange();
+      this.onTitleChange && this.onTitleChange();
       if (this.delayedContent === "afterModelChange") {
         this.setupAfterModel();
         this.rebuildDom();
@@ -256,7 +251,6 @@ define([
         function() {
         }
       ).then(async.busy(this.domNode));
-
     },
 
     duplicateObject: function() {

@@ -120,6 +120,13 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   countTitleDic: null,
 
   /**
+   * Node name of result node, used in makeContentNodes()
+   *
+   * @type {string}
+   */
+  resultNodeName: "div",
+
+  /**
    * @type {string}
    */
   msgMore: "+ ${count} objets",
@@ -171,6 +178,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   postMixInProperties: function() {
     this.inherited(arguments);
+    this.filter = lang.mixin({}, this.filter);
     this.rowOptions = lang.mixin({}, this.rowOptions);
     this.whenReady = async.bindArg();
     this.whenListReady = new Deferred();
@@ -202,7 +210,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     return [
       this.makeSpinnerNode("listLoading"),
       ["div", {_attach: "emptyNode", "class":"panelControl", _style:{display:"none"}}, this.emptyLabel],
-      ['div', {_attach: 'listNode', 'class': 'jigDataListResults results' }], // TODO: remove "results"
+      [this.resultNodeName, {_attach: 'listNode', 'class': 'jigDataListResults results' }], // TODO: remove "results"
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
           _attach: "nextAction", noSubmit: true,
@@ -268,7 +276,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    */
   refresh: function(options, fetchOptions) {
     if (this.refreshing) {
-      return;
+      return async.bindArg(null);
     }
     // console.log("list refresh", this.id, options, this.domNode);
     var _this = this;
@@ -280,7 +288,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       style.set(this.pageControlNode, "display", "none");
     }
     lang.mixin(this, options);
-    this.fetchResults(fetchOptions)
+    var promise = this.fetchResults(fetchOptions)
       .then(
         function(results) {
           topic.publish("data/list/fetched", _this, results);
@@ -307,6 +315,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
             _this.afterRefresh();
         })
     ;
+    if (this.whenDomReady.fired >= 0) {
+      promise.then(async.busy(this.domNode));
+    }
+    return promise;
   },
 
   afterRefresh: function() {
@@ -322,8 +334,23 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @return {dojo/Deferred}
    */
   fetchResults: function(options) {
+    var query = this.buildQuery();
+    var _this = this;
+
     if (this.objectProperty) {
-      return this.object.get(this.objectProperty);
+      return this.object.get(this.objectProperty)
+        .then(function(arrayValue) {
+          if (arrayValue instanceof Array) {
+            // console.log("filtering", _this.id, query, "before", arrayValue.length,
+            //             "after", arrayValue.filter(model.queryToFilterFunc(query)).length);
+            arrayValue = arrayValue.filter(model.queryToFilterFunc(query));
+          } else {
+            console.warn(module.id, "object property is not an array:",
+                         arrayValue, "objectproperty=", this.objectProperty,
+                         "object=", this.object);
+          }
+          return arrayValue;
+        });
     } else {
       options = lang.mixin({}, this.queryOptions, options);
       if (this.sorting) {
@@ -341,7 +368,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         }
       }
 
-      return this.store.query(this.buildQuery(), options);
+      return this.store.query(query, options);
     }
   },
 
@@ -462,11 +489,14 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @param {string} type                        type of event
    */
   onChannel: function(obj, type) {
+
     // if (this.refreshChannelTypes.indexOf(type) !== -1) {
     //   console.log("filter", type, this.filter, obj);
     // }
     if (this.refreshChannelTypes.indexOf(type) !== -1
         /* && this.store.matchFilter(obj, this.filter || {})*/) {
+
+      // console.log("list channel", this, arguments);
 
       var inPage = this.results &&
         this.results.some(function(object) { return object === obj; });

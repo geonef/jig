@@ -26,7 +26,8 @@ define([
   "./model/ModelStore",
   "dojo/_base/lang",
   "dojo/has",
-], function(ModelStore, lang, has) {
+  "../util/value",
+], function(ModelStore, lang, has, value) {
 
 
 var self = { //--noindent--
@@ -109,6 +110,63 @@ var self = { //--noindent--
   //     return value;
   //   }
   // }
+
+
+  /**
+   * Is the given model obj is part of this store and matches the given filter?
+   */
+  queryToFilterFunc: function(filter) {
+    var ops = {
+      equals: function(type, objectValue, filterValue) {
+        var isSame = type.isSame || value.isSame;
+        return isSame(objectValue, filterValue, type);
+      },
+      notEqual: function(type, objectValue, filterValue) {
+        var isSame = type.isSame || value.isSame;
+        return !isSame(objectValue, filterValue, type);
+      },
+      ref: function(type, objectValue, filterValue) {
+        return objectValue && objectValue.id === filterValue;
+      },
+      gt: function(type, objectValue, filterValue) {
+        return objectValue > filterValue;
+      },
+      gte: function(type, objectValue, filterValue) {
+        return objectValue >= filterValue;
+      },
+      lt: function(type, objectValue, filterValue) {
+        return objectValue < filterValue;
+      },
+      lte: function(type, objectValue, filterValue) {
+        return objectValue <= filterValue;
+      },
+    };
+
+    return function(object) {
+      return Object.keys(filter).every(function(name) {
+        var prop = object.properties[name];
+        if (prop === undefined) {
+          // Server-only filter prop or not hydrated value:
+          // we don't know whether it matches, consider it doesn't
+          console.log("prop undef", name, filter, object);
+          return false;
+        }
+        var rule = filter[name];
+        if (!rule.op) {
+          rule = { op: "equals", value: rule };
+        }
+        var type = prop.type;
+      // console.log("test", name, rule.op, object[name], rule.value,
+      //             ops[rule.op](type, object[name], rule.value));
+        var handler = ops[rule.op];
+        if (!handler) {
+          console.error("data/model::queryToFilterFunc(): invalid operator:", rule.op, "rule=", rule);
+        }
+        return handler(type, object[name], rule.value);
+      });
+    };
+  },
+
 };
 
   return self;
