@@ -426,25 +426,30 @@ return declare(null, { //--noindent--
       action: 'query',
       filters: newFilter,
     }, options))
+    // .then(lang.hitch(
       .then(lang.hitch(this, function(resp) {
-        if (resp.ifMatch === false) {
-          throw "geonef-data-query-notMatched";
-        }
-        if (!resp.results) {
-          console.error("model query ("+this.apiModule+"): no result array", resp);
-          return null;
-        }
-        return whenAll(resp.results.map(
-          function(data) {
-            return this.getLazyObject(lang.mixin({}, implied, data));
-          }, this))
-          .then(function(results) {
-            ["resultCount", "pageLength", "pageCount", "currentPage"].forEach(
-              function(prop) { results[prop] = resp[prop]; });
-
-            return results;
-          });
+        return this.processQueryResponse(resp, implied);
       }));
+  },
+
+  processQueryResponse: function(resp, implied) {
+    if (resp.ifMatch === false) {
+      throw "geonef-data-query-notMatched";
+    }
+    if (!resp.results) {
+      console.error("model query ("+this.apiModule+"): no result array", resp);
+      return null;
+    }
+    return whenAll(resp.results.map(
+      function(data) {
+        return this.getLazyObject(lang.mixin({}, implied, data));
+      }, this))
+      .then(function(results) {
+        ["resultCount", "pageLength", "pageCount", "currentPage"].forEach(
+          function(prop) { results[prop] = resp[prop]; });
+
+        return results;
+      });
   },
 
   /**
@@ -457,7 +462,7 @@ return declare(null, { //--noindent--
     var deferred;
     if (obj.id) {
       deferred = this.apiRequest({
-        action: 'delete',
+          action: 'delete',
         id: obj.getId(),
       }, null, obj)
         .then(lang.hitch(obj, obj.afterDelete)
@@ -594,7 +599,7 @@ return declare(null, { //--noindent--
       this._subscr = [];
     }
     var _h = topic.subscribe(channel, lang.hitch(this, callback));
-    this._subscr.push(_h);
+      this._subscr.push(_h);
     return _h;
   },
 

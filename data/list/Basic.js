@@ -361,7 +361,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         limit: "pageLength",
         currentPage: "page",
       };
-      for (prop in props) if (props.hasOwnProperty(prop)) {
+      for (var prop in props) if (props.hasOwnProperty(prop)) {
         if (this[prop] !== undefined) {
           options[props[prop]] = this[prop];
         }
