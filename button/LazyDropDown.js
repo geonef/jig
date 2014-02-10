@@ -59,8 +59,7 @@ return declare(DropDown, { //--noindent--
   postMixInProperties: function() {
     this.whenDDLoaded = new Deferred();
     this.inherited(arguments);
-    this.ddOptions = lang.mixin({ /*appView: this.appView*/ }, this.ddOptions);
-    // console.log("this.ddOptions", this.ddOptions, this.appView);
+    this.ddOptions = lang.mixin({}, this.ddOptions);
   },
 
   /**
