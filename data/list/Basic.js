@@ -473,7 +473,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       // console.log("inPage", inPage, obj, this.results);
 
       this.refresh({}, { ifMatch: inPage ? null : obj.id });
-    } else {
+    } else if (this.modelId2row) {
       var row = this.modelId2row[obj.id];
       // console.log("onChannel", this, row, arguments);
       if (row && row.onModelChannel) {

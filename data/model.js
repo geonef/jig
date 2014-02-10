@@ -24,8 +24,9 @@
  */
 define([
   "./model/ModelStore",
-  "dojo/_base/lang"
-], function(ModelStore, lang) {
+  "dojo/_base/lang",
+  "dojo/has",
+], function(ModelStore, lang, has) {
 
 
 var self = { //--noindent--
@@ -40,6 +41,12 @@ var self = { //--noindent--
    * @return {geonef/jig/data/model/ModelStore}
    */
   getStore: function(Model, io) {
+    if (has("geonef-debug")) {
+      if (!Model) {
+        console.error("model.getStore(): missing Model arg, arguments=", arguments);
+        throw new Error("for backtrace");
+      }
+    }
     var stores = self._stores;
     var classId = Model.prototype.declaredClass;
     var store;
@@ -107,4 +114,3 @@ var self = { //--noindent--
   return self;
 
 });
-
