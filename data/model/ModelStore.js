@@ -38,12 +38,13 @@ define([
   "dojo/_base/declare",
   "../../api",
   "dojo/_base/lang",
+  "dojo/has",
   "dojo/topic",
   "dojo/when",
   "dojo/promise/all",
   "../../util/async",
   "../../util/value",
-], function(module, require, declare, api, lang, topic, when, whenAll, async, value) {
+], function(module, require, declare, api, lang, has, topic, when, whenAll, async, value) {
 
   var ConsoleIO = declare(null, {
 
@@ -585,6 +586,13 @@ return declare(null, { //--noindent--
     // } else {
     //   console.warn("no io!", this.io, command, this);
     // }
+    if (has("geonef-debug")) {
+      if (!this.io) {
+        console.error("ModelStore: missing this.io", this,
+                      "while doing apiRequest with args:", arguments);
+        throw new Error("for backtrace");
+      }
+    }
     return this.io.command(
       lang.mixin({ module: module }, this.apiParams, command), options);
     // return api.request(
