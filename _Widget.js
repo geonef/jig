@@ -283,7 +283,7 @@ return declare([_Widget], { //--noindent--
     widget.placeAt(this.opNode || this.domNode).startup();
     this.subWidget = widget;
     domClass.add(widget.domNode, "sub");
-    domClass.add(this.domNode, "hasSub");
+    domClass.add(this.domNode, "hasSub "+(widget.parentClass || ""));
     var _this = this;
     aspect.before(widget, "uninitialize", function() {
       _this.destroySubWidget(); // uninitialize won't be called again
@@ -305,6 +305,9 @@ return declare([_Widget], { //--noindent--
     var widget = this.subWidget;
     if (widget) {
       delete this.subWidget;
+      if (this.domNode) {
+        domClass.remove(this.domNode, "hasSub "+(widget.parentClass || ""));
+      }
       if (!widget._beingDestroyed) {
         widget._argToDestroyHandler = argToDestroyHandler;
         widget.destroy();
@@ -316,9 +319,6 @@ return declare([_Widget], { //--noindent--
             style.set(node.domNode || node, 'display', '');
           }
         }, this);
-      if (this.domNode) {
-        domClass.remove(this.domNode, 'hasSub');
-      }
       return true;
     }
 

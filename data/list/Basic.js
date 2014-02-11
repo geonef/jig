@@ -19,6 +19,7 @@ define([
   "dojo/dom-class",
   "dojo/string",
   "dojo/topic",
+  "dojo/window",
   "dojo/promise/all",
 
   "dojo/Deferred",
@@ -31,7 +32,7 @@ define([
   // "css!./Basic",
   // "css!./Basic"
 ], function(module, declare, _Widget, CreatorMixin,
-            lang, ioQuery, style, domClass, string, topic, allPromises,
+            lang, ioQuery, style, domClass, string, topic, win, allPromises,
             Deferred, model, BasicRow,
             async, number, Action) {
 
@@ -402,6 +403,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     this.updateCountStats(results);
     this.rows = results.map(this.makeRow, this);
     this.rows.forEach(this.placeRow, this);
+    this.modelId2row = {};
+    this.rows.forEach(function(row) {
+      this.modelId2row[row.object.id] = row;
+    }, this);
     var _this = this;
     allPromises(this.rows
                 .filter(function(row) { return !!row.whenDataReady; })
@@ -498,6 +503,14 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       // console.log("inPage", inPage, obj, this.results);
 
       this.refresh({}, { ifMatch: inPage ? null : obj.id });
+    } else {
+      var row = this.modelId2row[obj.id];
+      // console.log("onChannel", this, row, arguments);
+      if (row && row.onModelChannel) {
+        if (row.onModelChannel.apply(row, arguments)) {
+          win.scrollIntoView(row.domNode);
+        }
+      }
     }
   },
 

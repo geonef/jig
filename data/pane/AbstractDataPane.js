@@ -111,7 +111,7 @@ define([
         : async.bindArg();
     },
 
-    makeDropDownNode: function(title) {
+    makeDropDownNode: function(title, cssClass) {
       var _this = this;
       var node = null;
       var options = this.dom(this.makeOptions()).filter(function(o) { return !!o; });
@@ -120,7 +120,7 @@ define([
         node = this.dom(
           [DropDown, {
             _attach: 'optionsDD', extraClass: 'icon s24 nolabel gear',
-            dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip'}),
+            dropDown: new TooltipDialog({'class': 'jigActionsTooltip jigDataPaneTooltip '+(cssClass || "")}),
             onMouseEnter: h(null, domClass.add, this.domNode, 'overDD'),
             onMouseLeave: h(null, domClass.remove, this.domNode, 'overDD'),
           }]);
@@ -180,11 +180,10 @@ define([
      * Called after model data is ready (props are fetched)
      */
     onDataReady: function() {
+      // console.log("onDataReady", this);
       this.isDataReady = true;
-      // if (this.delayedContent) {
       this.onModelChange();
       this.afterModelChange();
-      // }
     },
 
     /**
@@ -212,7 +211,7 @@ define([
      * It should be used by child classed to make custom updates if needed.
      */
     onModelChange: function(saving) {
-      // console.log("onModelChange", this, arguments);
+      // console.log("onModelChange", this, arguments, this.delayedContent);
       if (this.delayedContent === true || this.delayedContent === "onModelChange") {
         this.setupAfterModel();
         this.rebuildDom();
