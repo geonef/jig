@@ -40,6 +40,9 @@ return declare(_Widget, { //--noindent--
    */
   delayedContent: true,
 
+  /**
+   * @override
+   */
   postMixInProperties: function() {
     this.inherited(arguments);
     this.whenDataReady = this.autoRequestProps.length > 0 ?
@@ -49,11 +52,17 @@ return declare(_Widget, { //--noindent--
     }
   },
 
+  /**
+   * @override
+   */
   buildRendering: function() {
     this.inherited(arguments);
     this.whenDataReady.then(async.busy(this.domNode));
   },
 
+  /**
+   * @override
+   */
   makeContentNodes: function() {
     var nodes = [];
     if (this.object) {
@@ -65,6 +74,9 @@ return declare(_Widget, { //--noindent--
     return nodes;
   },
 
+  /**
+   * @override
+   */
   postCreate: function() {
     this.inherited(arguments);
     if (this.enableClickEvent) {
@@ -72,15 +84,24 @@ return declare(_Widget, { //--noindent--
     }
   },
 
+  /**
+   * @override
+   */
   startup: function() {
     this.inherited(arguments);
     this.whenDataReady.then(lang.hitch(this, this.onDataReady));
   },
 
+  /**
+   * Callback executed when widget is started AND 'whenDataReady' is resolved
+   */
   onDataReady: function() {
     this.rebuildDom();
   },
 
+  /**
+   * Callback executed when the row is clicked (disabled by: {enableClickEvent:false} )
+   */
   onItemClick: function(evt) {
     if (evt) {
       event.stop(evt);
@@ -88,6 +109,9 @@ return declare(_Widget, { //--noindent--
     this.onExecute();
   },
 
+  /**
+   * Called by onItemClick()
+   */
   onExecute: function() {
     var pane = this.appView.modelPane(this.object, this.paneOptions);
     if (pane) {

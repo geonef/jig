@@ -51,6 +51,12 @@ return { //--noindent--
   /**
    * Escape HTML tags (&, <, >, \n)
    *
+   * Options:
+   *    - disableOnTag (string): special TAG that will be checked for
+   *            presence in 'content'. If found, will be removed from 'content'
+   *            and HTML tag escaping will be disabled.
+   *
+   *    - noBr (boolean): is set, line breaks won't be converted into BR tags
    * @param {string} content
    * @param {Object} options
    * @return {string}

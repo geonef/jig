@@ -52,6 +52,8 @@ define([
      */
     message: "",
 
+    notice: "",
+
     extraNodes: [],
 
     "class": _Widget.prototype["class"] + " jigDialog",
@@ -67,6 +69,7 @@ define([
     makeContentNodes: function() {
       return [
         ["p", {"class":"msg"}, this.makeMessageNode()],
+        ["p", {_if: !!this.notice, "class":"msg"}, this.notice],
       ].concat(this.extraNodes).concat([
         ["div", {"class":"actions geonefActions"}, this.makeActionNodes()],
       ]);
@@ -140,6 +143,11 @@ define([
       return w.promise;
     },
 
+    /**
+     * Options:
+     *    - message (string, defaults to default confirm question)
+     *    - notice (string, defaults to "")
+     */
     confirm: function(options) {
       return self.open(self.create(options));
     },

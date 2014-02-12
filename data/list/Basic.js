@@ -493,6 +493,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     // if (this.refreshChannelTypes.indexOf(type) !== -1) {
     //   console.log("filter", type, this.filter, obj);
     // }
+    if (this._destroyed) { return; }
     if (this.refreshChannelTypes.indexOf(type) !== -1
         /* && this.store.matchFilter(obj, this.filter || {})*/) {
 

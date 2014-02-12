@@ -400,37 +400,45 @@ return declare(null, { //--noindent--
    * @return {dojo/Deferred} callback whose arg is the model object
    */
   query: function(filter, options) {
-    var implied = {};
-    var newFilter = {};;
-    var prop, tmpFilter;
+    var impliedResultProps = {};
+    var newFilters = {};
 
-    var Abstract = require('./Abstract');
-    // fix filter and make up implied value from it
+    // fix filter and make up impliedResultProps value from it
     if (filter) {
-      for (prop in filter) if (filter.hasOwnProperty(prop)) {
-
-        tmpFilter = newFilter[prop] = filter[prop];
-        if (tmpFilter instanceof Abstract) {
-          tmpFilter = newFilter[prop] = { op: 'ref', value: tmpFilter.id };
-        } else if (typeof tmpFilter == 'string' || !isNaN(tmpFilter)) {
-          tmpFilter = newFilter[prop] = { op: 'equals', value: tmpFilter };
-        }
-        if (tmpFilter.op === "equals") {
-          implied[prop] = tmpFilter.value;
-        } else if (tmpFilter.op === "ref") {
-          implied[prop] = { id: tmpFilter.value };
+      for (var prop in filter) if (filter.hasOwnProperty(prop)) {
+        var tmp = this.normalizeQueryFilter(filter[prop], prop, impliedResultProps);
+        if (tmp !== undefined) {
+          newFilters[prop] = tmp;
         }
       }
     }
 
     return this.apiRequest(lang.mixin({
       action: 'query',
-      filters: newFilter,
+      filters: newFilters,
     }, options))
     // .then(lang.hitch(
       .then(lang.hitch(this, function(resp) {
-        return this.processQueryResponse(resp, implied);
+        return this.processQueryResponse(resp, impliedResultProps);
       }));
+  },
+
+  /**
+   * Called by query() for each filter
+   */
+  normalizeQueryFilter: function(filter, key, impliedResultProps) {
+    var Abstract = require('./Abstract');
+    if (filter instanceof Abstract) {
+      filter = { op: 'ref', value: filter.id };
+    } else if (typeof filter == 'string' || !isNaN(filter)) {
+      filter = { op: 'equals', value: filter };
+    }
+    if (filter.op === "equals") {
+      impliedResultProps[key] = filter.value;
+    } else if (filter.op === "ref") {
+      impliedResultProps[key] = { id: filter.value };
+    }
+    return filter;
   },
 
   processQueryResponse: function(resp, implied) {
@@ -463,7 +471,7 @@ return declare(null, { //--noindent--
     var deferred;
     if (obj.id) {
       deferred = this.apiRequest({
-          action: 'delete',
+        action: 'delete',
         id: obj.getId(),
       }, null, obj)
         .then(lang.hitch(obj, obj.afterDelete)
@@ -607,7 +615,7 @@ return declare(null, { //--noindent--
       this._subscr = [];
     }
     var _h = topic.subscribe(channel, lang.hitch(this, callback));
-      this._subscr.push(_h);
+    this._subscr.push(_h);
     return _h;
   },
 
