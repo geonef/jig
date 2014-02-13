@@ -469,6 +469,7 @@ return declare(null, { //--noindent--
    */
   remove: function(obj) {
     var deferred;
+    obj.beforeDelete();
     if (obj.id) {
       deferred = this.apiRequest({
         action: 'delete',

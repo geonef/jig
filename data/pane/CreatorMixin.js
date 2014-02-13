@@ -28,7 +28,23 @@ return declare(null, { //--noindent--
   store: null,
 
   /**
-   * Create a new object and save it (main function to be used)
+   * Calls createNew() with properties set using this.filter*
+   *
+   * Useful for {geonef/jig/data/list/Basic} widgets to create
+   */
+  createFromFilter: function(discriminatorKey) {
+    var props = {};
+    for (var name in this.filter) if (this.filter.hasOwnProperty(name)) {
+      var filter = this.filter;
+      if (!filter || !filter.op) {
+        props[name] = filter;
+      }
+    }
+    this.createNew(props);
+  },
+
+  /**
+   * Create a new object and save it (function to be called from UI)
    *
    * Warning: don't use it directly as an event handler
    *          (the event obj would be got as 'props')

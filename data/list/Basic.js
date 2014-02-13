@@ -209,7 +209,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   makeContentNodes: function() {
     return [
       this.makeSpinnerNode("listLoading"),
-      ["div", {_attach: "emptyNode", "class":"panelControl", _style:{display:"none"}}, this.emptyLabel],
+      ["div", {_attach: "emptyNode", "class":"panelControl emptyLabel", _style:{display:"none"}}, this.emptyLabel],
       [this.resultNodeName, {_attach: 'listNode', 'class': 'jigDataListResults results' }], // TODO: remove "results"
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
@@ -494,10 +494,10 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     //   console.log("filter", type, this.filter, obj);
     // }
     if (this._destroyed) { return; }
+    // console.log("list channel", arguments, this.refreshChannelTypes, this);
     if (this.refreshChannelTypes.indexOf(type) !== -1
         /* && this.store.matchFilter(obj, this.filter || {})*/) {
 
-      // console.log("list channel", this, arguments);
 
       var inPage = this.results &&
         this.results.some(function(object) { return object === obj; });

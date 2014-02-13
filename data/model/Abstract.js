@@ -617,8 +617,9 @@ return declare(null, { //--noindent--
   afterDuplicate: function() {
   },
 
-  afterDelete: function() {
-  },
+  beforeDelete: function() {},
+
+  afterDelete: function() {},
 
   toString: function() {
     return "["+this.declaredClass+":"+(this.id || ("new:"+generateRandomUuid()))+"]";
