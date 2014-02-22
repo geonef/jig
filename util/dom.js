@@ -67,7 +67,7 @@ define([
       if (row.description) {
         content.push(["div", {"class":"hint"}, row.description]);
       }
-      return ["div", {"class": "line stopf"}, content];
+      return ["div", {"class": "line stopf "+(row.entryClass||"")}, content];
     },
 
 
@@ -88,4 +88,3 @@ define([
   return self;
 
 });
-
