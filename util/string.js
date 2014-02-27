@@ -2,8 +2,9 @@
  * Utility functions dealing with strings
  */
 define([
-         "dojo/_base/lang",
-], function(lang) {
+  "dojo/_base/lang",
+  "dojo/string",
+], function(lang, dojoString) {
 
 return { //--noindent--
 
@@ -78,6 +79,13 @@ return { //--noindent--
       }
     }
     return content;
+  },
+
+  /**
+   * Future enhancement of dojo/string substitute()
+   */
+  substitute: function() {
+    return dojoString.substitute.apply(dojoString, arguments);
   }
 
 };

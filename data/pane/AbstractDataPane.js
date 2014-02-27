@@ -33,7 +33,7 @@ define([
   "dojo/topic",
   "dojo/string",
 
-  "geonef/jig/tool/dialog",
+  "geonef/jig/util/dialog",
   "../../button/DropDown",
   "dijit/TooltipDialog",
 ], function(module, declare, _Widget,
