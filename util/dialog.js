@@ -2,10 +2,10 @@
  */
 define([
   "module", "dojo/_base/declare",
-  "geonef/jig/_Widget",
+  "../_Widget",
   "dojo/_base/lang",
   "dojo/Deferred",
-  "geonef/jig/button/Action",
+  "../button/Action",
   "dojo/dom-construct",
   "dijit/Dialog",
 ], function(module, declare, _Widget, lang, Deferred, Action, construct, Dialog) {
