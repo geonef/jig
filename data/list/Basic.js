@@ -76,6 +76,13 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   objectProperty: null,
 
   /**
+   * Name of propGroup to request for fetching objectProperty
+   *
+   * @type {string}
+   */
+  objectPropertyGroup: null,
+
+  /**
    * Whether list is read-only
    *
    * @type {boolean}
@@ -312,7 +319,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         },
         function() {
           // console.log("in error", this, arguments);
-            _this.afterRefresh();
+          _this.afterRefresh();
         })
     ;
     if (this.whenDomReady.fired >= 0) {
@@ -338,19 +345,23 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
     var _this = this;
 
     if (this.objectProperty) {
-      return this.object.get(this.objectProperty)
-        .then(function(arrayValue) {
-          if (arrayValue instanceof Array) {
-            // console.log("filtering", _this.id, query, "before", arrayValue.length,
-            //             "after", arrayValue.filter(model.queryToFilterFunc(query)).length);
-            arrayValue = arrayValue.filter(model.queryToFilterFunc(query));
-          } else {
-            console.warn(module.id, "object property is not an array:",
-                         arrayValue, "objectproperty=", this.objectProperty,
-                         "object=", this.object);
-          }
-          return arrayValue;
-        });
+      var promise = this.objectPropertyGroup
+        ? this.object.requestProps(this.objectPropertyGroup)
+        : this.object.get(this.objectProperty);
+
+      return promise.then(function() {
+        var arrayValue = _this.object[_this.objectProperty];
+        if (arrayValue instanceof Array) {
+          // console.log("filtering", _this.id, query, "before", arrayValue.length,
+          //             "after", arrayValue.filter(model.queryToFilterFunc(query)).length);
+          arrayValue = arrayValue.filter(model.queryToFilterFunc(query));
+        } else {
+          console.warn(module.id, "object property is not an array:",
+                       arrayValue, "objectproperty=", this.objectProperty,
+                       "object=", this.object);
+        }
+        return arrayValue;
+      });
     } else {
       options = lang.mixin({}, this.queryOptions, options);
       if (this.sorting) {
