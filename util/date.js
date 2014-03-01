@@ -57,7 +57,7 @@ define([
         }
         if (inday || inmonth) {
           if (options.leadingProposition || !inday) {
-            dateParts.push(spanWrap("à", "geonefLighter"));
+            dateParts.push(spanWrap(" à", "geonefLighter"));
           }
           dateParts.push(spanWrap(localeDate.format(date, {selector:'time',formatLength:'short'}), "time"));
         }
