@@ -33,7 +33,7 @@ return declare(_Widget, { //--noindent--
   /**
    * @override
    */
-  'class': _Widget.prototype['class'] + ' jigDataRow',
+  'class': _Widget.prototype['class'] + ' jigDataRow stopf',
 
   /**
    * @override

@@ -13,6 +13,16 @@ define([
 ], function(module, lang, whenAll, async, value, array, model) {
 
 
+  function fixServerProperties(modelObj, serverProperties, type) {
+    var commonProperties = {};
+    if (type.mappedBy && modelObj.id) {
+      commonProperties[type.mappedBy] = { id: modelObj.id };
+    }
+
+    return lang.mixin({}, commonProperties, serverProperties);
+  }
+
+
   return {
 
     /**
@@ -22,14 +32,19 @@ define([
      * Modification in target models have to be saved through their respective object.
      */
     refMany: {
-      fromServer: function(ar, type) {
-        if (!(ar instanceof Array)) { return []; }
+      fromServer: function(serverArray, type) {
+        if (!(serverArray instanceof Array)) { return []; }
         var _this = this;
         return value.getModule(type.targetModel)
           .then(function(_Class) {
             var store = model.getStore(_Class, _this.store.io);
-            return whenAll(ar.filter(function(obj) { return !!obj.id; })
-                           .map(function(obj, idx) { return store.getLazyObject(obj); }));
+            return whenAll(
+              serverArray
+                .filter(function(obj) { return !!obj.id; })
+                .map(function(obj, idx) {
+                  return store.getLazyObject(fixServerProperties(_this, obj, type));
+                })
+            );
           })
           .then(function(objList) {
             if (type.chained) {
@@ -38,9 +53,9 @@ define([
             return objList;
           });
       },
-      toServer: function(ar, type) {
-        if (!(ar instanceof Array)) { return undefined; }
-        return ar.map(
+      toServer: function(serverArray, type) {
+        if (!(serverArray instanceof Array)) { return undefined; }
+        return serverArray.map(
           function(obj) {
             if (!obj.id) {
               console.warn("refMany: toServer() will not cascade on new obj:", obj);
@@ -67,7 +82,7 @@ define([
             // if (!_this.store.io) {
             //   console.error("no IO in refOne for store", store, "out of", _this.store);
             // }
-            return store.getLazyObject(obj);
+            return store.getLazyObject(fixServerProperties(_this, obj, type));
           });
       },
       toServer: function(obj, type) {
@@ -116,4 +131,3 @@ define([
   };
 
 });
-
