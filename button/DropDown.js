@@ -3,8 +3,9 @@ define([
   "dojo/_base/declare",
   "./Action",
   "dijit/_HasDropDown",
+  "dijit/focus",
 
-], function(module, declare, Action, _HasDropDown) {
+], function(module, declare, Action, _HasDropDown, dijitFocus) {
 
   return declare([Action, _HasDropDown], {
 
@@ -24,22 +25,18 @@ define([
      */
     postCreate: function() {
       this._buttonNode = this.focusNode = this.domNode;
+      this.inherited(arguments);
     },
 
+    // Required by _HasDropDown
     focus: function() {
-      // do nothing (required by _HasDropDown)
+      dijitFocus.focus(this.domNode);
     },
 
-    /**
-     * @override
-     */
-    onExecute: function() {
-      this.toggleDropDown();
-    },
+    // no "onExecute" callback - managed by mouse/key events of _HasDropDown
 
     declaredClass: module.id
 
   });
 
 });
-

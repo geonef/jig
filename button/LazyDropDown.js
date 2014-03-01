@@ -62,6 +62,11 @@ return declare(DropDown, { //--noindent--
     this.ddOptions = lang.mixin({}, this.ddOptions);
   },
 
+  // buildRendering: function() {
+  //   this.inherited(arguments);
+  //   this.focusNode = this.domNode;
+  // },
+
   /**
    * @override
    */

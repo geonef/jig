@@ -16,16 +16,19 @@ define([
   "../util/widget",
   "../util/async",
 
-  "dojo/_base/event",
+  "dojo/_base/lang",
+  "dojo/_base/array",
   "dojo/_base/window",
+  "dojo/_base/event",
+  "dojo/on",
+  "dojo/keys",
   "dojo/topic",
   "dojo/dom-construct",
   "dojo/dom-class",
-  "dojo/_base/array",
-  "dojo/_base/lang",
 ], function(module, declare, _Widget,
             widget, async,
-            event, window, topic, construct, domClass, array, lang) {
+            lang, array, window, event,
+            on, keys, topic, construct, domClass) {
 
 return declare(_Widget, { //--noindent--
 
@@ -117,6 +120,8 @@ return declare(_Widget, { //--noindent--
 
   connectA: true,
 
+  tabIndex: undefined,
+
   buildRendering: function() {
     if (this.srcNodeRef) {
       this.domNode = construct.create(this.srcNodeRef.nodeName);
@@ -126,14 +131,30 @@ return declare(_Widget, { //--noindent--
       if (this.href) {
         this.domNode = construct.create('a', { href: this.href });
       } else {
-        this.domNode = construct.create(this.nodeName, {});
+        this.domNode = construct.create(this.nodeName);
       }
     }
     domClass.add(this.domNode, this["class"]+" "+(this.extraClass||"") + " " + this.cssClasses);
+
+    var tabIndex = this.tabindex;
+    if (tabIndex === undefined && domClass.contains(this.domNode, "button")) {
+      tabIndex = 0;
+    }
+    if (tabIndex >= -1) {
+      this.domNode.tabIndex = tabIndex;
+    }
+
     if (this.domNode.nodeName !== 'A' || this.connectA) {
       this.connect(this.domNode, 'onclick', 'onClick');
     }
     this.domNode.innerHTML = "&nbsp;";
+  },
+
+  postCreate: function() {
+    this.inherited(arguments);
+    this.own(
+      on(this.domNode, "keydown", lang.hitch(this, this.onKeyDown))
+    );
   },
 
   _setLabelAttr: function(label) {
@@ -188,8 +209,16 @@ return declare(_Widget, { //--noindent--
     }
   },
 
+  onKeyDown: function(evt) {
+    if ([keys.ENTER, keys.SPACE].indexOf(evt.keyCode) !== -1) {
+      event.stop(evt);
+      this.execute(evt);
+    }
+  },
+
   execute: function(evt) {
     var ret;
+
     if (this.lateSubmit) {
       ret = this.onExecute();
     }
@@ -197,11 +226,13 @@ return declare(_Widget, { //--noindent--
       widget.bubbleSubmit(this.domNode, evt);
     }
     if (!this.lateSubmit) {
-      this.onExecute();
+      ret = this.onExecute();
     }
     if (this.publish) {
       topic.publish(this.publish);
     }
+    // if (ret !== false && !this._destroyed) {
+    // }
   },
 
   /**
