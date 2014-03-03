@@ -4,7 +4,7 @@
  * This class helps manage multiple input (form) widgets as a group,
  * somewhat like dijit/form/Form does.
  *
- * This class is just a mixin. If you need a real widget, use the input/Group
+ * This class is just a mixin. If you need a real widget, use the ./Group
  * class instead.
  */
 define([

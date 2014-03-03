@@ -393,8 +393,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   /**
    * Build a query-string formatting of this.buildQuery() and sorting
    */
-  makeQueryString: function() {
-    var query = this.buildQuery();
+  makeQueryString: function(options) {
+    var query = this.buildQuery(options);
     Object.keys(query).forEach(function(key) {
       if (query[key].id) {
         query[key] = query[key].id;

@@ -106,7 +106,9 @@ return declare(_Widget, { //--noindent--
     if (evt) {
       event.stop(evt);
     }
-    this.onExecute();
+    if (!evt || evt.target.nodeName != "INPUT") {
+      this.onExecute();
+    }
   },
 
   /**
