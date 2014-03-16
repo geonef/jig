@@ -46,7 +46,7 @@ define([
     /**
      * @type {string} Default URL, if not given in params (relative to app's)
      */
-    url: '/api',
+    url: '/api?raw=1',
 
     /**
      * @type {Object} Common parameters which are added automatically to every request
@@ -332,4 +332,3 @@ define([
   return Self;
 
 });
-
