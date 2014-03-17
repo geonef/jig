@@ -32,11 +32,11 @@ define([
      */
     _getValueAttr: function() {
       var value = this.inherited(arguments);
-      console.log("Select:_getValueAttr, value before", value);
+      // console.log("Select:_getValueAttr, value before", value);
       if (value in this.valueMapping) {
         value = this.valueMapping[value];
       }
-      console.log("Select:_getValueAttr, value after", value);
+      // console.log("Select:_getValueAttr, value after", value);
 
       return value;
     },
@@ -45,7 +45,7 @@ define([
      * @override
      */
     _setValueAttr: function(value, _arg) {
-      console.log("Select:_setValueAttr", this.name, value, this.valueMapping);
+      // console.log("Select:_setValueAttr", this.name, value, this.valueMapping);
       for (var key in this.valueMapping) {
         if (this.valueMapping[key] === value) {
           value = key;
