@@ -192,10 +192,7 @@ return declare(null, { //--noindent--
       }
     }
     if (value !== undefined) {
-      if (value instanceof Deferred) {
-        return value;
-      }
-      return async.bindArg(value);
+      return value instanceof Deferred ? value : async.bindArg(value);
     }
     if (this[property] !== undefined || !this.id) {
       return async.bindArg(this[property]);

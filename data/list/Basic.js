@@ -353,7 +353,8 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
         var arrayValue = _this.object[_this.objectProperty];
         if (arrayValue instanceof Array) {
           // console.log("filtering", _this.id, query, "before", arrayValue.length,
-          //             "after", arrayValue.filter(model.queryToFilterFunc(query)).length);
+          //             "after", arrayValue.filter(model.queryToFilterFunc(query)).length,
+          //            arrayValue);
           arrayValue = arrayValue.filter(model.queryToFilterFunc(query));
         } else {
           console.warn(module.id, "object property is not an array:",
