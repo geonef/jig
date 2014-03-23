@@ -17,7 +17,10 @@
  *
  *   - '_insert' {HTMLElement}
  *            automatically add the created node as a child to the
- *            provided element
+ *            provided element (or given '_insertPosition')
+ *
+ *   - '_insertPosition' {string}
+ *            set the position argument to dojo.place()
  *
  *   - '_tooltip' {string}
  *            Automatically create a dijit/Tooltip widget for the node,
@@ -155,7 +158,7 @@ define([
     // }
     var attrs = lang.mixin({}, args[1]);
     var magic = {};
-    ['_attach', '_insert', '_tooltip', '_tooltipOptions',
+    ['_attach', '_insert', '_insertPosition', '_tooltip', '_tooltipOptions',
      '_srcNodeName', '_if', '_ifNot', '_style'].forEach(
        function(attr) {
          if (attrs[attr] !== undefined) {
@@ -229,7 +232,8 @@ define([
       }
     }
     if (magic._insert) {
-      magic._insert.appendChild(node);
+      construct.place(node, magic._insert, magic._insertPosition);
+      // magic._insert.appendChild(node);
     }
     if (magic._tooltip) {
       var tooltip = new Tooltip(
@@ -248,4 +252,3 @@ define([
 
   return self;
 });
-

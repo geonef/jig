@@ -101,6 +101,10 @@ return declare(null, { //--noindent--
    */
   apiParams: {},
 
+  /**
+   * Hash of values which are set upon this.createObject()
+   */
+  onCreateMixinValues: {},
 
   /**
    * constructor
@@ -509,6 +513,8 @@ return declare(null, { //--noindent--
       }
       data[discrProp] = discriminatorValue;
     }
+
+    lang.mixin(data, this.onCreateMixinValues);
 
     return this.makeObject(data).then(function(object) {
       lang.mixin(object, data);
