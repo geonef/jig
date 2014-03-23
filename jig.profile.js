@@ -38,6 +38,3 @@ var profile = (function()
   };
 
 })();
-
-
-
