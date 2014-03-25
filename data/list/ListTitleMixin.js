@@ -49,7 +49,7 @@ define([
      */
     makeTitle: function(titleNode) {
       return this.tempDom([
-        ['span', {_insert: titleNode}, this.paneTitle + this.getPagingLabel()]
+        ['span', {_insert: titleNode}, this.getPaneTitle() + this.getPagingLabel()]
       ]);
     },
 

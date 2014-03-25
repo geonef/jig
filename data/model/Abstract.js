@@ -136,7 +136,7 @@ return declare(null, { //--noindent--
     if (options) {
       lang.mixin(this, options);
     }
-    this._propGroups = {};
+    this._propSets = {};
     this.originalValues = lang.mixin({}, this.originalValues);
     this.init();
   },
@@ -224,7 +224,7 @@ return declare(null, { //--noindent--
 
       return !this.id
         ? async.bindArg(this)
-        : this.store.get(this, { fieldGroup: propArray });
+        : this.store.get(this, { propSet: propArray });
     }
   },
 

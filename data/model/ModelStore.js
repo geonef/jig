@@ -155,7 +155,8 @@ return declare(null, { //--noindent--
    *
    * Available options:
    *    - fields:       array of properties to fetch
-   *    - fieldGroup:   name of property group to fetch (exclusive of 'fields')
+   *    - propSet:      name of property group to fetch (exclusive of 'fields')
+   *    - fieldGroup:   old name for 'propSet', deprecated but still working
    *    - api:          object of API transport options (see geonef/jig/api)
    *
    * @param {string} id Identifier
@@ -171,16 +172,20 @@ return declare(null, { //--noindent--
       obj = id;
       id = obj.id;
     }
-    // working with fieldGroup on given object
-    var propGroups =  options.fieldGroup && obj && obj._propGroups;
+    if (options.fieldGroup) {
+      options.propSet = options.fieldGroup;
+      delete options.fieldGroup;
+    }
+    // working with propSet on given object
+    var propSets =  options.propSet && obj && obj._propSets;
 
-    if (obj && (!options.fields && !options.fieldGroup)) {
+    if (obj && (!options.fields && !options.propSet)) {
       return async.bindArg(obj);
-      // if (!options.fields && !options.fieldGroup) {
+      // if (!options.fields && !options.propSet) {
       //   return obj ? async.bindArg(obj) : this.getLazyObject({ id: id });
       // } else {
-    } else if (propGroups && propGroups[options.fieldGroup]) {
-      return obj._propGroups[options.fieldGroup];
+    } else if (propSets && propSets[options.propSet]) {
+      return propSets[options.propSet];
     } else {
       var _this = this;
       var promise = this.apiRequest(lang.mixin({ action: 'get', id: id }, options),
@@ -201,14 +206,14 @@ return declare(null, { //--noindent--
           }
         })
         .then(function(obj) {
-          if (obj && options.fieldGroup && !propGroups) {
-            obj._propGroups[options.fieldGroup] = async.bindArg(obj);
+          if (obj && options.propSet && !propSets) {
+            obj._propSets[options.propSet] = async.bindArg(obj);
           }
           return obj;
         });
 
-      if (propGroups) {
-        propGroups[options.fieldGroup] = promise;
+      if (propSets) {
+        propSets[options.propSet] = promise;
       }
 
       return promise;
