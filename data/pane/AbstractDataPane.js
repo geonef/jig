@@ -162,6 +162,7 @@ define([
      */
     postCreate: function() {
       this.inherited(arguments);
+      console.log("subscribe to", this.object.channel);
       this.own(topic.subscribe(this.object.channel, h(this, this.onModelChannel)));
     },
 
