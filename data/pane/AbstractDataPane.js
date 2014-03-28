@@ -30,6 +30,7 @@ define([
   "dojo/_base/lang",
   "dojo/_base/window",
   "dojo/dom-class",
+  "dojo/on",
   "dojo/topic",
   "dojo/string",
 
@@ -37,7 +38,7 @@ define([
   "../../button/DropDown",
   "dijit/TooltipDialog",
 ], function(module, declare, _Widget,
-            async, widget, Action, lang, window, domClass, topic, string,
+            async, widget, Action, lang, window, domClass, on, topic, string,
             dialog, DropDown, TooltipDialog) {
 
   var h = lang.hitch;
@@ -64,6 +65,13 @@ define([
      * @type {boolean}
      */
     isDataReady: false,
+
+    /**
+     * True to publish "hovering" events on model and subscribe this.setHover to it
+     */
+    enableHoverState: false,
+
+    enableClick: false,
 
     /**
      * Whether to enable the duplicate action, in gear DD
@@ -163,6 +171,15 @@ define([
     postCreate: function() {
       this.inherited(arguments);
       this.own(topic.subscribe(this.object.channel, h(this, this.onModelChannel)));
+      if (this.enableClick) {
+        this.own(on(this, "click", h(this, this.onObjectClick)));
+      }
+      if (this.enableHoverState) {
+        this.own(
+          on(this, "mouseenter", h(this, this.onHoverStateChange, true)),
+          on(this, "mouseleave", h(this, this.onHoverStateChange, false))
+        );
+      }
     },
 
     /**
@@ -192,8 +209,8 @@ define([
      * @param {geonef/jig/data/model/Abstract} object
      * @param {string} type
      */
-    onModelChannel: function(object, type) {
-      if (object !== this.object || this._destroyed) { return; }
+    onModelChannel: function(object, type, state, origin) {
+      if (object !== this.object || this._destroyed) { return false; }
       if (type === 'put') {
         this.onModelChange();
       }
@@ -203,6 +220,11 @@ define([
       if (type === 'delete') {
         this.destroy();
       }
+      if (this.enableHoverState && type === "hovering") {
+        this.setHovering(state);
+        return origin !== "pane";
+      }
+      return false;
     },
 
     /**
@@ -231,6 +253,25 @@ define([
       if (this.delayedContent === "afterModelChange") {
         this.setupAfterModel();
         this.rebuildDom();
+      }
+    },
+
+    onObjectClick: function() {
+      this.appView.modelPane(this.object).open();
+    },
+
+    onHoverStateChange: function(state) {
+      this.object.publish(["hovering", state, "pane"]);
+    },
+
+    setHovering: function(state) {
+      // console.log("setHover text", arguments);
+      if (this.hover === state) { return; }
+      this.hover = state;
+      if (state) {
+        domClass.add(this.domNode, 'hover');
+      } else {
+        domClass.remove(this.domNode, 'hover');
       }
     },
 
