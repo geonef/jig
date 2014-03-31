@@ -329,6 +329,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   },
 
   afterRefresh: function() {
+    if (this._destroyed) { return; }
     domClass.remove(this.domNode, "loading");
     // this.domNode.scrollTop = scrollTop;
     this.refreshing = false;

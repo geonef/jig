@@ -31,7 +31,8 @@ define([
      * @override
      */
     _getValueAttr: function() {
-      var value = this.inherited(arguments);
+      // var value = this.inherited(arguments);
+      var value = this.value;
       // console.log("Select:_getValueAttr, value before", value);
       if (value in this.valueMapping) {
         value = this.valueMapping[value];
@@ -55,6 +56,8 @@ define([
       this.getInherited(arguments).call(this, value, _arg);
     },
 
+    declaredClass: module.id
+
   });
 
   Self.Boolean = declare(Self, {
@@ -67,7 +70,9 @@ define([
     valueMapping: {
       yes: true,
       no: false
-    }
+    },
+
+    declaredClass: module.id + "::Boolean"
 
   });
 
