@@ -84,8 +84,19 @@ return { //--noindent--
   /**
    * Future enhancement of dojo/string substitute()
    */
-  substitute: function() {
-    return dojoString.substitute.apply(dojoString, arguments);
+  substitute: function(template, map, transform, thisObject) {
+    transform = transform ?
+      lang.hitch(thisObject, transform) : function(v){ return v; };
+
+    return dojoString.substitute.apply(dojoString, arguments)
+      .replace(/__([^\s\:_]+)(?:\:([^\s\:_]+))?__/g, function(match, key, format){
+
+	var value = lang.getObject(key, false, map);
+	if(format){
+	  value = lang.getObject(format, false, thisObject).call(thisObject, value, key);
+	}
+	return transform(value, key).toString();
+      });
   }
 
 };

@@ -32,14 +32,16 @@ define([
   "dojo/dom-class",
   "dojo/on",
   "dojo/topic",
-  "dojo/string",
+  "../../util/string",
 
   "geonef/jig/util/dialog",
   "../../button/DropDown",
   "dijit/TooltipDialog",
+
+  "dojo/i18n!../../nls/paneAbstract",
 ], function(module, declare, _Widget,
             async, widget, Action, lang, window, domClass, on, topic, string,
-            dialog, DropDown, TooltipDialog) {
+            dialog, DropDown, TooltipDialog, _) {
 
   var h = lang.hitch;
 
@@ -92,7 +94,7 @@ define([
      *
      * @type {string}
      */
-    removeConfirm: "Vraiment supprimer cet objet ?",
+    removeConfirm: _.action.remove.confirm,
 
     /**
      * @override
@@ -155,7 +157,7 @@ define([
 
       if (this.enableDeleteAction) {
         nodes.push([Action, {
-          label: "Supprimer",
+          label: _.action.remove.label,
           iconClass: "remove",
           "class": "item remove",
           onExecute: async.deferHitch(this, this.deleteObject),
@@ -282,8 +284,8 @@ define([
       var _this = this;
 
       dialog.confirm({
-        confirmLabel: "Supprimer",
-        cancelLabel: "Annuler",
+        confirmLabel: _.action.remove.label,
+        cancelLabel: _.action.cancel,
         message: string.substitute(this.removeConfirm, this.object)
       }).then(
         function() {

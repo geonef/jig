@@ -29,12 +29,15 @@ define([
   "../../util/async",
   "../../util/number",
   "../../button/Action",
+
+  "dojo/i18n!../../nls/listBasic",
   // "css!./Basic",
   // "css!./Basic"
+
 ], function(module, declare, _Widget, CreatorMixin,
             lang, ioQuery, style, domClass, string, topic, win, allPromises,
             Deferred, model, BasicRow,
-            async, number, Action) {
+            async, number, Action, _) {
 
   var h = lang.hitch;
 
@@ -221,14 +224,14 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
         [Action, {
           _attach: "nextAction", noSubmit: true,
-          label: "suivant &rarr;", extraClass: "primary floatr",
+          label: _.paging.next, extraClass: "primary floatr",
           onExecute: h(this, function() {
             this.refresh({ currentPage: this.currentPage + 1});
           })
         }],
         [Action, {
           _attach: "previousAction", noSubmit: true,
-          label: "&larr; précédent", extraClass: "primary floatl",
+          label: _.paging.previous, extraClass: "primary floatl",
           onExecute: h(this, function() {
             this.refresh({ currentPage: this.currentPage - 1});
           })

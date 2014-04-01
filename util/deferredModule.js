@@ -40,6 +40,9 @@ define([
           console.info("deferredModule: loading", mid);
         }
         (localRequire || require)([mid], function(Module) {
+          if (has("geonef-debug-loading")) {
+            console.info("deferredModule: loaded", mid, Module);
+          }
           deferred.resolve(Module);
         });
         return deferred;
