@@ -4,6 +4,7 @@
 define([
   "dojo/_base/lang",
   "dojo/number",
+  // "dojo/i18n!../nls/number",
 ], function(lang, dojoNumber) {
 
 var self = { //--noindent--
@@ -79,8 +80,10 @@ var self = { //--noindent--
   },
 
   formatBytes: function(size) {
-    return self.formatDims([size],
-                           { units: ['o', 'ko', 'Mo', 'Go', 'To'], mult: 1024 });
+    return self.formatDims([size], {
+      units: ['o', 'ko', 'Mo', 'Go', 'To'],
+      mult: 1024
+    });
   },
 
   /**

@@ -5,7 +5,9 @@ define([
   "dojo/_base/lang",
   "dojo/date/locale",
   "./number",
-], function(lang, localeDate, number) {
+  "./string",
+  "dojo/i18n!../nls/date",
+], function(lang, localeDate, number, string, _) {
 
   var self = {
 
@@ -51,13 +53,13 @@ define([
         //            );
         if (!inday) {
           if (options.leadingProposition) {
-            dateParts.push(spanWrap(" le", "geonefLighter"));
+            dateParts.push(spanWrap(" "+_.on, "geonefLighter"));
           }
           dateParts.push(spanWrap(localeDate.format(date, opts)/* + (inmonth ? "," : "")*/, "date"));
         }
         if (inday || inmonth) {
           if (options.leadingProposition || !inday) {
-            dateParts.push(spanWrap(" à", "geonefLighter"));
+            dateParts.push(spanWrap(" "+_.at, "geonefLighter"));
           }
           dateParts.push(spanWrap(localeDate.format(date, {selector:'time',formatLength:'short'}), "time"));
         }
@@ -90,16 +92,18 @@ define([
       if (!date) {
         return "";
       }
+      var future = false;
       var now = Date.now();
       var duration = now - date;
-      var str = "il y a";
+      // var str = "il y a";
       if (duration < 0) {
-        str = "dans";
+        future = true;
+        // str = "dans";
         duration *= -1;
       }
 
-      var min = 1000 * 60;
-      var hour = min * 60;
+      var minute = 1000 * 60;
+      var hour = minute * 60;
       var day = hour * 24;
       var week = day * 7;
       var month = day * 30.5;
@@ -107,51 +111,53 @@ define([
 
       var _def = [{
         duration: year,
-        sing: "an",
-        plur: "ans"
+        sing: _.age.year.sing,
+        plur: _.age.year.plur
       }, {
         duration: month,
-        sing: "mois",
-        plur: "mois"
+        sing: _.age.month.sing,
+        plur: _.age.month.plus
       }, {
         duration: week,
-        sing: "semaine",
-        plur: "semaines"
+        sing: _.age.week.sing,
+        plur: _.age.week.plur
       }, {
         duration: day,
-        sing: "jour",
-        plur: "jours"
+        sing: _.age.day.sing,
+        plur: _.age.day.plur,
+        singlePast: _.age.day.singlePast,
+        singleFuture: _.age.day.singleFuture,
       }, {
         duration: hour,
-        sing: "heure",
-        plur: "heures"
+        sing: _.age.hour.sing,
+        plur: _.age.hour.plur
       }, {
-        duration: min,
-        sing: "minute",
-        plur: "minutes"
+        duration: minute,
+        sing: _.age.minute.sing,
+        plur: _.age.minute.plur
       }];
 
-      str += " ";
+      var str = _.age.fewSeconds;
+      // str = "quelques secondes";
       for (var i = 0; i < _def.length; i++) {
         var _d = _def[i];
         var num = duration / _d.duration;
         if (num > 0.8) {
+          str = "";
           if (num < 1) {
-            str += "presque ";
+            str += _.age.almost+" ";
           }
           num = Math.round(num);
-          // if (num > 0) {
-          str += num + " " + number.pluralString(num, [_d.sing, _d.sing, _d.plur]);
-          if (str === "il y a 1 jour") {
-            str = "hier";
-          } else if (str === "dans 1 jour") {
-            str = "demain";
+
+          if (num === 1 && !str.length && _d.singleFuture) {
+            return future ? _d.singleFuture : _d.singlePast;
           }
-          return str;
-          // }
+
+          str += num + " " + number.pluralString(num, [_d.sing, _d.sing, _d.plur]);
+          break;
         }
       }
-      return "il y a quelques secondes";
+      return string.substitute(future ? _.age.future : _.age.past, { expr: str });
     },
 
   };
