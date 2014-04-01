@@ -116,7 +116,7 @@ define([
       }, {
         duration: month,
         sing: _.age.month.sing,
-        plur: _.age.month.plus
+        plur: _.age.month.plur
       }, {
         duration: week,
         sing: _.age.week.sing,
