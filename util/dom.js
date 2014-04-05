@@ -6,10 +6,42 @@
 define([
   "module",
   "dojo/_base/declare",
-  "dojo/_base/lang"
-], function(module, declare, lang) {
+  "dojo/_base/lang",
+  "dojo/dom-geometry",
+  "dojo/dom-style",
+  "dojo/dom-construct",
+  "./async",
+  "./object",
+], function(module, declare, lang, geom, style, construct, async, object) {
 
   var self = {
+
+    measure: function(dojoGeomFunction, node, options) {
+      options = object.mixOptions({
+        width: "auto"
+      }, options);
+      var cont = construct.create("div", {"style":"position:absolute;z-index:-10;width:"+
+                                          options.width+";height:0;overflow:hidden;"},
+                                  document.body);
+      var oldParent = node.parentNode;
+      cont.appendChild(node);
+
+      var value;
+
+      return async.whenSatisfied(function() {
+        return geom.getContentBox(node).w !== 0;
+      }).then(function() {
+
+        value = geom[dojoGeomFunction](node);
+        cont.removeChild(node);
+        document.body.removeChild(cont);
+        if (oldParent) {
+          oldParent.appendChild(node);
+        }
+
+        return value;
+      });
+    },
 
     /**
      * Build a <table>-based list

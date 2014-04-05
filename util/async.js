@@ -111,6 +111,7 @@ var self = { //--noindent--
             window.global.setTimeout(checkFunc, delay || 50);
           } else {
             console.warn("whenSatisfied: timeout has passed: ", timeout, "Giving up.");
+            promise.reject("timeout");
           }
       }
     };
