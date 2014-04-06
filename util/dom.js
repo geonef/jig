@@ -18,7 +18,8 @@ define([
 
     measure: function(dojoGeomFunction, node, options) {
       options = object.mixOptions({
-        width: "auto"
+        width: "auto",
+        minH: 1,
       }, options);
       var cont = construct.create("div", {"style":"position:absolute;z-index:-10;width:"+
                                           options.width+";height:0;overflow:hidden;"},
@@ -29,7 +30,7 @@ define([
       var value;
 
       return async.whenSatisfied(function() {
-        return geom.getContentBox(node).w !== 0;
+        return geom.getContentBox(node).h >= options.minH;
       }).then(function() {
 
         value = geom[dojoGeomFunction](node);

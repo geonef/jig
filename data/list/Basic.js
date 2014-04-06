@@ -268,9 +268,9 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
    * @override
    */
   startup: function() {
-    if (this._started) { return; }
+    if (this._started) { return null; }
     this.inherited(arguments);
-    this.whenReady.then(h(this, this.rebuildDom));
+    return this.whenReady.then(h(this, this.rebuildDom));
   },
 
   /**
