@@ -106,8 +106,13 @@ return declare([_Widget], { //--noindent--
     if (!this.domNode) {
       var attrs = { 'class': this['class']+' '+this.extraClass+' '+
                     (this.delayedContent ? "domLoading": "") };
-      if (this.srcNodeRef && this.srcNodeRef.hasAttribute('style')) {
-        attrs.style = this.srcNodeRef.getAttribute('style');
+      if (this.srcNodeRef) {
+        if (this.srcNodeRef.hasAttribute('style')) {
+          attrs.style = this.srcNodeRef.getAttribute('style');
+        }
+        if (this.srcNodeRef.hasAttribute("class")) {
+          attrs["class"] += " " + this.srcNodeRef.getAttribute("class");
+        }
       }
       var nodes = this.delayedContent ? [this.makeSpinnerNode()] : this.makeContentNodes();
       this.domNode = this.dom([this.nodeName, attrs, nodes]);
@@ -238,8 +243,8 @@ return declare([_Widget], { //--noindent--
   /**
    * Kind of helper to util/makeDOM, using this as obj
    */
-  dom: function(struct) {
-    return makeDOM(struct, this);
+  dom: function(struct, obj) {
+    return makeDOM(struct, obj || this);
   },
 
   /**
