@@ -211,8 +211,8 @@ return declare([_Widget], { //--noindent--
 
         domClass.remove(domNode, "domLoading");
         nodes.forEach(function(node) { if (node) { domNode.appendChild(node); } });
-        _this.afterRebuildDom();
-        return nodes;
+        return async.bindArg(nodes, _this.afterRebuildDom());
+        // return nodes;
       });
   },
 
