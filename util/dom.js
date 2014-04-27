@@ -19,7 +19,7 @@ define([
     measure: function(dojoGeomFunction, node, options) {
       options = object.mixOptions({
         width: "auto",
-        minH: 1,
+        minW: 1, minH: 1,
       }, options);
       var cont = construct.create("div", {"style":"position:absolute;z-index:-10;width:"+
                                           options.width+";height:0;overflow:hidden;"},
@@ -30,8 +30,11 @@ define([
       var value;
 
       return async.whenSatisfied(function() {
-        return geom.getContentBox(node).h >= options.minH;
-      }).then(function() {
+        var cb = geom.getContentBox(node);
+        // console.log("testing", cb.w, cb.h, "mins:", options.minW, options.minH,
+        //             cb.w >= options.minW && cb.h >= options.minH, node, cont);
+        return cb.w >= options.minW && cb.h >= options.minH;
+      }, 200).then(function() {
 
         value = geom[dojoGeomFunction](node);
         cont.removeChild(node);

@@ -11,8 +11,8 @@
  *
  *   - '_attach' {string}
  *            will attach the node to the provided obj
- *            as the key whose name is the value of that
- *            '_attachPoint' property.
+ *            as the key whose name is the value of this
+ *            '_attach' property.
  *            For widgets, the widget itself is attached, not the node.
  *
  *   - '_insert' {HTMLElement}
@@ -211,7 +211,11 @@ define([
         obj.domWidgets.push(widget);
       }
       if (magic._attach) {
-        obj[magic._attach] = widget;
+        if (obj[magic._attach] instanceof Array) {
+          obj[magic._attach].push(widget);
+        } else {
+          obj[magic._attach] = widget;
+        }
       }
       if (!magic._srcNodeName) {
         addChildren(args[2], widget.containerNode, obj);
