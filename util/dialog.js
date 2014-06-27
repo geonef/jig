@@ -9,10 +9,30 @@ define([
   "../button/Action",
   "dojo/dom-construct",
   "dojo/dom-class",
+  "dojo/on",
+
   "dijit/Dialog",
-], function(module, declare, _Widget, lang, window, Deferred, Action, construct, domClass, Dialog) {
+  "dijit/DialogUnderlay",
+], function(module, declare, _Widget, lang, window, Deferred, Action, construct, domClass, on,
+            Dialog, DialogUnderlay) {
 
   var h = lang.hitch;
+
+  var _underlayPostCreateOrig = DialogUnderlay.prototype.postCreate;
+  DialogUnderlay.prototype.postCreate = function() {
+    var _this = this;
+    this.own(on(this.domNode, "click", function() {
+      // console.log("click!", _this, this, arguments, "manager", Dialog._DialogLevelManager, Dialog._dialogStack);
+      Dialog._dialogStack.forEach(function(dialogEntry) {
+        // close all dialogs
+        if (dialogEntry.dialog /* 1st entry has null values */ &&
+            dialogEntry.dialog.closeOnClickOut) {
+          dialogEntry.dialog.hide();
+        }
+      });
+    }));
+    _underlayPostCreateOrig.apply(this, arguments);
+  };
 
   var _Dialog = declare(Dialog, {
 

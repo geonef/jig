@@ -25,22 +25,27 @@ define([
     toggleOnTouchStop: true,
 
     /**
+     * Tell others that we are a dropdown class
+     */
+    isDropDown: true,
+
+    /**
      * @override
      */
     postCreate: function() {
       this._buttonNode = this.focusNode = this.domNode;
       this.inherited(arguments);
-      var _this = this;
-      if (this.toggleOnTouchStart) {
-        this.own(on(this.domNode, "touchstart", function(e) {
-	  _this.toggleDropDown();
-        }));
-      }
-      if (this.toggleOnTouchStop) {
-        this.own(on(this.domNode, "touchstop", function(e) {
-	  _this.toggleDropDown();
-        }));
-      }
+      // var _this = this;
+      // if (this.toggleOnTouchStart) {
+      //   this.own(on(this.domNode, "touchstart", function(e) {
+      //     _this.toggleDropDown();
+      //   }));
+      // }
+      // if (this.toggleOnTouchStop) {
+      //   this.own(on(this.domNode, "touchstop", function(e) {
+      //     _this.toggleDropDown();
+      //   }));
+      // }
     },
 
     // Required by _HasDropDown
@@ -49,6 +54,7 @@ define([
     },
 
     // no "onExecute" callback - managed by mouse/key events of _HasDropDown
+    // onExecute: function() {},
 
     declaredClass: module.id
 
