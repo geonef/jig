@@ -88,7 +88,10 @@ define([
      *   "a few seconds ago",
      *   "a week ago""
      */
-    formatDateAge: function(date) {
+    formatDateAge: function(date, options) {
+      var o = lang.mixin({
+        space: "&nbsp;",
+      }, options);
       if (!date) {
         return "";
       }
@@ -153,7 +156,7 @@ define([
             return future ? _d.singleFuture : _d.singlePast;
           }
 
-          str += num + " " + number.pluralString(num, [_d.sing, _d.sing, _d.plur]);
+          str += num + o.space + number.pluralString(num, [_d.sing, _d.sing, _d.plur]);
           break;
         }
       }

@@ -4,11 +4,13 @@ define([
   "module", "dojo/_base/declare",
   "../_Widget",
   "dojo/_base/lang",
+  "dojo/_base/window",
   "dojo/Deferred",
   "../button/Action",
   "dojo/dom-construct",
+  "dojo/dom-class",
   "dijit/Dialog",
-], function(module, declare, _Widget, lang, Deferred, Action, construct, Dialog) {
+], function(module, declare, _Widget, lang, window, Deferred, Action, construct, domClass, Dialog) {
 
   var h = lang.hitch;
 
@@ -21,6 +23,14 @@ define([
     //   this.inherited(arguments);
     //   this.promise = new Deferred();
     // },
+
+    postCreate: function() {
+      this.inherited(arguments);
+      this.own(this.watch("open", function(prop, previous, state) {
+        console.log("watch!", this, arguments);
+        (state ? domClass.add : domClass.remove)(window.body(window.doc), "nefHasDialog");
+      }));
+    },
 
     show: function() {
       this.promise = new Deferred();
@@ -171,6 +181,8 @@ define([
     },
 
   };
+
+  self.Dialog = _Dialog;
 
   return self;
 
