@@ -360,10 +360,17 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
           //             "after", arrayValue.filter(model.queryToFilterFunc(query)).length,
           //            arrayValue);
           arrayValue = arrayValue.filter(model.queryToFilterFunc(query));
+          if (_this.sorting) {
+            var sortName = _this.sorting.name;
+            var sortDir = _this.sorting.desc ? -1 : 1;
+            arrayValue.sort(function(a, b) {
+              return sortDir * (a && a[sortName] && a[sortName].localeCompare(b && b[sortName]));
+            });
+          }
         } else {
           console.warn(module.id, "object property is not an array:",
-                       arrayValue, "objectproperty=", this.objectProperty,
-                       "object=", this.object);
+                       arrayValue, "objectproperty=", _this.objectProperty,
+                       "object=", _this.object);
         }
         return arrayValue;
       });
