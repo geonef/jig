@@ -3,9 +3,11 @@ define([
   "dojo/_base/declare",
   "./Action",
   "dijit/_HasDropDown",
+  "dojo/has",
+  "dojo/on",
   "dijit/focus",
 
-], function(module, declare, Action, _HasDropDown, dijitFocus) {
+], function(module, declare, Action, _HasDropDown, has, on, dijitFocus) {
 
   return declare([Action, _HasDropDown], {
 
@@ -19,6 +21,13 @@ define([
      */
     noSubmit: true,
 
+    toggleOnTouchStart: false,
+    toggleOnTouchStop: true,
+
+    /**
+     * Tell others that we are a dropdown class
+     */
+    isDropDown: true,
 
     /**
      * @override
@@ -26,6 +35,17 @@ define([
     postCreate: function() {
       this._buttonNode = this.focusNode = this.domNode;
       this.inherited(arguments);
+      // var _this = this;
+      // if (this.toggleOnTouchStart) {
+      //   this.own(on(this.domNode, "touchstart", function(e) {
+      //     _this.toggleDropDown();
+      //   }));
+      // }
+      // if (this.toggleOnTouchStop) {
+      //   this.own(on(this.domNode, "touchstop", function(e) {
+      //     _this.toggleDropDown();
+      //   }));
+      // }
     },
 
     // Required by _HasDropDown
@@ -34,6 +54,7 @@ define([
     },
 
     // no "onExecute" callback - managed by mouse/key events of _HasDropDown
+    // onExecute: function() {},
 
     declaredClass: module.id
 

@@ -30,6 +30,8 @@ define([
             lang, array, window, event,
             on, keys, topic, construct, domClass) {
 
+  var h = lang.hitch;
+
 return declare(_Widget, { //--noindent--
 
   /**
@@ -122,6 +124,10 @@ return declare(_Widget, { //--noindent--
 
   tabIndex: undefined,
 
+  // // finally not needed
+  // enableTouchEvents: true,
+  // triggerOnTouchStart: false,
+
   buildRendering: function() {
     if (this.srcNodeRef) {
       this.domNode = construct.create(this.srcNodeRef.nodeName);
@@ -155,6 +161,13 @@ return declare(_Widget, { //--noindent--
     this.own(
       on(this.domNode, "keydown", lang.hitch(this, this.onKeyDown))
     );
+    // if (this.enableTouchEvents) {
+    //   if (this.triggerOnTouchStart) {
+    //     this.own(on(this.domNode, "touchstart", h(this, this.execute)));
+    //   } else {
+    //     this.own(on(this.domNode, "touchstop", h(this, this.execute)));
+    //   }
+    // }
   },
 
   _setLabelAttr: function(label) {
