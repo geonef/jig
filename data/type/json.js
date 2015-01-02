@@ -50,7 +50,15 @@ define([
         return ["span", {}, value];
       }
     },
-    hash: scalar("hash"),
+    hash: //scalar("hash"),
+    {
+      name: "hash",
+      fromServer: goThrough,
+      toServer: goThrough,
+      isSame: function(v1, v2, def) {
+        return false;
+      },
+    },
     date: {
       name: "date",
       fromServer: function(dateStr) {
