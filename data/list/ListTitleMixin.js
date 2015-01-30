@@ -33,8 +33,8 @@ define([
       }
 
       return titleOptions ?
-        [Action, lang.mixin({ nodeName: "h2", label: content, "class": "link orange stopf" }, titleOptions)]
-      : ['h2', {"class":"orange stopf"}, content];
+        [Action, lang.mixin({ nodeName: "h2", label: content, "class": "link stopf" }, titleOptions)]
+      : ['h2', {"class":"stopf"}, content];
     },
 
     /**

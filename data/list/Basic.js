@@ -139,7 +139,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   /**
    * @type {string}
    */
-  msgMore: "+ ${count} objets",
+  msgMore: "Tout afficher (+${count} autres)",
 
   /**
    * @type {string}
