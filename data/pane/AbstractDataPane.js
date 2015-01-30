@@ -48,7 +48,11 @@ define([
   return declare(_Widget, {
 
     /**
-     * The model object - mandatory, must be given at construction
+     * The model object - must be given at construction
+     *
+     * This is not mandatory in some cases. If not provided:
+     *       - "enableHoverState" must be set to: false
+     *       - "enableClick" must be set to: false
      *
      * @type {geonef/jig/data/model/Abstract}
      */
@@ -113,7 +117,7 @@ define([
       this.inherited(arguments);
 
       this.whenDataReady =
-        this.object.id &&
+        this.object && this.object.id &&
         (typeof this.autoRequestProps == "string" ||
          this.autoRequestProps.length > 0)
 
@@ -172,7 +176,9 @@ define([
      */
     postCreate: function() {
       this.inherited(arguments);
-      this.own(topic.subscribe(this.object.channel, h(this, this.onModelChannel)));
+      if (this.object) {
+        this.own(topic.subscribe(this.object.channel, h(this, this.onModelChannel)));
+      }
       if (this.enableClick) {
         this.own(on(this, "click", h(this, this.onObjectClick)));
       }
@@ -201,8 +207,10 @@ define([
     onDataReady: function() {
       // console.log("onDataReady", this);
       this.isDataReady = true;
-      this.onModelChange();
-      this.afterModelChange();
+      if (this.object) {
+        this.onModelChange();
+        this.afterModelChange();
+      }
     },
 
     /**

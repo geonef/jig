@@ -19,8 +19,6 @@ define([
   // depending on screensize, until 800px (Action) or more (LazyDropDown)
   var Parent = window.global.innerWidth <= 800 ? Action : LazyDropDown;
 
-  console.log("Parent", Parent, Parent.prototype.isDropDown, window.global.innerWidth);
-
   var mixinPrototype = Parent.prototype.isDropDown ? { // parent is ./DropDown
 
     // LazyDropDown read as is
