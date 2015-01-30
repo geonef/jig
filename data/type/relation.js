@@ -40,7 +40,7 @@ define([
             var store = model.getStore(_Class, _this.store.io);
             return whenAll(
               serverArray
-                .filter(function(obj) { return !!obj.id; })
+                .filter(function(obj) { return obj && !!obj.id; })
                 .map(function(obj, idx) {
                   return store.getLazyObject(fixServerProperties(_this, obj, type));
                 })
