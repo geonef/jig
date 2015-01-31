@@ -221,29 +221,34 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       this.makeSpinnerNode("listLoading"),
       ["div", {_attach: "emptyNode", "class":"panelControl emptyLabel", _style:{display:"none"}}, this.emptyLabel],
       [this.resultNodeName, {_attach: 'listNode', 'class': 'jigDataListResults results' }], // TODO: remove "results"
-      ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
-        [Action, {
-          _attach: "nextAction", noSubmit: true,
-          label: _.paging.next, extraClass: "primary floatr",
-          onExecute: h(this, function() {
-            this.refresh({ currentPage: this.currentPage + 1});
-          })
-        }],
-        [Action, {
-          _attach: "previousAction", noSubmit: true,
-          label: _.paging.previous, extraClass: "primary floatl",
-          onExecute: h(this, function() {
-            this.refresh({ currentPage: this.currentPage - 1});
-          })
-        }],
-        ["span", {"class":"label"}, [
-          ["span", {_attach: "currentPageNode"}],
-          ["span", {}, "/"],
-          ["span", {_attach: "pageCountNode"}],
-        ]]
-      ]],
+      this.makePageControlNode(),
     ];
   },
+
+  makePageControlNode: function() {
+    return ["div", {_attach: "pageControlNode", "class":"pageControl stopf", "style": "display:none"}, [
+      [Action, {
+        _attach: "nextAction", noSubmit: true,
+        label: _.paging.next, extraClass: "primary floatr",
+        onExecute: h(this, function() {
+          this.refresh({ currentPage: this.currentPage + 1});
+        })
+      }],
+      [Action, {
+        _attach: "previousAction", noSubmit: true,
+        label: _.paging.previous, extraClass: "primary floatl",
+        onExecute: h(this, function() {
+          this.refresh({ currentPage: this.currentPage - 1});
+        })
+      }],
+      ["span", {"class":"label"}, [
+        ["span", {_attach: "currentPageNode"}],
+        ["span", {}, "/"],
+        ["span", {_attach: "pageCountNode"}],
+      ]]
+    ]];
+  },
+
 
   /**
    * @override
