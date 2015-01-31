@@ -47,6 +47,11 @@ return declare(DropDown, { //--noindent--
   ddStyle: {},
 
   /**
+   * Options to pass to the TooltipDialog constructor
+   */
+  tooltipOptions: {},
+
+  /**
    * Promise when the dropdown widget is loaded (resolved to the widget)
    *
    * @type {dojo/Deferred}
@@ -117,9 +122,10 @@ return declare(DropDown, { //--noindent--
    * @return {dojo/Deferred}
    */
   createDropDownTooltip: function() {
-    var dd = new TooltipDialog({
+    console.log("tooltipOptions", this.tooltipOptions);
+    var dd = new TooltipDialog(lang.mixin({
       removeChild: lang.hitch(this, 'removeSubWidget')
-    });
+    }, this.tooltipOptions));
     var _this = this;
     return this.widgetCreateFunc().then(function(subWidget) {
       _this.subWidget = subWidget;
