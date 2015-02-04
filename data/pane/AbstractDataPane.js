@@ -257,13 +257,13 @@ define([
      * Hook - called on data ready and after changes have been saved
      */
     afterModelChange: function(saving) {
-      (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
       this.onUrlChange && this.onUrlChange();
       this.onTitleChange && this.onTitleChange();
       if (this.delayedContent === "afterModelChange") {
         this.setupAfterModel();
         this.rebuildDom();
       }
+      (this.object.id ? domClass.remove : domClass.add)(this.domNode, "new");
     },
 
     onObjectClick: function() {

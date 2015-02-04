@@ -65,9 +65,10 @@
 define([
   "dojo/_base/lang",
   "dojo/dom-construct",
+  "dojo/promise/all",
   "dijit/_Widget",
   "dijit/Tooltip",
-], function(lang, construct, _Widget, Tooltip) {
+], function(lang, construct, whenAll, _Widget, Tooltip) {
 
   function addChildTo(node, childNode) {
 
@@ -97,22 +98,22 @@ define([
 
     if (children) {
       var child = children;
-        if (child instanceof Array) {
-          if (typeof child[0] == 'string' || typeof child[0] == 'function') {
-            // child is an args array for makeDOM
-            var childNode = self(child, obj);
-            addChild(childNode);
-          } else {
-            // assume child is an array of args
-            child.map(function(c) { return self(c, obj); })
-              .forEach(addChild);
-          }
-        } else if (child instanceof HTMLElement || child.then) {
-          addChild(child);
+      if (child instanceof Array) {
+        if (typeof child[0] == 'string' || typeof child[0] == 'function') {
+          // child is an args array for makeDOM
+          var childNode = self(child, obj);
+          addChild(childNode);
         } else {
-          // scalar content value - set as text
-          node.innerHTML = child;
+          // assume child is an array of args
+          child.map(function(c) { return self(c, obj); })
+            .forEach(addChild);
         }
+      } else if (child instanceof HTMLElement || child.then) {
+        addChild(child);
+      } else {
+        // scalar content value - set as text
+        node.innerHTML = child;
+      }
     }
   }
 
@@ -122,94 +123,129 @@ define([
   function self(args, obj) {
     // console.log('makeDOM args=', args);
     obj = obj || {};
-    var node;
+    var node, widget;
+
+    var attrs = {}, magic = {};
+    if (args && args[1]) {
+      lang.mixin(attrs, args[1]);
+      ['_attach', '_insert', '_insertPosition', '_tooltip', '_tooltipOptions',
+       '_srcNodeName', '_if', '_ifNot', '_style'].forEach(
+         function(attr) {
+           if (attrs[attr] !== undefined) {
+             magic[attr] = attrs[attr];
+             delete attrs[attr];
+           }
+         });
+      if (magic._if !== undefined) {
+        if (!magic._if) { return null; }
+        if (magic._if.then) {
+          return magic._if.then(
+            function(ret) {
+              if (!ret) { return null; }
+
+              var _args = args.slice(0);
+              _args[1] = lang.mixin({}, _args[1]);
+              delete _args[1]._ifNot;
+
+              return self(_args, obj);
+            });
+        }
+      }
+      if (magic._ifNot) {
+        if (magic._ifNot.then) {
+          return magic._ifNot.then(
+            function(ret) {
+              if (ret) { return null; }
+
+              var _args = args.slice(0);
+              _args[1] = lang.mixin({}, _args[1]);
+              delete _args[1]._ifNot;
+
+              return self(_args, obj);
+            });
+        }
+        return null;
+      }
+      if (magic._style) {
+        attrs.style = Object.keys(magic._style)
+          .map(function(key) { return key+":"+magic._style[key]; }).join(";");
+      }
+    }
+    ////
 
     if (!args) { return null; }
-    if (args instanceof HTMLElement || args.domNode) {
+    if (args instanceof HTMLElement) {
       return args;
     }
     if (args.then) {
       return args.then(function(def) { return self(def, obj); });
     }
-    if (!(args instanceof Array)) {
-      console.error("args is: ", args);
-      throw new Error("makeDOM: args is not an array not promise or a DOM element");
-    }
-    if (!args.length) {
-      return [];
-    }
-    if (!args[0]) {
-      console.error("obj is: ", obj, " and args are: ", args);
-      throw new Error("makeDOM: args[0] is null: undeclared widget class?");
-    }
-    if (args[0] && ['string', 'function'].indexOf(typeof args[0]) === -1) {
-      // if args[0] is neither of string, function or falsy: assume node-array mode
-      // todo: manage async
-      return args.map(function(def) { return self(def, obj); });
-    }
-    // if (args[0] instanceof Array || args[0].then) {
-    //   return args.map(function(def) { return self(def, obj); });
-    // }
-    // if (args[0] instanceof _Widget) {
-    //   return args[0].domNode;
-    // }
-    // if (args[0] instanceof HTMLElement) {
-    //     return args[0];
-    // }
-    var attrs = lang.mixin({}, args[1]);
-    var magic = {};
-    ['_attach', '_insert', '_insertPosition', '_tooltip', '_tooltipOptions',
-     '_srcNodeName', '_if', '_ifNot', '_style'].forEach(
-       function(attr) {
-         if (attrs[attr] !== undefined) {
-           magic[attr] = attrs[attr];
-           delete attrs[attr];
-         }
-       });
-    if (magic._if !== undefined) {
-      if (!magic._if) { return null; }
-      if (magic._if.then) {
-        return magic._if.then(
-          function(ret) {
-            if (!ret) { return null; }
+    if (args.domNode) {
+      widget = args;
+      // .domNode;
+    } else {
 
-            var _args = args.slice(0);
-            _args[1] = lang.mixin({}, _args[1]);
-            delete _args[1]._ifNot;
+      if (!(args instanceof Array)) {
+        console.error("args is: ", args);
+        throw new Error("makeDOM: args is not an array not promise or a DOM element");
+      }
+      if (!args.length) {
+        return [];
+      }
+      if (!args[0]) {
+        console.error("obj is: ", obj, " and args are: ", args);
+        throw new Error("makeDOM: args[0] is null: undeclared widget class?");
+      }
+      if (args[0] && ['string', 'function'].indexOf(typeof args[0]) === -1) {
+        // if args[0] is neither of string, function or falsy: assume node-array mode
+        // todo: manage async
+        args = args.map(function(def) { return self(def, obj); });
+        //// These 2 lines should work but has not been tested yet [20150204]:
+        // var promises = args.filter(function(arg) { return arg && arg.then; });
+        // return promises.length > 0 ? whenAll(args) : args;
+        return args;
+      }
 
-            return self(_args, obj);
-          });
+      // if (args[0] instanceof Array || args[0].then) {
+      //   return args.map(function(def) { return self(def, obj); });
+      // }
+      // if (args[0] instanceof _Widget) {
+      //   return args[0].domNode;
+      // }
+      // if (args[0] instanceof HTMLElement) {
+      //     return args[0];
+      // }
+      if (typeof args[0] == 'function') { // assume widget class
+        var _Class = args[0];
+        var srcNode = null;
+        if (magic._srcNodeName) {
+          srcNode = self([magic._srcNodeName, {}, args[2]], obj);
+        }
+        widget = new _Class(lang.mixin(attrs, obj && obj.domWidgetProps), srcNode);
+        if (!magic._srcNodeName) {
+          addChildren(args[2], widget.containerNode, obj);
+        }
+      } else if (!args[0]) {
+        console.error("obj is: ", obj, " and args are: ", args);
+        throw new Error("makeDOM: args[0] is null: undeclared widget class?");
+      } else { // assume string - node name of DOMElement to create
+        node = construct.create(args[0], attrs);
+        addChildren(args[2], node, obj);
+        if (magic._attach) {
+          obj[magic._attach] = node;
+        }
       }
     }
-    if (magic._ifNot) {
-      if (magic._ifNot.then) {
-        return magic._ifNot.then(
-          function(ret) {
-            if (ret) { return null; }
-
-            var _args = args.slice(0);
-            _args[1] = lang.mixin({}, _args[1]);
-            delete _args[1]._ifNot;
-
-            return self(_args, obj);
-          });
-      }
-      return null;
-    }
-    if (magic._style) {
-      attrs.style = Object.keys(magic._style)
-        .map(function(key) { return key+":"+magic._style[key]; }).join(";");
-    }
-    if (typeof args[0] == 'function') { // assume widget class
-      var _Class = args[0];
-      var srcNode = null;
-      if (magic._srcNodeName) {
-        srcNode = self([magic._srcNodeName, {}, args[2]], obj);
-      }
-      var widget = new _Class(lang.mixin(attrs, obj && obj.domWidgetProps), srcNode);
+    if (widget) {
+      node = widget.domNode;
       if (obj.domWidgets) {
         obj.domWidgets.push(widget);
       }
+
+      if (obj._started) {
+        widget.startup();
+      }
+
       if (magic._attach) {
         if (obj[magic._attach] instanceof Array) {
           obj[magic._attach].push(widget);
@@ -217,24 +253,8 @@ define([
           obj[magic._attach] = widget;
         }
       }
-      if (!magic._srcNodeName) {
-        addChildren(args[2], widget.containerNode, obj);
-      }
-      if (obj._started) {
-        widget.startup();
-      }
-      // console.log('made widget', widget, node);
-      node = widget.domNode;
-    } else if (!args[0]) {
-      console.error("obj is: ", obj, " and args are: ", args);
-      throw new Error("makeDOM: args[0] is null: undeclared widget class?");
-    } else { // assume string - node name of DOMElement to create
-      node = construct.create(args[0], attrs);
-      addChildren(args[2], node, obj);
-      if (magic._attach) {
-        obj[magic._attach] = node;
-      }
     }
+
     if (magic._insert) {
       construct.place(node, magic._insert, magic._insertPosition);
       // magic._insert.appendChild(node);

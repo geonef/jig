@@ -47,7 +47,7 @@ define([
     postCreate: function() {
       this.inherited(arguments);
       this.own(this.watch("open", function(prop, previous, state) {
-        console.log("watch!", this, arguments);
+        // console.log("watch!", this, arguments);
         (state ? domClass.add : domClass.remove)(window.body(window.doc), "nefHasDialog");
       }));
     },

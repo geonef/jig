@@ -44,9 +44,14 @@ var self = { //--noindent--
   bubbleSubmit: function(node, event) {
     for (; node && node.parentNode; node = node.parentNode){
       var widget = registry.byNode(node);
-      if (widget && typeof widget._onSubmit == "function") {
-	widget._onSubmit(event);
-	break;
+      if (widget) {
+        if (widget.stopBubbleSubmit) {
+          return;
+        }
+        if (typeof widget._onSubmit == "function") {
+	  widget._onSubmit(event);
+	  break;
+        }
       }
     }
   },
