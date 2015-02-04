@@ -44,6 +44,7 @@ define([
   "dojo/promise/all",
   "../../util/async",
   "../../util/value",
+  "../../util/browserCompat", // for btoa() and atob()
 ], function(module, require, declare, api, lang, has, topic, when, whenAll, async, value) {
 
   var ConsoleIO = declare(null, {
