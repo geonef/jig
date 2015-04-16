@@ -100,7 +100,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
   /**
    * @type {!string}
    */
-  fieldGroup: null,
+  propSet: null,
 
   /**
    * Sorting order, like { name: 'propertyName', desc: false }
@@ -386,7 +386,7 @@ return declare([ _Widget, CreatorMixin ], { //--noindent--
       }
       var props = {
         sorting: "sort",
-        fieldGroup: "fieldGroup",
+        propSet: "propSet",
         limit: "pageLength",
         currentPage: "page",
       };

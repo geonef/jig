@@ -157,7 +157,6 @@ return declare(null, { //--noindent--
    * Available options:
    *    - fields:       array of properties to fetch
    *    - propSet:      name of property group to fetch (exclusive of 'fields')
-   *    - fieldGroup:   old name for 'propSet', deprecated but still working
    *    - api:          object of API transport options (see geonef/jig/api)
    *
    * @param {string} id Identifier
@@ -173,7 +172,7 @@ return declare(null, { //--noindent--
       obj = id;
       id = obj.id;
     }
-    if (options.fieldGroup) {
+    if (options.fieldGroup) { // "fieldGroup" is deprecated in favor of "propSet"
       options.propSet = options.fieldGroup;
       delete options.fieldGroup;
     }
