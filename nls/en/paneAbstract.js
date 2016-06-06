@@ -1,0 +1,1 @@
+define({"action":{"cancel":"Cancel","remove":{"label":"Delete","confirm":"Delete the object?"}}});

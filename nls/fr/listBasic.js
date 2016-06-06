@@ -1,0 +1,1 @@
+define({"paging":{"next":"suivant &rarr;","previous":"&larr; pr\u00e9c\u00e9dent"}});
