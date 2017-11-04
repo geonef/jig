@@ -114,6 +114,7 @@ define([
             }
             return widget;
         }
+
     };
 
     return self;
