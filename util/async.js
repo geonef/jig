@@ -131,12 +131,13 @@ define([
          * @param {DOMElement} node
          * @return {function} must be called to stop the busy effect
          */
-        busy: function(node) {
+        busy: function(node, spinnerSize) {
             var control;
             myRequire(["../tool/Processing"], function(Processing) {
                 if (control !== null) { // if terminate callback was called before we are
                     control = new Processing({
-                        processingNode: node
+                        processingNode: node,
+                        spinnerSize: spinnerSize
                     });
                     control.startup();
                 }
