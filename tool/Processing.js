@@ -37,10 +37,12 @@ define([
         makeContentNodes: function() {
             return [
                 ["div", {
-                    "class": "bg"
+                    "class": "bg",
+                    _attach: "bg"
                 }, "&nbsp;"],
                 ["div", {
-                        "class": "content spinner-" + this.spinnerSize
+                        "class": "content spinner-" + this.spinnerSize,
+                        _attach: "content"
                     },
                     [
                         ["span", {}],
@@ -59,6 +61,12 @@ define([
                 if (style.get(this.processingNode, 'position') === 'static') {
                     style.set(this.processingNode, 'position', 'relative');
                 }
+                var zIndex = style.get(this.processingNode, 'z-index');
+                if (isNaN(zIndex)) {
+                    zIndex = 1;
+                }
+                style.set(this.bg, "z-index", zIndex + 1);
+                style.set(this.content, "z-index", zIndex + 2);
                 this.placeFx(this.processingNode);
             }
         },
